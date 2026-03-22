@@ -8,6 +8,7 @@ type PageType = 'dashboard' | 'analyzer' | 'trends';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+  const nowLabel = new Date().toLocaleString('zh-CN');
 
   const navigation = [
     { id: 'dashboard' as PageType, name: '市场总览', icon: LayoutDashboard },
@@ -16,42 +17,26 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-lg p-2">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-lg">A股量化交易系统</h1>
-                <div className="text-xs text-muted-foreground">Quant Trading Platform</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span>实时数据</span>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(rgba(0,212,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.025)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-      {/* Navigation */}
-      <nav className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1">
+      <header className="sticky top-0 z-50 border-b border-border/90 bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-[52px] max-w-[1600px] items-center gap-6 px-6">
+          <div className="min-w-fit font-mono text-[15px] font-bold tracking-[0.2em] text-primary [text-shadow:0_0_20px_rgba(0,212,255,0.4)]">
+            QUANTPULSE <span className="font-normal text-muted-foreground">CN</span>
+          </div>
+
+          <nav className="flex flex-1 gap-1 overflow-x-auto">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentPage(item.id)}
-                  className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-all ${
+                  className={`flex min-w-fit items-center gap-2 rounded-md border px-4 py-1.5 font-mono text-[12px] uppercase tracking-[0.12em] transition-all ${
                     currentPage === item.id
-                      ? 'border-primary text-foreground'
-                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                      ? 'border-primary/30 bg-primary/12 text-primary'
+                      : 'border-transparent text-muted-foreground hover:border-border hover:bg-white/3 hover:text-foreground'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -59,23 +44,29 @@ export default function App() {
                 </button>
               );
             })}
+          </nav>
+
+          <div className="flex min-w-fit items-center gap-4 font-mono text-[11px]">
+            <div className="flex items-center gap-2 text-[#00ff88]">
+              <div className="h-1.5 w-1.5 rounded-full bg-[#00ff88] shadow-[0_0_0_0_rgba(0,255,136,0.4)] animate-pulse" />
+              <span>LIVE</span>
+            </div>
+            <div className="text-muted-foreground">{nowLabel}</div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative z-10 mx-auto max-w-[1600px] px-6 py-6">
         {currentPage === 'dashboard' && <MarketDashboard />}
         {currentPage === 'analyzer' && <SignalAnalyzer />}
         {currentPage === 'trends' && <IndustryTrends />}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <footer className="relative z-10 mt-8 border-t border-border bg-background/90">
+        <div className="mx-auto max-w-[1600px] px-6 py-6">
           <div className="text-center text-sm text-muted-foreground">
             <p>⚠️ 本系统仅供学习研究使用，不构成投资建议。投资有风险，入市需谨慎。</p>
-            <p className="mt-2">© 2026 A股量化交易系统 · 数据更新时间: {new Date().toLocaleString('zh-CN')}</p>
+            <p className="mt-2">© 2026 A股量化交易系统 · 数据更新时间: {nowLabel}</p>
           </div>
         </div>
       </footer>

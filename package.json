@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "dev:api": "node server/tushare-proxy.mjs",
     "build": "vite build",
     "dev": "vite"
   },
