@@ -13,6 +13,7 @@ import { buildFeatures } from './quant/features.mjs';
 import { computeIndicators } from './quant/indicators.mjs';
 import { optimizeStrategyModel } from './quant/optimizer.mjs';
 import { selectAdaptiveStrategy } from './quant/selector.mjs';
+import { optimize } from './reverse-label/optimizer.mjs';
 
 const PORT = Number(process.env.TUSHARE_PORT || 3030);
 const ENV_LOCAL_PATH = resolve(process.cwd(), '.env.local');
@@ -231,13 +232,30 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = new URL(request.url || '/', `http://${request.headers.host}`);
-  const match = requestUrl.pathname.match(/^\/api\/tushare\/stock\/(\d{6})$/);
-  if (!match) {
+  const stockMatch = requestUrl.pathname.match(/^\/api\/tushare\/stock\/(\d{6})$/);
+  const optimizerMatch = requestUrl.pathname.match(/^\/api\/tushare\/optimizer\/(\d{6})$/);
+  if (!stockMatch && !optimizerMatch) {
     sendJson(response, 404, { error: 'Not found' });
     return;
   }
 
-  const symbol = match[1];
+  if (optimizerMatch) {
+    const symbol = optimizerMatch[1];
+    const period = requestUrl.searchParams.get('period') || '1y';
+    const { startDate, endDate } = resolveDateRange(period);
+
+    try {
+      const summary = await optimize(symbol, startDate, endDate);
+      sendJson(response, 200, summary);
+    } catch (error) {
+      sendJson(response, 502, {
+        error: error instanceof Error ? error.message : 'Unknown optimizer error',
+      });
+    }
+    return;
+  }
+
+  const symbol = stockMatch[1];
   const period = requestUrl.searchParams.get('period') || '1y';
   const capital = Number(requestUrl.searchParams.get('capital') || 100);
   const stopLoss = Number(requestUrl.searchParams.get('stopLoss') || 8);

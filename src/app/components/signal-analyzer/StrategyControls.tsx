@@ -1,5 +1,5 @@
 import { AlertCircle, CandlestickChart, Search, SlidersHorizontal } from 'lucide-react';
-import { stockDatabase, type OptimizedStrategyResult, type StockItem, type StrategyOption } from './types';
+import { stockDatabase, type OptimizedStrategyResult, type OptimizerSummary, type StockItem, type StrategyOption } from './types';
 
 const zh = {
   scanner: '\u80a1\u7968\u626b\u63cf',
@@ -24,6 +24,14 @@ const zh = {
   baseModel: '\u57fa\u7840\u6a21\u578b',
   improveWinRate: '\u80dc\u7387\u63d0\u5347',
   improveReturn: '\u6536\u76ca\u63d0\u5347',
+  scanStats: '\u626b\u63cf\u7ed3\u679c',
+  stockType: '\u80a1\u7968\u7c7b\u578b',
+  bestConfig: '\u6700\u4f18\u914d\u7f6e',
+  envFilter: '\u73af\u5883\u8fc7\u6ee4',
+  scanReturn: '\u5e73\u5747\u6536\u76ca',
+  scanStopLoss: '\u6b62\u635f\u7387',
+  scanTrades: '\u4ea4\u6613\u6570',
+  scanValid: '\u6709\u6548\u7ec4\u5408',
 };
 
 type StrategyControlsProps = {
@@ -47,6 +55,7 @@ type StrategyControlsProps = {
   strategyType: string;
   takeProfitPercent: number;
   optimizedStrategy?: OptimizedStrategyResult;
+  optimizerSummary: OptimizerSummary | null;
 };
 
 export function StrategyControls(props: StrategyControlsProps) {
@@ -71,6 +80,7 @@ export function StrategyControls(props: StrategyControlsProps) {
     strategyType,
     takeProfitPercent,
     optimizedStrategy,
+    optimizerSummary,
   } = props;
 
   return (
@@ -238,6 +248,19 @@ export function StrategyControls(props: StrategyControlsProps) {
           {'\u25b6 '}
           {zh.runBacktest}
         </button>
+
+        {optimizerSummary?.bestConfig && optimizerSummary.bestResult ? (
+          <div className="mt-4 rounded-md border border-border bg-secondary/40 px-3 py-3 text-xs text-muted-foreground">
+            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">{zh.scanStats}</div>
+            <div className="mt-2">{zh.stockType}{': '}{optimizerSummary.stockType}</div>
+            <div className="mt-1">{zh.bestConfig}{': '}capture={optimizerSummary.bestConfig.minZoneCapture}, fwd={optimizerSummary.bestConfig.zoneForward}, bwd={optimizerSummary.bestConfig.zoneBackward}</div>
+            <div className="mt-1">{zh.envFilter}{': '}{optimizerSummary.bestConfig.envFilter}</div>
+            <div className="mt-2">{zh.scanReturn}{': '}<span className="text-[#00ff88]">{(optimizerSummary.bestResult.avgReturn * 100).toFixed(2)}%</span></div>
+            <div className="mt-1">{zh.scanStopLoss}{': '}<span className="text-foreground">{(optimizerSummary.bestResult.stopLossRate * 100).toFixed(1)}%</span></div>
+            <div className="mt-1">{zh.scanTrades}{': '}<span className="text-foreground">{optimizerSummary.bestResult.totalTrades}</span></div>
+            <div className="mt-1">{zh.scanValid}{': '}<span className="text-foreground">{optimizerSummary.stats.validCombinations}/{optimizerSummary.stats.totalCombinations}</span></div>
+          </div>
+        ) : null}
       </section>
     </aside>
   );

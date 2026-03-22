@@ -20,6 +20,7 @@ import {
   type KLinePoint,
   type LiveStockResponse,
   type MetricCard,
+  type OptimizerSummary,
   type PriceViewPreset,
   type RegimeDecision,
   type SignalMarker,
@@ -54,6 +55,7 @@ export function useSignalAnalyzer() {
   const [priceWindowStart, setPriceWindowStart] = useState(0);
   const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(null);
   const [requestLog, setRequestLog] = useState<string[]>([]);
+  const [optimizerSummary, setOptimizerSummary] = useState<OptimizerSummary | null>(null);
 
   const handleSearch = async (nextCode?: string, nextStrategyType?: string) => {
     const normalizedCode = (nextCode ?? searchCode).trim();
@@ -79,17 +81,42 @@ export function useSignalAnalyzer() {
         takeProfit: String(takeProfitPercent),
         strategyMode: requestedStrategyType,
       });
-      const response = await fetch(`http://localhost:3030/api/tushare/stock/${normalizedCode}?${query.toString()}`);
+      const optimizerQuery = new URLSearchParams({
+        period: '3y',
+      });
+      const [response, optimizerResponse] = await Promise.all([
+        fetch(`http://localhost:3030/api/tushare/stock/${normalizedCode}?${query.toString()}`),
+        fetch(`http://localhost:3030/api/tushare/optimizer/${normalizedCode}?${optimizerQuery.toString()}`),
+      ]);
       const payload = (await response.json()) as LiveStockResponse & { error?: string };
+      const optimizerPayload = optimizerResponse.ok
+        ? (await optimizerResponse.json()) as OptimizerSummary
+        : null;
 
       if (!response.ok) {
-        throw new Error(payload.error || 'Tushare \u4ee3\u7406\u8fd4\u56de\u5f02\u5e38');
+        throw new Error(payload.error || 'Tushare 代理返回异常');
       }
 
       if (!payload.strategyOptions || !payload.activeStrategy || !payload.signalMarkers) {
         throw new Error('Outdated proxy response');
       }
 
+      const optimizerTrades = optimizerPayload?.bestResult?.trades ?? [];
+      const optimizerTradeRecords = optimizerTrades.map((trade, index) => ({
+        id: `optimizer-${trade.buyDate}-${trade.sellDate}-${index + 1}`,
+        buyDate: trade.buyDate,
+        buyPrice: Number(trade.buyPrice.toFixed(2)),
+        sellDate: trade.sellDate,
+        sellPrice: Number(trade.sellPrice.toFixed(2)),
+        returnPct: Number((trade.return * 100).toFixed(2)),
+        returnAmount: Number((trade.return * capital * 10000).toFixed(2)),
+        result: trade.return >= 0 ? 'success' : 'failure',
+      }));
+      const optimizerSignalMarkers = optimizerTrades.flatMap((trade) => ([
+        { date: trade.buyDate, type: 'buy', price: Number(trade.buyPrice.toFixed(2)), label: 'B', strategyId: 'adaptive_composite_e' },
+        { date: trade.sellDate, type: 'sell', price: Number(trade.sellPrice.toFixed(2)), label: 'S', strategyId: 'adaptive_composite_e' },
+      ]));
+      const useOptimizerFlow = requestedStrategyType === 'adaptive_composite_e' && optimizerTradeRecords.length > 0;
       const nextStrategyOptions = payload.strategyOptions?.length ? payload.strategyOptions : fallbackStrategyOptions;
       const nextActiveStrategy = payload.activeStrategy ?? fallbackActiveStrategy;
       console.log('[SignalAnalyzer] fetch success', {
@@ -109,16 +136,17 @@ export function useSignalAnalyzer() {
       setSearchCode(payload.stock.code);
       setSelectedStock(payload.stock);
       setKlineData(payload.candles.length ? payload.candles : generateKLineData(payload.stock.code));
-      setTradeRecords(payload.trades.length ? payload.trades : fallbackTrades);
-      setSignalMarkers(payload.signalMarkers?.length ? payload.signalMarkers : fallbackSignalMarkers);
+      setTradeRecords(useOptimizerFlow ? optimizerTradeRecords : (payload.trades.length ? payload.trades : fallbackTrades));
+      setSignalMarkers(useOptimizerFlow ? optimizerSignalMarkers : (payload.signalMarkers?.length ? payload.signalMarkers : fallbackSignalMarkers));
       setStrategyOptions(nextStrategyOptions);
-      setActiveStrategy(nextActiveStrategy);
+      setActiveStrategy(useOptimizerFlow ? { ...nextActiveStrategy, strategyName: `Optimizer ? ${optimizerPayload?.bestConfig?.envFilter ?? 'best'}` } : nextActiveStrategy);
       setStrategyType(nextActiveStrategy.strategyId);
       setFeatures(payload.features ?? fallbackFeatures);
       setRegime(payload.regime ?? fallbackRegime);
       setStrategies(payload.strategies?.length ? payload.strategies : fallbackStrategies);
       setBestStrategy(payload.bestStrategy ?? fallbackBestStrategy);
       setDataSource('live');
+      setOptimizerSummary(optimizerPayload);
     } catch (error) {
       console.warn('[SignalAnalyzer] fetch fallback', {
         stock: normalizedCode,
@@ -142,6 +170,7 @@ export function useSignalAnalyzer() {
       setRegime(fallbackRegime);
       setStrategies(fallbackStrategies);
       setBestStrategy(fallbackBestStrategy);
+      setOptimizerSummary(null);
       setDataSource('fallback');
       setErrorMessage(toFetchErrorMessage(error));
     } finally {
@@ -300,6 +329,7 @@ export function useSignalAnalyzer() {
     latestVolume,
     metricCards,
     optimizedStrategy,
+    optimizerSummary,
     priceChange,
     priceChangePercent,
     priceTrendUp,

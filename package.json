@@ -6,7 +6,8 @@
   "scripts": {
     "dev:api": "node server/tushare-proxy.mjs",
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "analyze:reverse": "node server/reverse-label/run-pipeline.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

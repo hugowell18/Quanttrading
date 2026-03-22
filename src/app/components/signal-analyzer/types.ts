@@ -72,6 +72,50 @@ export type ActiveStrategyContext = {
   kind: 'composite' | 'base';
 };
 
+
+export type OptimizerLeaderboardItem = {
+  rank: number;
+  config: {
+    minZoneCapture: number;
+    zoneForward: number;
+    zoneBackward: number;
+    envFilter: string;
+  };
+  result: {
+    stopLossRate: number;
+    avgReturn: number;
+    totalTrades: number;
+    winRate: number;
+    maxDrawdown: number;
+    skippedByEnvironment?: number;
+    buyCount?: number;
+    trades?: Array<{
+      buyDate: string;
+      sellDate: string;
+      buyPrice: number;
+      sellPrice: number;
+      return: number;
+      holdingDays: number;
+      confidence: number;
+      exitReason: string;
+    }>;
+  };
+};
+
+export type OptimizerSummary = {
+  stockCode: string;
+  stockName?: string;
+  stockType: string;
+  bestConfig: OptimizerLeaderboardItem['config'] | null;
+  bestResult: OptimizerLeaderboardItem['result'] | null;
+  leaderboard: OptimizerLeaderboardItem[];
+  stats: {
+    totalCombinations: number;
+    validCombinations: number;
+    scanDurationMs: number;
+  };
+};
+
 export type LiveStockResponse = {
   stock: StockItem;
   candles: KLinePoint[];

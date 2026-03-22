@@ -59,6 +59,7 @@ export const computeIndicators = (candles) => {
   let previousK = 50;
   let previousD = 50;
   let previousAdx = 0;
+  let previousDea = 0;
 
   return candles.map((item, index) => {
     const previous = candles[index - 1] ?? item;
@@ -71,10 +72,9 @@ export const computeIndicators = (candles) => {
     const volume20 = candles.slice(Math.max(0, index - 19), index + 1).map((entry) => entry.volume);
 
     const dif = ema12Series[index] - ema26Series[index];
-    const dea = index === 0 ? dif : previousAdx === previousAdx ? 0 : 0;
-    const previousDea = index === 0 ? dif : candles[index - 1]?._dea ?? dif;
     const nextDea = index === 0 ? dif : previousDea * 0.8 + dif * 0.2;
     const macd = (dif - nextDea) * 2;
+    previousDea = nextDea;
 
     const change = item.close - previous.close;
     const gain = Math.max(change, 0);
@@ -168,7 +168,6 @@ export const computeIndicators = (candles) => {
       j: Number(j.toFixed(2)),
       dif: Number(dif.toFixed(3)),
       dea: Number(nextDea.toFixed(3)),
-      _dea: nextDea,
       macd: Number(macd.toFixed(3)),
       rsi: Number(calcRsi(gains12, losses12).toFixed(2)),
       rsi2: Number(calcRsi(gains2, losses2).toFixed(2)),

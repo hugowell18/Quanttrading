@@ -37,6 +37,7 @@ export function SignalAnalyzer() {
         strategyType={analyzer.strategyType}
         takeProfitPercent={analyzer.takeProfitPercent}
         optimizedStrategy={analyzer.optimizedStrategy}
+        optimizerSummary={analyzer.optimizerSummary}
       />
 
       <section className="space-y-4">
