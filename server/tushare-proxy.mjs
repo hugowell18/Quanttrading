@@ -1,9 +1,22 @@
 ﻿import { createServer } from 'node:http';
 import { existsSync, readFileSync as readTextFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import {
+  buildSignalMarkers,
+  buildTradeRecordsFromRaw,
+  evaluateCandidateStrategies,
+  executeStrategyById,
+  inferStrategySignal,
+} from './quant/backtests.mjs';
+import { classifyRegime } from './quant/classifier.mjs';
+import { buildFeatures } from './quant/features.mjs';
+import { computeIndicators } from './quant/indicators.mjs';
+import { optimizeStrategyModel } from './quant/optimizer.mjs';
+import { selectAdaptiveStrategy } from './quant/selector.mjs';
 
 const PORT = Number(process.env.TUSHARE_PORT || 3030);
 const ENV_LOCAL_PATH = resolve(process.cwd(), '.env.local');
+
 const readEnvLocalToken = () => {
   if (!existsSync(ENV_LOCAL_PATH)) {
     return '';
@@ -82,134 +95,6 @@ const mapRows = ({ fields, items }) =>
 
 const formatTradeDate = (value) => `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
 
-const average = (values) => {
-  if (!values.length) {
-    return 0;
-  }
-
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-};
-
-const computeIndicators = (candles) => {
-  const enriched = [];
-  let ema12 = 0;
-  let ema26 = 0;
-  let dea = 0;
-  let previousK = 50;
-  let previousD = 50;
-  let gainAverage = 0;
-  let lossAverage = 0;
-
-  candles.forEach((item, index) => {
-    const close = item.close;
-    const recentCloses = candles.slice(Math.max(0, index - 19), index + 1).map((entry) => entry.close);
-    const ma5 = average(candles.slice(Math.max(0, index - 4), index + 1).map((entry) => entry.close));
-    const ma10 = average(candles.slice(Math.max(0, index - 9), index + 1).map((entry) => entry.close));
-    const ma20 = average(recentCloses);
-
-    ema12 = index === 0 ? close : ema12 * (11 / 13) + close * (2 / 13);
-    ema26 = index === 0 ? close : ema26 * (25 / 27) + close * (2 / 27);
-    const dif = ema12 - ema26;
-    dea = index === 0 ? dif : dea * (8 / 10) + dif * (2 / 10);
-    const macd = (dif - dea) * 2;
-
-    const previousClose = candles[Math.max(0, index - 1)]?.close ?? close;
-    const change = close - previousClose;
-    const gain = Math.max(change, 0);
-    const loss = Math.max(-change, 0);
-    if (index === 0) {
-      gainAverage = gain;
-      lossAverage = loss;
-    } else {
-      gainAverage = (gainAverage * 13 + gain) / 14;
-      lossAverage = (lossAverage * 13 + loss) / 14;
-    }
-    const relativeStrength = lossAverage === 0 ? 100 : gainAverage / lossAverage;
-    const rsi = lossAverage === 0 ? 100 : 100 - 100 / (1 + relativeStrength);
-
-    const recentPeriod = candles.slice(Math.max(0, index - 8), index + 1);
-    const periodHigh = Math.max(...recentPeriod.map((entry) => entry.high));
-    const periodLow = Math.min(...recentPeriod.map((entry) => entry.low));
-    const rsv = periodHigh === periodLow ? 50 : ((close - periodLow) / (periodHigh - periodLow)) * 100;
-    const k = previousK * (2 / 3) + rsv / 3;
-    const d = previousD * (2 / 3) + k / 3;
-    const j = 3 * k - 2 * d;
-    previousK = k;
-    previousD = d;
-
-    enriched.push({
-      date: item.date,
-      open: item.open,
-      close,
-      high: item.high,
-      low: item.low,
-      volume: item.volume,
-      k: Number(k.toFixed(2)),
-      d: Number(d.toFixed(2)),
-      j: Number(j.toFixed(2)),
-      dif: Number(dif.toFixed(3)),
-      dea: Number(dea.toFixed(3)),
-      macd: Number(macd.toFixed(3)),
-      rsi: Number(rsi.toFixed(2)),
-      ma5: Number(ma5.toFixed(2)),
-      ma10: Number(ma10.toFixed(2)),
-      ma20: Number(ma20.toFixed(2)),
-    });
-  });
-
-  return enriched;
-};
-
-const generateTrades = (candles, capitalWan, stopLossPercent, takeProfitPercent) => {
-  const trades = [];
-  const capital = capitalWan * 10000;
-  let openTrade = null;
-
-  candles.forEach((item, index) => {
-    const previous = candles[index - 1];
-    if (!previous) {
-      return;
-    }
-
-    const crossedUp = previous.dif <= previous.dea && item.dif > item.dea;
-    const crossedDown = previous.dif >= previous.dea && item.dif < item.dea;
-
-    if (!openTrade && crossedUp && item.rsi < 70 && item.close >= item.ma10) {
-      openTrade = {
-        buyDate: item.date,
-        buyPrice: item.close,
-      };
-      return;
-    }
-
-    if (!openTrade) {
-      return;
-    }
-
-    const returnPct = ((item.close - openTrade.buyPrice) / openTrade.buyPrice) * 100;
-    const hitStopLoss = returnPct <= -stopLossPercent;
-    const hitTakeProfit = returnPct >= takeProfitPercent;
-
-    if (crossedDown || hitStopLoss || hitTakeProfit || index === candles.length - 1) {
-      const shares = capital / openTrade.buyPrice;
-      const returnAmount = shares * (item.close - openTrade.buyPrice);
-      trades.push({
-        id: `${openTrade.buyDate}-${item.date}-${trades.length + 1}`,
-        buyDate: openTrade.buyDate,
-        buyPrice: Number(openTrade.buyPrice.toFixed(2)),
-        sellDate: item.date,
-        sellPrice: Number(item.close.toFixed(2)),
-        returnPct: Number(returnPct.toFixed(2)),
-        returnAmount: Number(returnAmount.toFixed(2)),
-        result: returnPct >= 0 ? 'success' : 'failure',
-      });
-      openTrade = null;
-    }
-  });
-
-  return trades;
-};
-
 const resolveDateRange = (period) => {
   const end = new Date();
   const start = new Date(end);
@@ -274,6 +159,61 @@ const loadDailyCandles = async (tsCode, period) => {
     .sort((left, right) => left.date.localeCompare(right.date));
 };
 
+const buildTradeSignature = (rawTrades) =>
+  rawTrades
+    .map((trade) => `${trade.buyDate}|${trade.sellDate}|${Number(trade.buyPrice).toFixed(2)}|${Number(trade.sellPrice).toFixed(2)}`)
+    .sort()
+    .join(';');
+
+const buildDistinctBaseExecutions = (strategies, candles, capital, stopLoss, takeProfit, limit = 6) => {
+  const executions = [];
+  const seen = new Set();
+
+  for (const strategy of strategies) {
+    const execution = executeStrategyById(strategy.strategyId, candles, capital, stopLoss, takeProfit);
+    if (!execution) {
+      continue;
+    }
+
+    const signature = buildTradeSignature(execution.rawTrades);
+    if (seen.has(signature)) {
+      continue;
+    }
+
+    seen.add(signature);
+    executions.push(execution);
+    if (executions.length >= limit) {
+      break;
+    }
+  }
+
+  return executions;
+};
+
+const buildStrategyOptions = (executions, optimizedStrategy) => [
+  {
+    id: 'adaptive_composite_e',
+    label: `${optimizedStrategy.strategyName} (Recommended)`,
+    kind: 'composite',
+    score: optimizedStrategy.metrics.score,
+  },
+  ...executions.slice(0, 3).map((execution) => ({
+    id: execution.strategy.strategyId,
+    label: execution.strategy.strategyName,
+    kind: 'base',
+    score: execution.strategy.score,
+  })),
+];
+
+const resolveSelectedStrategy = (requestedMode, strategyOptions) => {
+  if (requestedMode === 'adaptive_composite_e') {
+    return 'adaptive_composite_e';
+  }
+
+  const matched = strategyOptions.find((item) => item.id === requestedMode && item.kind === 'base');
+  return matched?.id || 'adaptive_composite_e';
+};
+
 const server = createServer(async (request, response) => {
   if (request.method === 'OPTIONS') {
     sendJson(response, 204, {});
@@ -302,12 +242,76 @@ const server = createServer(async (request, response) => {
   const capital = Number(requestUrl.searchParams.get('capital') || 100);
   const stopLoss = Number(requestUrl.searchParams.get('stopLoss') || 8);
   const takeProfit = Number(requestUrl.searchParams.get('takeProfit') || 20);
+  const strategyMode = requestUrl.searchParams.get('strategyMode') || 'adaptive_composite_e';
 
   try {
     const stock = await loadStockInfo(symbol);
     const candles = await loadDailyCandles(stock.ts_code, period);
     const enrichedCandles = computeIndicators(candles);
-    const trades = generateTrades(enrichedCandles, capital, stopLoss, takeProfit);
+    const features = buildFeatures(enrichedCandles);
+    const regime = classifyRegime(features);
+    const allStrategies = evaluateCandidateStrategies(enrichedCandles, capital, stopLoss, takeProfit);
+    const bestStrategy = selectAdaptiveStrategy({ features, regime, strategies: allStrategies });
+    const distinctBaseExecutions = buildDistinctBaseExecutions(allStrategies, enrichedCandles, capital, stopLoss, takeProfit);
+    const optimizedStrategy = optimizeStrategyModel({
+      candles: enrichedCandles,
+      capital,
+      stopLoss,
+      takeProfit,
+      candidateStrategies: distinctBaseExecutions.slice(0, 3).map((item) => item.strategy),
+    });
+
+    const effectiveOptimizedStrategy = optimizedStrategy ?? {
+      strategyId: 'adaptive_composite_e',
+      strategyName: '优化模型 E2',
+      metrics: {
+        score: Number((bestStrategy.confidence * 100).toFixed(2)),
+      },
+      rawTrades: distinctBaseExecutions[0]?.rawTrades ?? [],
+      baseModel: bestStrategy.benchmark.bestBaseStrategyId,
+      baseModelName: distinctBaseExecutions[0]?.strategy.strategyName ?? '',
+      params: {},
+      improvement: {
+        winRateDelta: 0,
+        annualReturnDelta: 0,
+        maxDrawdownDelta: 0,
+        sharpeDelta: 0,
+      },
+    };
+
+    const strategyOptions = buildStrategyOptions(distinctBaseExecutions, effectiveOptimizedStrategy);
+    const selectedStrategyId = resolveSelectedStrategy(strategyMode, strategyOptions);
+    const selectedExecution = distinctBaseExecutions.find((item) => item.strategy.strategyId === selectedStrategyId) ?? null;
+    const trades = buildTradeRecordsFromRaw(
+      selectedStrategyId === 'adaptive_composite_e'
+        ? effectiveOptimizedStrategy.rawTrades
+        : selectedExecution?.rawTrades ?? [],
+    );
+    const signalMarkers = buildSignalMarkers(trades, selectedStrategyId);
+    const activeStrategy = selectedStrategyId === 'adaptive_composite_e'
+      ? {
+          strategyId: 'adaptive_composite_e',
+          strategyName: effectiveOptimizedStrategy.strategyName,
+          currentSignal: bestStrategy.currentSignal,
+          signalStrength: bestStrategy.signalStrength,
+          kind: 'composite',
+        }
+      : selectedExecution
+        ? {
+            strategyId: selectedExecution.strategy.strategyId,
+            strategyName: selectedExecution.strategy.strategyName,
+            currentSignal: inferStrategySignal(selectedExecution.strategy).signal,
+            signalStrength: inferStrategySignal(selectedExecution.strategy).strength,
+            kind: 'base',
+          }
+        : {
+            strategyId: 'adaptive_composite_e',
+            strategyName: effectiveOptimizedStrategy.strategyName,
+            currentSignal: bestStrategy.currentSignal,
+            signalStrength: bestStrategy.signalStrength,
+            kind: 'composite',
+          };
+
     const successfulTrades = trades.filter((item) => item.result === 'success').length;
     const successRate = trades.length ? Number(((successfulTrades / trades.length) * 100).toFixed(1)) : 0;
 
@@ -320,10 +324,21 @@ const server = createServer(async (request, response) => {
       },
       candles: enrichedCandles,
       trades,
+      signalMarkers,
+      strategyOptions,
+      activeStrategy,
+      features,
+      regime,
+      strategies: distinctBaseExecutions.slice(0, 3).map((item) => item.strategy),
+      bestStrategy: {
+        ...bestStrategy,
+        optimized: effectiveOptimizedStrategy,
+      },
       source: {
         tsCode: stock.ts_code,
         fetchedAt: new Date().toISOString(),
         period,
+        strategyMode: selectedStrategyId,
       },
     });
   } catch (error) {

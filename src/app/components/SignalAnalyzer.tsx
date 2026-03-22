@@ -4,6 +4,13 @@ import { StrategyControls } from './signal-analyzer/StrategyControls';
 import { TradeLedger } from './signal-analyzer/TradeLedger';
 import { useSignalAnalyzer } from './signal-analyzer/useSignalAnalyzer';
 
+const zh = {
+  industryTiming: '\u884c\u4e1a\u91cf\u5316\u62e9\u65f6\u6a21\u578b',
+  activeStrategy: '\u5f53\u524d\u7b56\u7565',
+  optimizedSource: '\u4f18\u5316\u6765\u6e90',
+  optimizedParams: '\u4f18\u5316\u53c2\u6570',
+};
+
 export function SignalAnalyzer() {
   const analyzer = useSignalAnalyzer();
 
@@ -26,8 +33,10 @@ export function SignalAnalyzer() {
         setStrategyType={analyzer.setStrategyType}
         setTakeProfitPercent={analyzer.setTakeProfitPercent}
         stopLossPercent={analyzer.stopLossPercent}
+        strategyOptions={analyzer.strategyOptions}
         strategyType={analyzer.strategyType}
         takeProfitPercent={analyzer.takeProfitPercent}
+        optimizedStrategy={analyzer.optimizedStrategy}
       />
 
       <section className="space-y-4">
@@ -39,7 +48,7 @@ export function SignalAnalyzer() {
                 <div className="font-mono text-[28px] font-semibold text-foreground">{analyzer.selectedStock.code}</div>
                 <div>
                   <div className="text-lg text-foreground">{analyzer.selectedStock.name}</div>
-                  <div className="text-sm text-muted-foreground">{analyzer.selectedStock.industry} 行业量化择时模型</div>
+                  <div className="text-sm text-muted-foreground">{analyzer.selectedStock.industry} {zh.industryTiming}</div>
                 </div>
               </div>
             </div>
@@ -59,9 +68,23 @@ export function SignalAnalyzer() {
                   </span>
                 </div>
               </div>
-              <div className="min-w-[140px] rounded-md border border-border bg-secondary px-4 py-3">
-                <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Signal Bias</div>
-                <div className={`mt-2 text-xl ${analyzer.riskLevel.accent}`}>{analyzer.actionLabel}</div>
+              <div className="min-w-[170px] rounded-md border border-border bg-secondary px-4 py-3">
+                <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{zh.activeStrategy}</div>
+                <div className="mt-2 text-base text-foreground">{analyzer.activeStrategy.strategyName}</div>
+                <div className="mt-1 text-sm text-muted-foreground">{analyzer.actionLabel}</div>
+                {analyzer.activeStrategy.strategyId === 'adaptive_composite_e' && analyzer.optimizedStrategy ? (
+                  <>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      {zh.optimizedSource}{': '}{analyzer.optimizedStrategy.baseModelName}
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground break-all">
+                      {zh.optimizedParams}{': '}
+                      {Object.entries(analyzer.optimizedStrategy.params)
+                        .map(([key, value]) => `${key}=${value}`)
+                        .join(', ')}
+                    </div>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>
@@ -77,7 +100,22 @@ export function SignalAnalyzer() {
           ))}
         </div>
 
+        <div className="rounded-lg border border-border bg-card p-4">
+          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Debug Log</div>
+          <div className="mt-3 space-y-2 font-mono text-[11px] text-muted-foreground">
+            <div className="rounded border border-border bg-secondary/30 px-3 py-2 break-all">
+              {`[view] priceView=${analyzer.priceView} trades=${analyzer.tradeRecords.length} markers=${analyzer.visibleSignalMarkerCount}`}
+            </div>
+            {analyzer.requestLog.map((line, index) => (
+              <div key={`${line}-${index}`} className="rounded border border-border bg-secondary/30 px-3 py-2 break-all">
+                {line}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <KLineWorkspace
+          activeStrategy={analyzer.activeStrategy}
           activeTab={analyzer.activeTab}
           averageVolume={analyzer.averageVolume}
           candleBodyWidth={analyzer.candleBodyWidth}
@@ -100,6 +138,7 @@ export function SignalAnalyzer() {
           setHoveredCandleIndex={analyzer.setHoveredCandleIndex}
           setPriceView={analyzer.setPriceView}
           setPriceWindowStart={analyzer.setPriceWindowStart}
+          signalMarkers={analyzer.signalMarkers}
           stopLoss={analyzer.stopLoss}
           successRate={analyzer.successRate}
           takeProfit={analyzer.takeProfit}
