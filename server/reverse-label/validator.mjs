@@ -15,10 +15,12 @@ export class WalkForwardValidator {
     this.trainSize = options.trainSize ?? 180;
     this.testSize = options.testSize ?? 60;
     this.forwardDays = options.forwardDays ?? 20;
+    this.purgeGap = options.purgeGap ?? this.forwardDays;
     this.stopLoss = options.stopLoss ?? 0.04;
     this.maxHoldingDays = options.maxHoldingDays ?? 40;
     this.minConfidence = options.minConfidence ?? 0.5;
     this.envFilter = options.envFilter ?? 'ma20';
+    this.indexRows = options.indexRows ?? null;
     this.tradingCost = options.tradingCost ?? 0.0013;
   }
 
@@ -57,6 +59,15 @@ export class WalkForwardValidator {
     }
   }
 
+  _isBroadMarketOk(date) {
+    if (!this.indexRows || !this.indexRows.length) return true;
+    const idxRow = this.indexRows.find((row) => row.date === date);
+    if (!idxRow) return true;
+    const ma20 = idxRow.ma20 ?? null;
+    if (!Number.isFinite(ma20)) return true;
+    return idxRow.close >= ma20;
+  }
+
   validate(bestModel) {
     const rows = this.rows;
     const allTrades = [];
@@ -64,12 +75,20 @@ export class WalkForwardValidator {
     let totalRawSignals = 0;
     let skippedSignals = 0;
     let skippedByEnvironment = 0;
+    let skippedByMarket = 0;
     let stopLossHits = 0;
     let start = this.trainSize;
 
     while (start + this.testSize <= rows.length) {
-      const trainRows = rows.slice(start - this.trainSize, start);
+      const rawTrainStart = Math.max(0, start - this.trainSize);
+      const rawTrainEnd = start;
+      const trainEnd = Math.max(rawTrainStart, rawTrainEnd - this.purgeGap);
+      const trainRows = rows.slice(rawTrainStart, trainEnd);
       const testRows = rows.slice(start, start + this.testSize);
+      if (trainRows.length < 60 || testRows.length < 10) {
+        start += this.testSize;
+        continue;
+      }
       const selector = new ModelSelector(trainRows);
       const ranked = selector.run();
       const matched = ranked.find((item) => item.featureSet === bestModel.featureSet && item.model === bestModel.model) ?? ranked[0];
@@ -110,6 +129,15 @@ export class WalkForwardValidator {
           index += 1;
           continue;
         }
+        if (!this._isBroadMarketOk(buyRow.date)) {
+          skippedByMarket += 1;
+          index += 1;
+          continue;
+        }
+        const atr14 = buyRow.atr14 ?? null;
+        const dynamicStopLossPct = Number.isFinite(atr14) && buyRow.close > 0
+          ? Math.max(0.02, Math.min(0.06, (1.5 * atr14) / buyRow.close))
+          : (this.stopLoss ?? 0.04);
         let exitIndex = Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays);
         let exitReason = 'timeout';
 
@@ -117,7 +145,7 @@ export class WalkForwardValidator {
           const candidateRow = testRows[cursor];
           const grossReturn = (candidateRow.close - buyRow.close) / buyRow.close;
           const netReturn = grossReturn - this.tradingCost;
-          if (netReturn <= -this.stopLoss) {
+          if (netReturn <= -dynamicStopLossPct) {
             exitIndex = cursor;
             exitReason = 'stopLoss';
             stopLossHits += 1;
@@ -140,6 +168,7 @@ export class WalkForwardValidator {
           return: Number(netReturn.toFixed(4)),
           holdingDays: exitIndex - buyIndex,
           confidence: Number(confidence.toFixed(4)),
+          stopLossPct: Number(dynamicStopLossPct.toFixed(4)),
           exitReason,
         };
         allTrades.push(trade);
@@ -191,9 +220,11 @@ export class WalkForwardValidator {
       maxDrawdown: Number(maxDrawdown.toFixed(4)),
       sharpe: Number((standardDeviation(returns) === 0 ? 0 : (average(returns) / standardDeviation(returns)) * Math.sqrt(252)).toFixed(4)),
       avgHoldingDays: Number(average(holdingDays).toFixed(2)),
+      avgStopLossPct: allTrades.length ? Number(average(allTrades.map((trade) => trade.stopLossPct ?? (this.stopLoss ?? 0.04))).toFixed(4)) : 0,
       stopLossRate: allTrades.length ? Number((stopLossHits / allTrades.length).toFixed(4)) : 0,
       signalSkipRate: totalRawSignals ? Number((skippedSignals / totalRawSignals).toFixed(4)) : 0,
       skippedByEnvironment,
+      skippedByMarket,
       bestWindowReturn: windowStats.length ? Number(Math.max(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       worstWindowReturn: windowStats.length ? Number(Math.min(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       diagnosis: diagnostics,

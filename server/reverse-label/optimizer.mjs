@@ -21,6 +21,22 @@ const stdDev = (arr) => {
   return Math.sqrt(average(arr.map((value) => (value - mean) ** 2)));
 };
 
+async function fetchWithRetry(fetchFn, maxRetries = 3, delayMs = 2000) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
+    try {
+      return await fetchFn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxRetries) {
+        process.stdout.write(` [retry ${attempt}/${maxRetries}]`);
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, delayMs * attempt));
+      }
+    }
+  }
+  throw lastError;
+}
+
 const readEnvLocalToken = () => {
   if (!existsSync(ENV_LOCAL_PATH)) return '';
   const sourceText = readFileSync(ENV_LOCAL_PATH, 'utf8');
@@ -66,19 +82,26 @@ const loadStockInfo = async (token, symbol) => {
   return fallbackRows[0];
 };
 
+const normalizeCandles = (rows) => rows
+  .map((item) => ({
+    date: formatTradeDate(item.trade_date),
+    open: Number(item.open),
+    high: Number(item.high),
+    low: Number(item.low),
+    close: Number(item.close),
+    volume: Math.round(Number(item.vol ?? 0)),
+    pct_chg: Number(item.pct_chg ?? 0),
+  }))
+  .sort((left, right) => left.date.localeCompare(right.date));
+
 const loadDailyCandles = async (token, tsCode, startDate, endDate) => {
   const rows = mapRows(await fetchTushare(token, 'daily', { ts_code: tsCode, start_date: startDate, end_date: endDate }, 'trade_date,open,high,low,close,vol,pct_chg'));
-  return rows
-    .map((item) => ({
-      date: formatTradeDate(item.trade_date),
-      open: Number(item.open),
-      high: Number(item.high),
-      low: Number(item.low),
-      close: Number(item.close),
-      volume: Math.round(Number(item.vol)),
-      pct_chg: Number(item.pct_chg ?? 0),
-    }))
-    .sort((left, right) => left.date.localeCompare(right.date));
+  return normalizeCandles(rows);
+};
+
+const loadIndexCandles = async (token, tsCode, startDate, endDate) => {
+  const rows = mapRows(await fetchTushare(token, 'index_daily', { ts_code: tsCode, start_date: startDate, end_date: endDate }, 'trade_date,open,high,low,close,vol,pct_chg'));
+  return normalizeCandles(rows);
 };
 
 function classifyStock(rows) {
@@ -116,7 +139,92 @@ function buildGrid() {
   return grid;
 }
 
-function runOneConfig(rows, config) {
+function generateCurrentSignal(rows, indexRows, bestConfig, bestResult) {
+  if (!bestConfig || !bestResult) {
+    return {
+      signal: 'hold',
+      confidence: 0,
+      reason: '无有效配置，无法生成信号',
+    };
+  }
+
+  try {
+    const labeler = new SignalLabeler(rows, {
+      minZoneCapture: bestConfig.minZoneCapture,
+      zoneForward: bestConfig.zoneForward,
+      zoneBackward: bestConfig.zoneBackward,
+    });
+    const labeledRows = labeler.getLabeledRows();
+
+    const selector = new ModelSelector(labeledRows);
+    selector.run();
+    const best = selector.bestModel();
+    if (!best?.predictor) {
+      return { signal: 'hold', confidence: 0, reason: '模型训练失败' };
+    }
+
+    const latest = labeledRows[labeledRows.length - 1];
+    if (!latest) {
+      return { signal: 'hold', confidence: 0, reason: '缺少最新K线' };
+    }
+
+    const scores = best.predictor.scoreRows([latest]);
+    const score = scores[0] ?? 0;
+    const threshold = best.predictor.threshold ?? 0;
+    const confidence = threshold > 0 ? Math.min(1, Math.max(0, score / threshold)) : 0;
+
+    const isBuyZone = latest.isBuyPoint === 1;
+    const isSellZone = latest.isSellPoint === 1;
+    const scoreAbove = score >= threshold;
+
+    let signal = 'hold';
+    const reasons = [];
+
+    if (isSellZone) {
+      signal = 'sell';
+      reasons.push('当前K线处于历史卖点区间');
+    } else if (isBuyZone && scoreAbove && confidence >= 0.5) {
+      signal = 'buy';
+      reasons.push(`模型打分 ${score.toFixed(3)} 超过阈值 ${threshold.toFixed(3)}`);
+      reasons.push('处于历史高质量买点区间');
+    } else if (scoreAbove && confidence >= 0.5) {
+      signal = 'buy';
+      reasons.push(`模型打分 ${score.toFixed(3)} 超过阈值 ${threshold.toFixed(3)}`);
+    } else {
+      reasons.push(`模型打分 ${score.toFixed(3)} 未超过阈值 ${threshold.toFixed(3)}`);
+      if (isBuyZone) reasons.push('虽在买点区间，但置信度不足');
+    }
+
+    if (indexRows && indexRows.length) {
+      const latestIdx = indexRows[indexRows.length - 1];
+      const idxMa20 = latestIdx?.ma20 ?? null;
+      if (Number.isFinite(idxMa20) && latestIdx.close < idxMa20) {
+        reasons.push('当前大盘在 MA20 下方，信号仅供参考');
+        if (signal === 'buy') signal = 'hold';
+      }
+    }
+
+    return {
+      signal,
+      confidence: Number(confidence.toFixed(3)),
+      score: Number(score.toFixed(3)),
+      threshold: Number(threshold.toFixed(3)),
+      reason: reasons.join('；'),
+      date: latest.date,
+      close: latest.close,
+      isBuyZone,
+      isSellZone,
+    };
+  } catch (error) {
+    return {
+      signal: 'hold',
+      confidence: 0,
+      reason: `信号生成失败：${error.message}`,
+    };
+  }
+}
+
+function runOneConfig(rows, config, indexRows) {
   try {
     const labeler = new SignalLabeler(rows, {
       minZoneCapture: config.minZoneCapture,
@@ -134,6 +242,7 @@ function runOneConfig(rows, config) {
 
     const validator = new WalkForwardValidator(labeledRows, {
       envFilter: config.envFilter,
+      indexRows,
     });
     const result = validator.validate(best);
 
@@ -160,28 +269,38 @@ export async function optimize(stockCode, startDate, endDate) {
     throw new Error('Missing TUSHARE_TOKEN environment variable');
   }
 
-  console.log(`\n[1/4] ???? ${stockCode} ...`);
-  const stock = await loadStockInfo(token, stockCode);
-  const candles = await loadDailyCandles(token, stock.ts_code, startDate, endDate);
+  console.log(`\n[1/4] 加载数据 ${stockCode} ...`);
+  const stock = await fetchWithRetry(() => loadStockInfo(token, stockCode));
+  const candles = await fetchWithRetry(() => loadDailyCandles(token, stock.ts_code, startDate, endDate));
   const rows = new DataEngine(candles).computeAllFeatures();
-  console.log(`      ${rows.length} ?K????`);
+  console.log(`      ${rows.length} 根K线已加载`);
+
+  let indexRows = null;
+  try {
+    const indexCandles = await fetchWithRetry(() => loadIndexCandles(token, '000300.SH', startDate, endDate));
+    indexRows = new DataEngine(indexCandles).computeAllFeatures();
+    console.log(`      指数数据：${indexRows.length} 行`);
+  } catch (error) {
+    console.warn(`      指数数据拉取失败，大盘过滤将跳过：${error.message}`);
+    indexRows = null;
+  }
 
   const stockType = classifyStock(rows);
-  console.log(`[2/4] ?????${stockType}`);
+  console.log(`[2/4] 股票分类：${stockType}`);
 
   const grid = buildGrid();
-  console.log(`[3/4] ???? ${grid.length} ??? ...\n`);
+  console.log(`[3/4] 开始扫描 ${grid.length} 组配置 ...\n`);
 
   const scanResults = [];
   let done = 0;
   for (const config of grid) {
-    const run = runOneConfig(rows, config);
+    const run = runOneConfig(rows, config, indexRows);
     const result = run?.validation ?? null;
     const score = scoreResult(result);
 
     done += 1;
     if (done % 30 === 0 || done === grid.length) {
-      process.stdout.write(`      ???${done}/${grid.length}\r`);
+      process.stdout.write(`      进度：${done}/${grid.length}\r`);
     }
 
     if (score === null) continue;
@@ -195,7 +314,7 @@ export async function optimize(stockCode, startDate, endDate) {
     });
   }
 
-  console.log(`\n      ??????????${scanResults.length}/${grid.length}`);
+  console.log(`\n      扫描完成，有效配置：${scanResults.length}/${grid.length}`);
 
   scanResults.sort((left, right) => {
     if (right.score.primary !== left.score.primary) return right.score.primary - left.score.primary;
@@ -214,12 +333,14 @@ export async function optimize(stockCode, startDate, endDate) {
       winRate: item.result.winRate,
       maxDrawdown: item.result.maxDrawdown,
       skippedByEnvironment: item.result.skippedByEnvironment,
+      skippedByMarket: item.result.skippedByMarket,
+      avgStopLossPct: item.result.avgStopLossPct,
       buyCount: item.buyCount,
       trades: item.result.trades,
     },
   }));
 
-  return {
+  const summary = {
     stockCode,
     stockName: stock.name,
     stockType,
@@ -233,60 +354,73 @@ export async function optimize(stockCode, startDate, endDate) {
       scanDurationMs: Date.now() - startTime,
     },
   };
+
+  summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult);
+  return summary;
 }
 
-const [,, stockCode = '600519', startDate = '20220101', endDate = '20260322'] = process.argv;
+const [, , stockCode = '600519', startDate = '20220101', endDate = '20260322'] = process.argv;
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1]?.endsWith('optimizer.mjs')) {
-  optimize(stockCode, startDate, endDate).then((summary) => {
-    console.log('\n' + '='.repeat(60));
-    console.log(`  ???? ? ${summary.stockCode} ? ${summary.stockType}`);
-    console.log('='.repeat(60));
+  optimize(stockCode, startDate, endDate)
+    .then((summary) => {
+      console.log('\n' + '='.repeat(60));
+      console.log(`  扫描报告 · ${summary.stockCode} · ${summary.stockType}`);
+      console.log('='.repeat(60));
 
-    if (!summary.bestConfig) {
-      console.log('\n  ????????????');
-      console.log('  ????? stopLossRate ? totalTrades ??');
-      return;
-    }
+      if (!summary.bestConfig) {
+        console.log('\n  没有找到任何满足条件的配置');
+        console.log('  建议：放宽 stopLossRate 或 totalTrades 下限');
+        return;
+      }
 
-    console.log('\n  ?????');
-    console.log(`    minZoneCapture : ${summary.bestConfig.minZoneCapture}`);
-    console.log(`    zoneForward    : ${summary.bestConfig.zoneForward}`);
-    console.log(`    zoneBackward   : ${summary.bestConfig.zoneBackward}`);
-    console.log(`    envFilter      : ${summary.bestConfig.envFilter}`);
+      console.log('\n  最优配置');
+      console.log(`    minZoneCapture : ${summary.bestConfig.minZoneCapture}`);
+      console.log(`    zoneForward    : ${summary.bestConfig.zoneForward}`);
+      console.log(`    zoneBackward   : ${summary.bestConfig.zoneBackward}`);
+      console.log(`    envFilter      : ${summary.bestConfig.envFilter}`);
 
-    console.log('\n  ?????');
-    console.log(`    avgReturn      : ${(summary.bestResult.avgReturn * 100).toFixed(2)}%`);
-    console.log(`    stopLossRate   : ${(summary.bestResult.stopLossRate * 100).toFixed(1)}%`);
-    console.log(`    winRate        : ${(summary.bestResult.winRate * 100).toFixed(1)}%`);
-    console.log(`    totalTrades    : ${summary.bestResult.totalTrades}`);
-    console.log(`    maxDrawdown    : ${(summary.bestResult.maxDrawdown * 100).toFixed(2)}%`);
+      console.log('\n  最优结果');
+      console.log(`    avgReturn      : ${(summary.bestResult.avgReturn * 100).toFixed(2)}%`);
+      console.log(`    stopLossRate   : ${(summary.bestResult.stopLossRate * 100).toFixed(1)}%`);
+      console.log(`    winRate        : ${(summary.bestResult.winRate * 100).toFixed(1)}%`);
+      console.log(`    totalTrades    : ${summary.bestResult.totalTrades}`);
+      console.log(`    maxDrawdown    : ${(summary.bestResult.maxDrawdown * 100).toFixed(2)}%`);
 
-    console.log('\n  ?5????');
-    console.log('  rank  capture  fwd  bwd  envFilter                 return   stopLoss  trades');
-    console.log('  ' + '-'.repeat(82));
-    summary.leaderboard.slice(0, 5).forEach((item) => {
-      const c = item.config;
-      const r = item.result;
-      console.log(
-        `  #${String(item.rank).padEnd(4)}`
-        + `${String(c.minZoneCapture).padEnd(9)}`
-        + `${String(c.zoneForward).padEnd(5)}`
-        + `${String(c.zoneBackward).padEnd(5)}`
-        + `${c.envFilter.padEnd(26)}`
-        + `${(r.avgReturn * 100).toFixed(2).padStart(7)}%  `
-        + `${(r.stopLossRate * 100).toFixed(1).padStart(7)}%  `
-        + `${String(r.totalTrades).padStart(6)}`
-      );
+      console.log('\n  Current Signal');
+      console.log(`    signal         : ${summary.currentSignal.signal}`);
+      console.log(`    confidence     : ${summary.currentSignal.confidence}`);
+      console.log(`    score          : ${summary.currentSignal.score ?? 0}`);
+      console.log(`    threshold      : ${summary.currentSignal.threshold ?? 0}`);
+      console.log(`    date           : ${summary.currentSignal.date ?? '-'}`);
+      console.log(`    reason         : ${summary.currentSignal.reason}`);
+
+      console.log('\n  前 5 名排行');
+      console.log('  rank  capture  fwd  bwd  envFilter                 return   stopLoss  trades');
+      console.log('  ' + '-'.repeat(82));
+      summary.leaderboard.slice(0, 5).forEach((item) => {
+        const c = item.config;
+        const r = item.result;
+        console.log(
+          `  #${String(item.rank).padEnd(4)}`
+          + `${String(c.minZoneCapture).padEnd(9)}`
+          + `${String(c.zoneForward).padEnd(5)}`
+          + `${String(c.zoneBackward).padEnd(5)}`
+          + `${c.envFilter.padEnd(26)}`
+          + `${(r.avgReturn * 100).toFixed(2).padStart(7)}%  `
+          + `${(r.stopLossRate * 100).toFixed(1).padStart(7)}%  `
+          + `${String(r.totalTrades).padStart(6)}`
+        );
+      });
+
+      console.log('\n  扫描统计');
+      console.log(`    总组合数  : ${summary.stats.totalCombinations}`);
+      console.log(`    有效组合  : ${summary.stats.validCombinations}`);
+      console.log(`    耗时      : ${summary.stats.scanDurationMs}ms`);
+      console.log();
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exitCode = 1;
     });
-
-    console.log('\n  ?????');
-    console.log(`    ????  : ${summary.stats.totalCombinations}`);
-    console.log(`    ????  : ${summary.stats.validCombinations}`);
-    console.log(`    ??      : ${summary.stats.scanDurationMs}ms`);
-    console.log();
-  }).catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
 }

@@ -1,17 +1,17 @@
 import { type TradeRecord } from './types';
 
 const zh = {
-  ledger: '\u4e70\u5356\u4fe1\u53f7\u8bb0\u5f55',
-  ledgerHint: '\u6309\u5b8c\u6574\u4ea4\u6613\u5bf9\u5c55\u793a\u771f\u5b9e\u4e70\u5165\u4e0e\u5356\u51fa\u7ed3\u679c',
-  trade: '\u4ea4\u6613',
-  success: '\u6210\u529f',
-  failure: '\u5931\u8d25',
-  buy: '\u4e70\u5165',
-  sell: '\u5356\u51fa',
-  time: '\u65f6\u95f4',
-  price: '\u4ef7\u683c',
-  returnPct: '\u6536\u76ca\u7387',
-  returnAmount: '\u6536\u76ca\u989d',
+  ledger: '买卖信号记录',
+  ledgerHint: '按完整交易对展示真实买入与卖出结果',
+  trade: '交易',
+  success: '成功',
+  failure: '失败',
+  buy: '买入',
+  sell: '卖出',
+  time: '时间',
+  price: '价格',
+  returnPct: '收益率',
+  returnAmount: '收益额',
 };
 
 type TradeLedgerProps = {
@@ -49,13 +49,13 @@ export function TradeLedger({ tradeRecords }: TradeLedgerProps) {
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{zh.buy}</div>
                   <div className="mt-2 text-sm text-foreground">
                     {zh.time}
-                    {'\uff1a'}
+                    {'：'}
                     {trade.buyDate}
                   </div>
                   <div className="mt-1 font-mono text-base text-[#ff3366]">
                     {zh.price}
-                    {'\uff1a'}
-                    {'\u00a5'}
+                    {'：'}
+                    {'¥'}
                     {trade.buyPrice.toFixed(2)}
                   </div>
                 </div>
@@ -63,13 +63,13 @@ export function TradeLedger({ tradeRecords }: TradeLedgerProps) {
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{zh.sell}</div>
                   <div className="mt-2 text-sm text-foreground">
                     {zh.time}
-                    {'\uff1a'}
+                    {'：'}
                     {trade.sellDate}
                   </div>
                   <div className="mt-1 font-mono text-base text-[#00ff88]">
                     {zh.price}
-                    {'\uff1a'}
-                    {'\u00a5'}
+                    {'：'}
+                    {'¥'}
                     {trade.sellPrice.toFixed(2)}
                   </div>
                 </div>
@@ -86,7 +86,7 @@ export function TradeLedger({ tradeRecords }: TradeLedgerProps) {
                   {zh.returnAmount}
                   <span className={`ml-2 font-mono ${success ? 'text-[#00ff88]' : 'text-[#ff3366]'}`}>
                     {trade.returnAmount >= 0 ? '+' : '-'}
-                    {'\u00a5'}
+                    {'¥'}
                     {Math.abs(trade.returnAmount).toLocaleString('en-US', { maximumFractionDigits: 2 })}
                   </span>
                 </div>

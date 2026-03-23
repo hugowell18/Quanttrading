@@ -14,9 +14,12 @@ import { computeIndicators } from './quant/indicators.mjs';
 import { optimizeStrategyModel } from './quant/optimizer.mjs';
 import { selectAdaptiveStrategy } from './quant/selector.mjs';
 import { optimize } from './reverse-label/optimizer.mjs';
+import { STOCK_UNIVERSE } from './reverse-label/stock-universe.mjs';
 
 const PORT = Number(process.env.TUSHARE_PORT || 3030);
 const ENV_LOCAL_PATH = resolve(process.cwd(), '.env.local');
+const BATCH_SUMMARY_PATH = resolve(process.cwd(), 'results', 'batch', 'summary.json');
+const STOCK_UNIVERSE_MAP = new Map(STOCK_UNIVERSE.map((item) => [item.code, item]));
 
 const readEnvLocalToken = () => {
   if (!existsSync(ENV_LOCAL_PATH)) {
@@ -234,6 +237,28 @@ const server = createServer(async (request, response) => {
   const requestUrl = new URL(request.url || '/', `http://${request.headers.host}`);
   const stockMatch = requestUrl.pathname.match(/^\/api\/tushare\/stock\/(\d{6})$/);
   const optimizerMatch = requestUrl.pathname.match(/^\/api\/tushare\/optimizer\/(\d{6})$/);
+  const batchSummaryMatch = requestUrl.pathname === '/api/tushare/batch/summary';
+
+  if (batchSummaryMatch) {
+    if (!existsSync(BATCH_SUMMARY_PATH)) {
+      sendJson(response, 404, { error: 'Batch summary not found. Run batch-runner first.' });
+      return;
+    }
+
+    const summary = JSON.parse(readTextFileSync(BATCH_SUMMARY_PATH, 'utf8'));
+    const decorate = (items = []) => items.map((item) => {
+      const stock = STOCK_UNIVERSE_MAP.get(item.code);
+      return stock ? { ...item, name: stock.name, sector: stock.sector } : item;
+    });
+    sendJson(response, 200, {
+      ...summary,
+      strictPassed: decorate(summary.strictPassed),
+      weakPassed: decorate(summary.weakPassed),
+      failed: decorate(summary.failed),
+    });
+    return;
+  }
+
   if (!stockMatch && !optimizerMatch) {
     sendJson(response, 404, { error: 'Not found' });
     return;

@@ -256,41 +256,41 @@ export type OptimizedStrategyResult = {
 };
 
 const zh = {
-  guizhouMoutai: '\u8d35\u5dde\u8305\u53f0',
-  wuliangye: '\u4e94\u7cae\u6db2',
-  pingAn: '\u4e2d\u56fd\u5e73\u5b89',
-  cmb: '\u62db\u5546\u94f6\u884c',
-  pab: '\u5e73\u5b89\u94f6\u884c',
-  longi: '\u9686\u57fa\u7eff\u80fd',
-  catl: '\u5b81\u5fb7\u65f6\u4ee3',
-  liquor: '\u767d\u9152',
-  insurance: '\u4fdd\u9669',
-  bank: '\u94f6\u884c',
-  pv: '\u5149\u4f0f',
-  newEnergy: '\u65b0\u80fd\u6e90',
-  price: '\u4ef7\u683c\u7ed3\u6784',
-  momentum: '\u52a8\u91cf\u6307\u6807',
-  risk: '\u98ce\u9669\u753b\u50cf',
-  all: '\u5168\u90e8',
-  recent3m: '\u8fd13\u4e2a\u6708',
-  recent6m: '\u8fd16\u4e2a\u6708',
-  recent1y: '\u8fd11\u5e74',
-  recent3y: '\u8fd13\u5e74',
-  lowRisk: '\u4f4e\u98ce\u9669',
-  midRisk: '\u4e2d\u98ce\u9669',
-  highVol: '\u9ad8\u6ce2\u52a8',
-  trendReason1: 'ADX 27.4\uff0c\u9ad8\u4e8e\u8d8b\u52bf\u9608\u503c',
-  trendReason2: '\u5747\u7ebf\u6392\u5217\u4e3a bullish',
-  trendReason3: '\u91cf\u4ef7\u5173\u7cfb\u4e3a confirm_up',
-  qualityStack: '\u9ad8\u8d28\u91cf\u4fe1\u53f7\u53e0\u52a0',
-  macdRsi: 'MACD + RSI \u8282\u594f\u786e\u8ba4',
-  maCross: 'MA20/60 \u53cc\u5747\u7ebf\u4ea4\u53c9',
-  compositeE: '\u4f18\u5316\u6a21\u578b E2',
-  errorFetch: '\u5b9e\u65f6\u6570\u636e\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u68c0\u67e5\u4ee3\u7406\u670d\u52a1\u548c\u7f51\u7edc\u8fde\u63a5\u3002',
-  errorProxy: '\u65e0\u6cd5\u8fde\u63a5\u672c\u5730\u4ee3\u7406 http://localhost:3030\u3002\u8bf7\u5148\u542f\u52a8 npm run dev:api\u3002',
-  errorToken: '\u4ee3\u7406\u5df2\u542f\u52a8\uff0c\u4f46\u672a\u8bfb\u53d6\u5230 TUSHARE_TOKEN\u3002\u8bf7\u68c0\u67e5\u9879\u76ee\u6839\u76ee\u5f55 .env.local\u3002',
-  errorCode: '\u672a\u627e\u5230\u8be5\u80a1\u7968\u4ee3\u7801\u5bf9\u5e94\u7684\u4e0a\u5e02\u80a1\u7968\uff0c\u8bf7\u786e\u8ba4\u8f93\u5165\u7684\u662f 6 \u4f4d A \u80a1\u4ee3\u7801\u3002',
-  errorOutdatedProxy: '\u672c\u5730\u4ee3\u7406\u8fd8\u5728\u8fd0\u884c\u65e7\u7248\u672c\uff0c\u8bf7\u91cd\u542f npm run dev:api \u540e\u518d\u8bd5\u3002',
+  guizhouMoutai: '贵州茅台',
+  wuliangye: '五粮液',
+  pingAn: '中国平安',
+  cmb: '招商银行',
+  pab: '平安银行',
+  longi: '隆基绿能',
+  catl: '宁德时代',
+  liquor: '白酒',
+  insurance: '保险',
+  bank: '银行',
+  pv: '光伏',
+  newEnergy: '新能源',
+  price: '价格结构',
+  momentum: '动量指标',
+  risk: '风险画像',
+  all: '全部',
+  recent3m: '近3个月',
+  recent6m: '近6个月',
+  recent1y: '近1年',
+  recent3y: '近3年',
+  lowRisk: '低风险',
+  midRisk: '中风险',
+  highVol: '高波动',
+  trendReason1: 'ADX 27.4，高于趋势阈值',
+  trendReason2: '均线排列为 bullish',
+  trendReason3: '量价关系为 confirm_up',
+  qualityStack: '高质量信号叠加',
+  macdRsi: 'MACD + RSI 节奏确认',
+  maCross: 'MA20/60 双均线交叉',
+  compositeE: '优化模型 E2',
+  errorFetch: '实时数据加载失败，请检查代理服务和网络连接。',
+  errorProxy: '无法连接本地代理 http://localhost:3030。请先启动 npm run dev:api。',
+  errorToken: '代理已启动，但未读取到 TUSHARE_TOKEN。请检查项目根目录 .env.local。',
+  errorCode: '未找到该股票代码对应的上市股票，请确认输入的是 6 位 A 股代码。',
+  errorOutdatedProxy: '本地代理还在运行旧版本，请重启 npm run dev:api 后再试。',
 };
 
 export const stockDatabase: StockItem[] = [
@@ -360,12 +360,12 @@ export const fallbackBestStrategy: AdaptiveStrategyDecision = {
   currentSignal: 'buy',
   signalStrength: 0.66,
   riskBias: 'aggressive',
-  reasons: ['\u5f53\u524d\u80a1\u7968\u7c7b\u578b\u4e3a trend\uff0c\u5206\u7c7b\u7f6e\u4fe1\u5ea6 0.78', '\u5f53\u524d ADX \u504f\u5f3a\uff0c\u63d0\u5347\u8d8b\u52bf\u4e0e\u52a8\u91cf\u5bb6\u65cf\u6743\u91cd', '\u7ec4\u5408\u4fe1\u53f7\u4e3a buy\uff0c\u5f53\u524d\u4ecd\u53ef\u8ddf\u8e2a'],
+  reasons: ['当前股票类型为 trend，分类置信度 0.78', '当前 ADX 偏强，提升趋势与动量家族权重', '组合信号为 buy，当前仍可跟踪'],
   benchmark: { bestBaseStrategyId: 'macd_rsi_confirm', bestBaseStrategyScore: 33.5 },
 };
 
 export const fallbackStrategyOptions: StrategyOption[] = [
-  { id: 'adaptive_composite_e', label: '\u4f18\u5316\u6a21\u578b E2 (Recommended)', kind: 'composite', score: 80 },
+  { id: 'adaptive_composite_e', label: '优化模型 E2 (Recommended)', kind: 'composite', score: 80 },
   { id: 'adaptive_composite_e_base', label: zh.qualityStack, kind: 'base', score: 36.8 },
   { id: 'macd_rsi_confirm', label: zh.macdRsi, kind: 'base', score: 33.5 },
   { id: 'ma20_60_cross', label: zh.maCross, kind: 'base', score: 30.9 },
@@ -458,11 +458,11 @@ export const toFetchErrorMessage = (error: unknown) => {
   }
 
   if (message.includes('Tushare upstream error')) {
-    return `Tushare \u4e0a\u6e38\u63a5\u53e3\u8bf7\u6c42\u5931\u8d25: ${message}`;
+    return `Tushare 上游接口请求失败: ${message}`;
   }
 
-  if (message.includes('Tushare returned a non-zero code') || message.includes('Tushare \u4ee3\u7406\u8fd4\u56de\u5f02\u5e38')) {
-    return `Tushare \u8fd4\u56de\u5f02\u5e38: ${message}`;
+  if (message.includes('Tushare returned a non-zero code') || message.includes('Tushare 代理返回异常')) {
+    return `Tushare 返回异常: ${message}`;
   }
 
   if (message.includes('No listed stock found')) {

@@ -23,27 +23,27 @@ import {
 } from './types';
 
 const zh = {
-  currentStrategy: '\u5f53\u524d\u7b56\u7565',
-  currentSignal: '\u5f53\u524d\u4fe1\u53f7',
-  defaultView: '\u9ed8\u8ba4\u89c6\u56fe',
-  latestCount: '\u6700\u8fd1',
-  kline: '\u6839 K \u7ebf',
-  openClose: '\u5f00 / \u6536',
-  highLow: '\u9ad8 / \u4f4e',
-  changeVolume: '\u6da8\u8dcc / \u6210\u4ea4\u91cf',
-  window: '\u89c6\u7a97\u6ed1\u52a8',
-  strategyState: '\u7b56\u7565\u72b6\u6001',
+  currentStrategy: '当前策略',
+  currentSignal: '当前信号',
+  defaultView: '默认视图',
+  latestCount: '最近',
+  kline: '根 K 线',
+  openClose: '开 / 收',
+  highLow: '高 / 低',
+  changeVolume: '涨跌 / 成交量',
+  window: '视窗滑动',
+  strategyState: '策略状态',
   volumePulse: 'Volume Pulse',
   executionPlan: 'Execution Plan',
-  liveText: '\u6570\u636e\u6e90 LIVE\uff0c\u5f53\u524d K \u7ebf\u5df2\u6309\u8be5\u7b56\u7565\u6253\u51fa B / S \u70b9\u3002',
-  fallbackText: '\u6570\u636e\u6e90 FALLBACK\uff0c\u5f53\u524d K \u7ebf\u5df2\u6309\u8be5\u7b56\u7565\u6253\u51fa B / S \u70b9\u3002',
-  currentVolume: '\u5f53\u524d\u6210\u4ea4\u91cf / \u5747\u91cf',
+  liveText: '数据源 LIVE，当前 K 线已按该策略打出 B / S 点。',
+  fallbackText: '数据源 FALLBACK，当前 K 线已按该策略打出 B / S 点。',
+  currentVolume: '当前成交量 / 均量',
   riskBrief: 'Risk Brief',
   boundaryLevels: 'Boundary Levels',
-  stopLoss: '\u6b62\u635f',
-  takeProfit: '\u6b62\u76c8',
-  suitableTrack: '\u4e3b\u52a8\u8ddf\u8e2a',
-  waitConfirm: '\u7b49\u5f85\u786e\u8ba4',
+  stopLoss: '止损',
+  takeProfit: '止盈',
+  suitableTrack: '主动跟踪',
+  waitConfirm: '等待确认',
 };
 
 type KLineWorkspaceProps = {
@@ -142,7 +142,7 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="font-mono text-[15px] font-semibold tracking-[0.08em] text-foreground">
-            {selectedStock.code} {' \u00b7 '} {selectedStock.name} {' \u00b7 '} {'\u65e5K'}
+            {selectedStock.code} {' · '} {selectedStock.name} {' · '} {'日K'}
           </h3>
           <div className="mt-2 flex flex-wrap gap-2 text-xs">
             <div className="rounded border border-border bg-secondary/40 px-3 py-1.5 text-muted-foreground">
@@ -152,7 +152,7 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
               {zh.currentSignal}{': '}{activeStrategy.currentSignal}
             </div>
             <div className="rounded border border-border bg-secondary/40 px-3 py-1.5 font-mono text-muted-foreground">
-              {'\u5f3a\u5ea6 '}{activeStrategy.signalStrength}
+              {'强度 '}{activeStrategy.signalStrength}
             </div>
           </div>
         </div>
@@ -204,17 +204,17 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">KLine Inspector</div>
                   <div className="mt-2 font-mono text-sm text-foreground">
-                    {hoveredPoint ? `${hoveredPoint.date} \u00b7 ${selectedStock.code}` : `${selectedStock.code} \u00b7 \u65e5K`}
+                    {hoveredPoint ? `${hoveredPoint.date} · ${selectedStock.code}` : `${selectedStock.code} · 日K`}
                   </div>
                 </div>
                 <div className="grid min-w-[300px] grid-cols-3 gap-2 text-[12px]">
                   <div className="rounded border border-border bg-card/60 px-3 py-2">
                     <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{zh.openClose}</div>
-                    <div className="mt-1 font-mono text-foreground">{hoveredPoint ? `\u00a5${hoveredPoint.open.toFixed(2)} / \u00a5${hoveredPoint.close.toFixed(2)}` : '--'}</div>
+                    <div className="mt-1 font-mono text-foreground">{hoveredPoint ? `¥${hoveredPoint.open.toFixed(2)} / ¥${hoveredPoint.close.toFixed(2)}` : '--'}</div>
                   </div>
                   <div className="rounded border border-border bg-card/60 px-3 py-2">
                     <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{zh.highLow}</div>
-                    <div className="mt-1 font-mono text-foreground">{hoveredPoint ? `\u00a5${hoveredPoint.high.toFixed(2)} / \u00a5${hoveredPoint.low.toFixed(2)}` : '--'}</div>
+                    <div className="mt-1 font-mono text-foreground">{hoveredPoint ? `¥${hoveredPoint.high.toFixed(2)} / ¥${hoveredPoint.low.toFixed(2)}` : '--'}</div>
                   </div>
                   <div className="rounded border border-border bg-card/60 px-3 py-2">
                     <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{zh.changeVolume}</div>
@@ -338,7 +338,7 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
                       }}
                       className="h-8 rounded border border-border px-3 font-mono text-[11px] text-muted-foreground transition hover:border-primary/30 hover:text-foreground"
                     >
-                      {'\u25c0'}
+                      {'◀'}
                     </button>
                     <input type="range" min="0" max={String(Math.max(klineData.length - visibleWindowSize, 0))} value={clampedWindowStart} onChange={(event) => { setPriceWindowStart(Number(event.target.value)); setHoveredCandleIndex(null); }} className="h-1 w-full cursor-pointer appearance-none rounded bg-border" />
                     <button
@@ -349,7 +349,7 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
                       }}
                       className="h-8 rounded border border-border px-3 font-mono text-[11px] text-muted-foreground transition hover:border-primary/30 hover:text-foreground"
                     >
-                      {'\u25b6'}
+                      {'▶'}
                     </button>
                   </div>
                 </div>
@@ -362,7 +362,7 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
               <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{zh.strategyState}</div>
               <div className="mt-3 text-lg text-foreground">{activeStrategy.strategyName}</div>
               <div className={`mt-3 inline-flex rounded border px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] ${signalTone[activeStrategy.currentSignal]}`}>
-                {activeStrategy.currentSignal} {' \u00b7 '} {activeStrategy.signalStrength}
+                {activeStrategy.currentSignal} {' · '} {activeStrategy.signalStrength}
               </div>
               <div className="mt-2 text-xs text-muted-foreground">{dataSource === 'live' ? zh.liveText : zh.fallbackText}</div>
             </div>
@@ -374,9 +374,9 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
             <div className="rounded-lg border border-border bg-secondary/40 p-4">
               <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{zh.executionPlan}</div>
               <div className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <p>{'\u80dc\u7387 '}{winRate}{'\uff0c\u6ce2\u52a8\u7387 '}{volatility}{'\uff0c\u5f53\u524d\u9002\u5408 '}{successRate >= 80 ? zh.suitableTrack : zh.waitConfirm}{' \u8282\u594f\u3002'}</p>
-                <p>{'\u8dcc\u7834 '}{stopLoss}{' \u89e6\u53d1\u51cf\u4ed3\uff0c\u9760\u8fd1 '}{takeProfit}{' \u5206\u6279\u6b62\u76c8\u3002'}</p>
-                <p>{'\u82e5\u91cf\u80fd\u8fde\u7eed\u4e24\u65e5\u56de\u843d\u81f3\u5747\u503c\u4e0b\u65b9\uff0c\u505c\u6b62\u8ffd\u4ef7\u5e76\u89c2\u5bdf\u65b0\u4fe1\u53f7\u3002'}</p>
+                <p>{'胜率 '}{winRate}{'，波动率 '}{volatility}{'，当前适合 '}{successRate >= 80 ? zh.suitableTrack : zh.waitConfirm}{' 节奏。'}</p>
+                <p>{'跌破 '}{stopLoss}{' 触发减仓，靠近 '}{takeProfit}{' 分批止盈。'}</p>
+                <p>{'若量能连续两日回落至均值下方，停止追价并观察新信号。'}</p>
               </div>
             </div>
           </div>
@@ -426,7 +426,7 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
             <div className="rounded-lg border border-border bg-secondary/40 p-4">
               <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{zh.riskBrief}</div>
               <div className="mt-3 font-mono text-sm text-foreground">{dataSource === 'live' ? 'LIVE' : 'FALLBACK'}</div>
-              <div className="mt-2 text-sm text-muted-foreground">{'\u80dc\u7387 '}{winRate}{'\uff0c\u6ce2\u52a8\u7387 '}{volatility}{'\uff0c\u9002\u5408 '}{successRate >= 80 ? zh.suitableTrack : zh.waitConfirm}{' \u8282\u594f\u3002'}</div>
+              <div className="mt-2 text-sm text-muted-foreground">{'胜率 '}{winRate}{'，波动率 '}{volatility}{'，适合 '}{successRate >= 80 ? zh.suitableTrack : zh.waitConfirm}{' 节奏。'}</div>
             </div>
             <div className="rounded-lg border border-border bg-secondary/40 p-4">
               <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{zh.boundaryLevels}</div>

@@ -171,7 +171,7 @@ export const optimizeStrategyModel = ({ candles, capital, stopLoss, takeProfit, 
 
   return {
     strategyId: 'adaptive_composite_e',
-    strategyName: '\u4f18\u5316\u6a21\u578b E2',
+    strategyName: '优化模型 E2',
     baseModel: optimized.definition.id,
     baseModelName: optimized.definition.name,
     isOptimized: true,

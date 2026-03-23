@@ -2,36 +2,36 @@ import { AlertCircle, CandlestickChart, Search, SlidersHorizontal } from 'lucide
 import { stockDatabase, type OptimizedStrategyResult, type OptimizerSummary, type StockItem, type StrategyOption } from './types';
 
 const zh = {
-  scanner: '\u80a1\u7968\u626b\u63cf',
-  code: '\u8bc1\u5238\u4ee3\u7801',
-  placeholder: '\u8f93\u5165\u80a1\u7968\u4ee3\u7801\uff0c\u4f8b\u5982 600519',
-  loading: '\u52a0\u8f7d\u4e2d...',
-  runAnalysis: '\u8fd0\u884c\u5206\u6790',
-  pool: '\u9884\u8bbe\u80a1\u7968\u6c60',
-  params: '\u7b56\u7565\u53c2\u6570',
-  strategyType: '\u7b56\u7565\u7c7b\u578b',
-  period: '\u56de\u6d4b\u5468\u671f',
-  recent3m: '\u8fd13\u4e2a\u6708',
-  recent6m: '\u8fd16\u4e2a\u6708',
-  recent1y: '\u8fd11\u5e74',
-  recent3y: '\u8fd13\u5e74',
-  capital: '\u521d\u59cb\u8d44\u91d1',
-  stopLoss: '\u6b62\u635f\u7ebf',
-  takeProfit: '\u6b62\u76c8\u7ebf',
-  runBacktest: '\u8fd0\u884c\u56de\u6d4b',
-  optimizedHint: '\u4f18\u5316\u6a21\u578b',
-  optimizedFallback: '\u672a\u627e\u5230\u66f4\u4f18\u53c2\u6570\uff0c\u5f53\u524d\u91c7\u7528\u57fa\u7840\u6700\u4f18\u6a21\u578b',
-  baseModel: '\u57fa\u7840\u6a21\u578b',
-  improveWinRate: '\u80dc\u7387\u63d0\u5347',
-  improveReturn: '\u6536\u76ca\u63d0\u5347',
-  scanStats: '\u626b\u63cf\u7ed3\u679c',
-  stockType: '\u80a1\u7968\u7c7b\u578b',
-  bestConfig: '\u6700\u4f18\u914d\u7f6e',
-  envFilter: '\u73af\u5883\u8fc7\u6ee4',
-  scanReturn: '\u5e73\u5747\u6536\u76ca',
-  scanStopLoss: '\u6b62\u635f\u7387',
-  scanTrades: '\u4ea4\u6613\u6570',
-  scanValid: '\u6709\u6548\u7ec4\u5408',
+  scanner: '股票扫描',
+  code: '证券代码',
+  placeholder: '输入股票代码，例如 600519',
+  loading: '加载中...',
+  runAnalysis: '运行分析',
+  pool: '预设股票池',
+  params: '策略参数',
+  strategyType: '策略类型',
+  period: '回测周期',
+  recent3m: '近 3 个月',
+  recent6m: '近 6 个月',
+  recent1y: '近 1 年',
+  recent3y: '近 3 年',
+  capital: '初始资金',
+  stopLoss: '止损线',
+  takeProfit: '止盈线',
+  runBacktest: '运行回测',
+  optimizedHint: '优化模型',
+  optimizedFallback: '未找到更优参数，当前采用基础最优模型',
+  baseModel: '基础模型',
+  improveWinRate: '胜率提升',
+  improveReturn: '收益提升',
+  scanStats: '扫描结果',
+  stockType: '股票类型',
+  bestConfig: '最优配置',
+  envFilter: '环境过滤',
+  scanReturn: '平均收益',
+  scanStopLoss: '止损率',
+  scanTrades: '交易数',
+  scanValid: '有效组合',
 };
 
 type StrategyControlsProps = {
@@ -220,7 +220,7 @@ export function StrategyControls(props: StrategyControlsProps) {
           <div>
             <div className="mb-2 flex items-center justify-between font-mono text-[11px] tracking-[0.16em] text-muted-foreground">
               <span>{zh.capital}</span>
-              <span className="text-primary">{capital}{'\u4e07'}</span>
+              <span className="text-primary">{capital}?</span>
             </div>
             <input type="range" min="10" max="500" value={capital} onChange={(event) => setCapital(Number(event.target.value))} className="h-1 w-full cursor-pointer appearance-none rounded bg-border" />
           </div>
@@ -245,7 +245,6 @@ export function StrategyControls(props: StrategyControlsProps) {
           onClick={() => void handleSearch(searchCode, strategyType)}
           className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary font-mono text-[12px] uppercase tracking-[0.18em] text-primary-foreground transition hover:brightness-110"
         >
-          {'\u25b6 '}
           {zh.runBacktest}
         </button>
 

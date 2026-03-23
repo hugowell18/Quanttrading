@@ -30,10 +30,12 @@ import {
   type TradeRecord,
 } from './types';
 
-export function useSignalAnalyzer() {
-  const [searchCode, setSearchCode] = useState('600519');
-  const [selectedStock, setSelectedStock] = useState<StockItem>(stockDatabase[0]);
-  const [klineData, setKlineData] = useState<KLinePoint[]>(generateKLineData('600519'));
+export function useSignalAnalyzer(initialCode?: string, initialStrategyType = 'adaptive_composite_e') {
+  const bootCode = initialCode && /^\d{6}$/.test(initialCode) ? initialCode : '600519';
+  const initialStock = stockDatabase.find((item) => item.code === bootCode) ?? stockDatabase[0];
+  const [searchCode, setSearchCode] = useState(bootCode);
+  const [selectedStock, setSelectedStock] = useState<StockItem>(initialStock);
+  const [klineData, setKlineData] = useState<KLinePoint[]>(generateKLineData(bootCode));
   const [tradeRecords, setTradeRecords] = useState<TradeRecord[]>(fallbackTrades);
   const [signalMarkers, setSignalMarkers] = useState<SignalMarker[]>(fallbackSignalMarkers);
   const [activeStrategy, setActiveStrategy] = useState<ActiveStrategyContext>(fallbackActiveStrategy);
@@ -43,7 +45,7 @@ export function useSignalAnalyzer() {
   const [stopLossPercent, setStopLossPercent] = useState(8);
   const [takeProfitPercent, setTakeProfitPercent] = useState(20);
   const [strategyType, setStrategyType] = useState('adaptive_composite_e');
-  const [backtestPeriod, setBacktestPeriod] = useState('\u8fd11\u5e74');
+  const [backtestPeriod, setBacktestPeriod] = useState('近1年');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [dataSource, setDataSource] = useState<'live' | 'fallback'>('fallback');
@@ -62,7 +64,7 @@ export function useSignalAnalyzer() {
     const requestedStrategyType = nextStrategyType ?? strategyType;
 
     if (!/^\d{6}$/.test(normalizedCode)) {
-      setErrorMessage('\u8bf7\u8f93\u5165 6 \u4f4d\u80a1\u7968\u4ee3\u7801\u3002');
+      setErrorMessage('请输入 6 位股票代码。');
       return;
     }
 
@@ -139,7 +141,7 @@ export function useSignalAnalyzer() {
       setTradeRecords(useOptimizerFlow ? optimizerTradeRecords : (payload.trades.length ? payload.trades : fallbackTrades));
       setSignalMarkers(useOptimizerFlow ? optimizerSignalMarkers : (payload.signalMarkers?.length ? payload.signalMarkers : fallbackSignalMarkers));
       setStrategyOptions(nextStrategyOptions);
-      setActiveStrategy(useOptimizerFlow ? { ...nextActiveStrategy, strategyName: `Optimizer ? ${optimizerPayload?.bestConfig?.envFilter ?? 'best'}` } : nextActiveStrategy);
+      setActiveStrategy(useOptimizerFlow ? { ...nextActiveStrategy, strategyName: `Optimizer · ${optimizerPayload?.bestConfig?.envFilter ?? 'best'}` } : nextActiveStrategy);
       setStrategyType(nextActiveStrategy.strategyId);
       setFeatures(payload.features ?? fallbackFeatures);
       setRegime(payload.regime ?? fallbackRegime);
@@ -179,8 +181,14 @@ export function useSignalAnalyzer() {
   };
 
   useEffect(() => {
-    void handleSearch(searchCode, 'adaptive_composite_e');
+    void handleSearch(searchCode, initialStrategyType);
   }, []);
+
+  useEffect(() => {
+    if (initialCode && /^\d{6}$/.test(initialCode) && initialCode !== searchCode) {
+      void handleSearch(initialCode, initialStrategyType);
+    }
+  }, [initialCode, initialStrategyType, searchCode]);
 
   const currentPoint = klineData[klineData.length - 1];
   const previousPoint = klineData[klineData.length - 2];
@@ -195,23 +203,23 @@ export function useSignalAnalyzer() {
   const cagr = `${(successRate / 2.7).toFixed(1)}%`;
   const maxDrawdown = `-${(18 - successRate / 10).toFixed(1)}%`;
   const volatility = `${(12 + (100 - successRate) / 2).toFixed(1)}%`;
-  const stopLoss = `\u00a5${(currentPrice * (1 - stopLossPercent / 100)).toFixed(2)}`;
-  const takeProfit = `\u00a5${(currentPrice * (1 + takeProfitPercent / 100)).toFixed(2)}`;
+  const stopLoss = `¥${(currentPrice * (1 - stopLossPercent / 100)).toFixed(2)}`;
+  const takeProfit = `¥${(currentPrice * (1 + takeProfitPercent / 100)).toFixed(2)}`;
   const latestVolume = currentPoint?.volume ?? 0;
   const averageVolume = Math.round(klineData.reduce((sum, item) => sum + item.volume, 0) / Math.max(klineData.length, 1));
   const riskLevel = getRiskLevel(successRate);
   const actionLabel =
     activeStrategy.currentSignal === 'buy'
-      ? '\u4f18\u5148\u89c2\u5bdf\u4e70\u70b9'
+      ? '优先观察买点'
       : activeStrategy.currentSignal === 'sell'
-        ? '\u5356\u70b9\u5df2\u89e6\u53d1'
-        : '\u7b49\u5f85\u786e\u8ba4\u4fe1\u53f7';
+        ? '卖点已触发'
+        : '等待确认信号';
   const metricCards: MetricCard[] = [
-    { label: '\u5e74\u5316\u6536\u76ca', value: cagr, sub: `\u56de\u6d4b\u5468\u671f ${backtestPeriod}` },
-    { label: 'Sharpe', value: sharpe, sub: '\u6536\u76ca\u98ce\u9669\u6bd4' },
-    { label: '\u80dc\u7387', value: winRate, sub: `${selectedStock.industry} \u6837\u672c\u8868\u73b0` },
-    { label: '\u6700\u5927\u56de\u64a4', value: maxDrawdown, sub: '\u5386\u53f2\u56de\u64a4\u5cf0\u503c' },
-    { label: '\u6ce2\u52a8\u7387', value: volatility, sub: '\u8fd1 60 \u65e5\u4f30\u7b97' },
+    { label: '年化收益', value: cagr, sub: `回测周期 ${backtestPeriod}` },
+    { label: 'Sharpe', value: sharpe, sub: '收益风险比' },
+    { label: '胜率', value: winRate, sub: `${selectedStock.industry} 样本表现` },
+    { label: '最大回撤', value: maxDrawdown, sub: '历史回撤峰值' },
+    { label: '波动率', value: volatility, sub: '近 60 日估算' },
   ];
 
   const visibleWindowSize = priceView === 'all' ? klineData.length : Math.min(Number(priceView), klineData.length);

@@ -5,14 +5,18 @@ import { TradeLedger } from './signal-analyzer/TradeLedger';
 import { useSignalAnalyzer } from './signal-analyzer/useSignalAnalyzer';
 
 const zh = {
-  industryTiming: '\u884c\u4e1a\u91cf\u5316\u62e9\u65f6\u6a21\u578b',
-  activeStrategy: '\u5f53\u524d\u7b56\u7565',
-  optimizedSource: '\u4f18\u5316\u6765\u6e90',
-  optimizedParams: '\u4f18\u5316\u53c2\u6570',
+  industryTiming: '行业量化择时模型',
+  activeStrategy: '当前策略',
+  optimizedSource: '优化来源',
+  optimizedParams: '优化参数',
 };
 
-export function SignalAnalyzer() {
-  const analyzer = useSignalAnalyzer();
+interface SignalAnalyzerProps {
+  initialCode?: string;
+}
+
+export function SignalAnalyzer({ initialCode }: SignalAnalyzerProps = {}) {
+  const analyzer = useSignalAnalyzer(initialCode);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
@@ -78,7 +82,7 @@ export function SignalAnalyzer() {
                     <div className="mt-2 text-xs text-muted-foreground">
                       {zh.optimizedSource}{': '}{analyzer.optimizedStrategy.baseModelName}
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground break-all">
+                    <div className="mt-1 break-all text-xs text-muted-foreground">
                       {zh.optimizedParams}{': '}
                       {Object.entries(analyzer.optimizedStrategy.params)
                         .map(([key, value]) => `${key}=${value}`)
@@ -104,11 +108,11 @@ export function SignalAnalyzer() {
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Debug Log</div>
           <div className="mt-3 space-y-2 font-mono text-[11px] text-muted-foreground">
-            <div className="rounded border border-border bg-secondary/30 px-3 py-2 break-all">
+            <div className="break-all rounded border border-border bg-secondary/30 px-3 py-2">
               {`[view] priceView=${analyzer.priceView} trades=${analyzer.tradeRecords.length} markers=${analyzer.visibleSignalMarkerCount}`}
             </div>
             {analyzer.requestLog.map((line, index) => (
-              <div key={`${line}-${index}`} className="rounded border border-border bg-secondary/30 px-3 py-2 break-all">
+              <div key={`${line}-${index}`} className="break-all rounded border border-border bg-secondary/30 px-3 py-2">
                 {line}
               </div>
             ))}
