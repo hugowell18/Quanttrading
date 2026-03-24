@@ -3,76 +3,65 @@
   "stockName": "高德红外",
   "stockType": "trend",
   "bestConfig": {
-    "minZoneCapture": 0.8,
-    "zoneForward": 15,
-    "zoneBackward": 5,
+    "minZoneCapture": 0.7,
+    "zoneForward": 5,
+    "zoneBackward": 2,
     "envFilter": "none"
   },
   "bestResult": {
-    "stopLossRate": 0.1053,
-    "avgReturn": 0.0463,
-    "totalTrades": 19,
-    "winRate": 0.5789,
-    "maxDrawdown": -0.1058,
+    "stopLossRate": 0.0833,
+    "avgReturn": 0.0603,
+    "totalTrades": 12,
+    "winRate": 0.5833,
+    "maxDrawdown": -0.0487,
     "skippedByEnvironment": 0,
-    "skippedByMarket": 28,
-    "avgStopLossPct": 0.0484,
-    "buyCount": 228,
+    "skippedByMarket": 16,
+    "avgStopLossPct": 0.0468,
+    "buyCount": 126,
     "trades": [
       {
-        "buyDate": "2023-06-21",
-        "sellDate": "2023-06-30",
-        "buyPrice": 7.66,
-        "sellPrice": 7.77,
-        "return": 0.0131,
-        "holdingDays": 5,
+        "buyDate": "2022-11-17",
+        "sellDate": "2022-11-18",
+        "buyPrice": 12.35,
+        "sellPrice": 12.29,
+        "return": -0.0062,
+        "holdingDays": 1,
         "confidence": 1,
-        "stopLossPct": 0.06,
-        "exitReason": "timeout"
-      },
-      {
-        "buyDate": "2023-11-08",
-        "sellDate": "2023-11-09",
-        "buyPrice": 7.93,
-        "sellPrice": 7.87,
-        "return": -0.0089,
-        "holdingDays": 1,
-        "confidence": 0.5475,
-        "stopLossPct": 0.035,
+        "stopLossPct": 0.0429,
         "exitReason": "sellSignal"
       },
       {
-        "buyDate": "2023-11-13",
-        "sellDate": "2023-11-14",
-        "buyPrice": 8.04,
-        "sellPrice": 8.08,
-        "return": 0.0037,
-        "holdingDays": 1,
-        "confidence": 0.6423,
-        "stopLossPct": 0.0315,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2023-11-16",
-        "sellDate": "2023-11-17",
-        "buyPrice": 8.01,
-        "sellPrice": 8.02,
-        "return": -0.0001,
-        "holdingDays": 1,
-        "confidence": 0.9118,
-        "stopLossPct": 0.0293,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2023-11-21",
-        "sellDate": "2023-12-01",
-        "buyPrice": 7.94,
-        "sellPrice": 7.67,
-        "return": -0.0353,
-        "holdingDays": 8,
-        "confidence": 0.9257,
-        "stopLossPct": 0.0256,
+        "buyDate": "2022-11-24",
+        "sellDate": "2022-12-16",
+        "buyPrice": 11.8,
+        "sellPrice": 11.31,
+        "return": -0.0428,
+        "holdingDays": 16,
+        "confidence": 0.506,
+        "stopLossPct": 0.0392,
         "exitReason": "stopLoss"
+      },
+      {
+        "buyDate": "2023-01-31",
+        "sellDate": "2023-02-01",
+        "buyPrice": 11.78,
+        "sellPrice": 11.95,
+        "return": 0.0131,
+        "holdingDays": 1,
+        "confidence": 0.6099,
+        "stopLossPct": 0.0257,
+        "exitReason": "sellSignal"
+      },
+      {
+        "buyDate": "2023-07-13",
+        "sellDate": "2023-07-14",
+        "buyPrice": 8.37,
+        "sellPrice": 8.31,
+        "return": -0.0085,
+        "holdingDays": 1,
+        "confidence": 0.8477,
+        "stopLossPct": 0.037,
+        "exitReason": "sellSignal"
       },
       {
         "buyDate": "2024-02-06",
@@ -81,20 +70,31 @@
         "sellPrice": 7.44,
         "return": 0.3946,
         "holdingDays": 21,
-        "confidence": 0.9074,
+        "confidence": 0.879,
         "stopLossPct": 0.06,
+        "exitReason": "trailingStop"
+      },
+      {
+        "buyDate": "2024-04-17",
+        "sellDate": "2024-04-25",
+        "buyPrice": 6.62,
+        "sellPrice": 6.84,
+        "return": 0.0319,
+        "holdingDays": 6,
+        "confidence": 0.9021,
+        "stopLossPct": 0.0597,
         "exitReason": "sellSignal"
       },
       {
-        "buyDate": "2025-01-24",
-        "sellDate": "2025-02-19",
-        "buyPrice": 6.63,
-        "sellPrice": 7.49,
-        "return": 0.1284,
-        "holdingDays": 12,
-        "confidence": 1,
-        "stopLossPct": 0.0525,
-        "exitReason": "sellSignal"
+        "buyDate": "2024-09-25",
+        "sellDate": "2024-10-09",
+        "buyPrice": 6.13,
+        "sellPrice": 7.56,
+        "return": 0.232,
+        "holdingDays": 5,
+        "confidence": 0.5496,
+        "stopLossPct": 0.0332,
+        "exitReason": "trailingStop"
       },
       {
         "buyDate": "2025-02-21",
@@ -103,129 +103,52 @@
         "sellPrice": 8.98,
         "return": 0.0992,
         "holdingDays": 1,
-        "confidence": 1,
+        "confidence": 0.5468,
         "stopLossPct": 0.054,
         "exitReason": "sellSignal"
       },
       {
-        "buyDate": "2025-02-26",
-        "sellDate": "2025-02-27",
-        "buyPrice": 8.36,
-        "sellPrice": 8.15,
-        "return": -0.0264,
+        "buyDate": "2025-08-07",
+        "sellDate": "2025-08-08",
+        "buyPrice": 13.34,
+        "sellPrice": 13.19,
+        "return": -0.0125,
+        "holdingDays": 1,
+        "confidence": 0.5383,
+        "stopLossPct": 0.0592,
+        "exitReason": "sellSignal"
+      },
+      {
+        "buyDate": "2025-09-22",
+        "sellDate": "2025-10-22",
+        "buyPrice": 12.27,
+        "sellPrice": 12.12,
+        "return": -0.0135,
+        "holdingDays": 16,
+        "confidence": 0.6685,
+        "stopLossPct": 0.0515,
+        "exitReason": "trailingStop"
+      },
+      {
+        "buyDate": "2025-10-28",
+        "sellDate": "2025-10-29",
+        "buyPrice": 13.55,
+        "sellPrice": 14.01,
+        "return": 0.0326,
         "holdingDays": 1,
         "confidence": 1,
-        "stopLossPct": 0.06,
+        "stopLossPct": 0.0599,
         "exitReason": "sellSignal"
       },
       {
-        "buyDate": "2025-04-25",
-        "sellDate": "2025-05-06",
-        "buyPrice": 7.46,
-        "sellPrice": 8.45,
-        "return": 0.1314,
-        "holdingDays": 4,
-        "confidence": 0.5055,
-        "stopLossPct": 0.0549,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-05-08",
-        "sellDate": "2025-05-09",
-        "buyPrice": 8.62,
-        "sellPrice": 8.56,
-        "return": -0.0083,
-        "holdingDays": 1,
-        "confidence": 1,
-        "stopLossPct": 0.0446,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-05-13",
-        "sellDate": "2025-05-14",
-        "buyPrice": 8.64,
-        "sellPrice": 8.54,
-        "return": -0.0129,
-        "holdingDays": 1,
-        "confidence": 1,
-        "stopLossPct": 0.048,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-05-23",
-        "sellDate": "2025-06-25",
-        "buyPrice": 8.69,
-        "sellPrice": 9.44,
-        "return": 0.085,
-        "holdingDays": 22,
-        "confidence": 0.8488,
-        "stopLossPct": 0.036,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-06-27",
-        "sellDate": "2025-07-09",
-        "buyPrice": 9.7,
-        "sellPrice": 10.09,
-        "return": 0.0389,
-        "holdingDays": 8,
-        "confidence": 0.7283,
-        "stopLossPct": 0.0546,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-09-19",
-        "sellDate": "2025-10-27",
-        "buyPrice": 11.84,
-        "sellPrice": 13.4,
-        "return": 0.1305,
-        "holdingDays": 20,
-        "confidence": 1,
-        "stopLossPct": 0.0547,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-10-29",
-        "sellDate": "2025-10-30",
-        "buyPrice": 14.01,
-        "sellPrice": 14.3,
-        "return": 0.0194,
-        "holdingDays": 1,
-        "confidence": 1,
-        "stopLossPct": 0.0578,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-11-03",
-        "sellDate": "2025-11-04",
-        "buyPrice": 13.86,
-        "sellPrice": 13.34,
-        "return": -0.0388,
-        "holdingDays": 1,
-        "confidence": 1,
-        "stopLossPct": 0.0586,
-        "exitReason": "sellSignal"
-      },
-      {
-        "buyDate": "2025-11-06",
-        "sellDate": "2025-11-19",
-        "buyPrice": 13.15,
-        "sellPrice": 12.25,
-        "return": -0.0697,
-        "holdingDays": 9,
-        "confidence": 1,
-        "stopLossPct": 0.06,
-        "exitReason": "stopLoss"
-      },
-      {
-        "buyDate": "2025-12-05",
+        "buyDate": "2025-12-17",
         "sellDate": "2025-12-18",
-        "buyPrice": 12.47,
+        "buyPrice": 12.86,
         "sellPrice": 12.93,
-        "return": 0.0356,
-        "holdingDays": 9,
-        "confidence": 1,
-        "stopLossPct": 0.0431,
+        "return": 0.0041,
+        "holdingDays": 1,
+        "confidence": 0.7174,
+        "stopLossPct": 0.0394,
         "exitReason": "timeout"
       }
     ]
@@ -233,1010 +156,36 @@
   "bestModel": {
     "featureSet": "volume_price",
     "model": "PercentileRank",
-    "precision": 0.37,
-    "recall": 0.5193,
-    "f1": 0.3509
+    "precision": 0.2186,
+    "recall": 0.2773,
+    "f1": 0.2389
   },
   "leaderboard": [
     {
       "rank": 1,
       "config": {
-        "minZoneCapture": 0.8,
-        "zoneForward": 15,
-        "zoneBackward": 5,
-        "envFilter": "none"
-      },
-      "bestModel": {
-        "featureSet": "volume_price",
-        "model": "PercentileRank",
-        "precision": 0.37,
-        "recall": 0.5193,
-        "f1": 0.3509
-      },
-      "result": {
-        "stopLossRate": 0.1053,
-        "avgReturn": 0.0463,
-        "totalTrades": 19,
-        "winRate": 0.5789,
-        "maxDrawdown": -0.1058,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 28,
-        "avgStopLossPct": 0.0484,
-        "buyCount": 228,
-        "trades": [
-          {
-            "buyDate": "2023-06-21",
-            "sellDate": "2023-06-30",
-            "buyPrice": 7.66,
-            "sellPrice": 7.77,
-            "return": 0.0131,
-            "holdingDays": 5,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "timeout"
-          },
-          {
-            "buyDate": "2023-11-08",
-            "sellDate": "2023-11-09",
-            "buyPrice": 7.93,
-            "sellPrice": 7.87,
-            "return": -0.0089,
-            "holdingDays": 1,
-            "confidence": 0.5475,
-            "stopLossPct": 0.035,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-13",
-            "sellDate": "2023-11-14",
-            "buyPrice": 8.04,
-            "sellPrice": 8.08,
-            "return": 0.0037,
-            "holdingDays": 1,
-            "confidence": 0.6423,
-            "stopLossPct": 0.0315,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-16",
-            "sellDate": "2023-11-17",
-            "buyPrice": 8.01,
-            "sellPrice": 8.02,
-            "return": -0.0001,
-            "holdingDays": 1,
-            "confidence": 0.9118,
-            "stopLossPct": 0.0293,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-21",
-            "sellDate": "2023-12-01",
-            "buyPrice": 7.94,
-            "sellPrice": 7.67,
-            "return": -0.0353,
-            "holdingDays": 8,
-            "confidence": 0.9257,
-            "stopLossPct": 0.0256,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-02-06",
-            "sellDate": "2024-03-14",
-            "buyPrice": 5.33,
-            "sellPrice": 7.44,
-            "return": 0.3946,
-            "holdingDays": 21,
-            "confidence": 0.9074,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-01-24",
-            "sellDate": "2025-02-19",
-            "buyPrice": 6.63,
-            "sellPrice": 7.49,
-            "return": 0.1284,
-            "holdingDays": 12,
-            "confidence": 1,
-            "stopLossPct": 0.0525,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-21",
-            "sellDate": "2025-02-24",
-            "buyPrice": 8.16,
-            "sellPrice": 8.98,
-            "return": 0.0992,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-26",
-            "sellDate": "2025-02-27",
-            "buyPrice": 8.36,
-            "sellPrice": 8.15,
-            "return": -0.0264,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-04-25",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.46,
-            "sellPrice": 8.45,
-            "return": 0.1314,
-            "holdingDays": 4,
-            "confidence": 0.5055,
-            "stopLossPct": 0.0549,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-08",
-            "sellDate": "2025-05-09",
-            "buyPrice": 8.62,
-            "sellPrice": 8.56,
-            "return": -0.0083,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0446,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-13",
-            "sellDate": "2025-05-14",
-            "buyPrice": 8.64,
-            "sellPrice": 8.54,
-            "return": -0.0129,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.048,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-23",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.69,
-            "sellPrice": 9.44,
-            "return": 0.085,
-            "holdingDays": 22,
-            "confidence": 0.8488,
-            "stopLossPct": 0.036,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-06-27",
-            "sellDate": "2025-07-09",
-            "buyPrice": 9.7,
-            "sellPrice": 10.09,
-            "return": 0.0389,
-            "holdingDays": 8,
-            "confidence": 0.7283,
-            "stopLossPct": 0.0546,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 2,
-      "config": {
-        "minZoneCapture": 0.8,
-        "zoneForward": 15,
-        "zoneBackward": 3,
-        "envFilter": "none"
-      },
-      "bestModel": {
-        "featureSet": "volume_price",
-        "model": "PercentileRank",
-        "precision": 0.3536,
-        "recall": 0.5198,
-        "f1": 0.3496
-      },
-      "result": {
-        "stopLossRate": 0.1053,
-        "avgReturn": 0.0456,
-        "totalTrades": 19,
-        "winRate": 0.5789,
-        "maxDrawdown": -0.1058,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 28,
-        "avgStopLossPct": 0.0484,
-        "buyCount": 223,
-        "trades": [
-          {
-            "buyDate": "2023-06-21",
-            "sellDate": "2023-06-30",
-            "buyPrice": 7.66,
-            "sellPrice": 7.77,
-            "return": 0.0131,
-            "holdingDays": 5,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "timeout"
-          },
-          {
-            "buyDate": "2023-11-08",
-            "sellDate": "2023-11-09",
-            "buyPrice": 7.93,
-            "sellPrice": 7.87,
-            "return": -0.0089,
-            "holdingDays": 1,
-            "confidence": 0.5475,
-            "stopLossPct": 0.035,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-13",
-            "sellDate": "2023-11-14",
-            "buyPrice": 8.04,
-            "sellPrice": 8.08,
-            "return": 0.0037,
-            "holdingDays": 1,
-            "confidence": 0.6423,
-            "stopLossPct": 0.0315,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-16",
-            "sellDate": "2023-11-17",
-            "buyPrice": 8.01,
-            "sellPrice": 8.02,
-            "return": -0.0001,
-            "holdingDays": 1,
-            "confidence": 0.9118,
-            "stopLossPct": 0.0293,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-21",
-            "sellDate": "2023-12-01",
-            "buyPrice": 7.94,
-            "sellPrice": 7.67,
-            "return": -0.0353,
-            "holdingDays": 8,
-            "confidence": 0.9257,
-            "stopLossPct": 0.0256,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-02-06",
-            "sellDate": "2024-03-14",
-            "buyPrice": 5.33,
-            "sellPrice": 7.44,
-            "return": 0.3946,
-            "holdingDays": 21,
-            "confidence": 0.9074,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-01-24",
-            "sellDate": "2025-02-19",
-            "buyPrice": 6.63,
-            "sellPrice": 7.49,
-            "return": 0.1284,
-            "holdingDays": 12,
-            "confidence": 1,
-            "stopLossPct": 0.0525,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-21",
-            "sellDate": "2025-02-24",
-            "buyPrice": 8.16,
-            "sellPrice": 8.98,
-            "return": 0.0992,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-26",
-            "sellDate": "2025-02-27",
-            "buyPrice": 8.36,
-            "sellPrice": 8.15,
-            "return": -0.0264,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-04-28",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.55,
-            "sellPrice": 8.45,
-            "return": 0.1179,
-            "holdingDays": 3,
-            "confidence": 0.9936,
-            "stopLossPct": 0.0536,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-08",
-            "sellDate": "2025-05-09",
-            "buyPrice": 8.62,
-            "sellPrice": 8.56,
-            "return": -0.0083,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0446,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-13",
-            "sellDate": "2025-05-14",
-            "buyPrice": 8.64,
-            "sellPrice": 8.54,
-            "return": -0.0129,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.048,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-23",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.69,
-            "sellPrice": 9.44,
-            "return": 0.085,
-            "holdingDays": 22,
-            "confidence": 0.8293,
-            "stopLossPct": 0.036,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-06-27",
-            "sellDate": "2025-07-09",
-            "buyPrice": 9.7,
-            "sellPrice": 10.09,
-            "return": 0.0389,
-            "holdingDays": 8,
-            "confidence": 0.9914,
-            "stopLossPct": 0.0546,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 3,
-      "config": {
-        "minZoneCapture": 0.6,
+        "minZoneCapture": 0.7,
         "zoneForward": 5,
         "zoneBackward": 2,
         "envFilter": "none"
       },
       "bestModel": {
         "featureSet": "volume_price",
-        "model": "ContrastRank",
-        "precision": 0.2257,
-        "recall": 0.2112,
-        "f1": 0.2088
-      },
-      "result": {
-        "stopLossRate": 0.2143,
-        "avgReturn": 0.0414,
-        "totalTrades": 14,
-        "winRate": 0.5714,
-        "maxDrawdown": -0.1185,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 24,
-        "avgStopLossPct": 0.0531,
-        "buyCount": 139,
-        "trades": [
-          {
-            "buyDate": "2023-07-13",
-            "sellDate": "2023-07-14",
-            "buyPrice": 8.37,
-            "sellPrice": 8.31,
-            "return": -0.0085,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.037,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-02-06",
-            "sellDate": "2024-03-14",
-            "buyPrice": 5.33,
-            "sellPrice": 7.44,
-            "return": 0.3946,
-            "holdingDays": 21,
-            "confidence": 0.5538,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-04-17",
-            "sellDate": "2024-04-25",
-            "buyPrice": 6.62,
-            "sellPrice": 6.84,
-            "return": 0.0319,
-            "holdingDays": 6,
-            "confidence": 1,
-            "stopLossPct": 0.0597,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-09-30",
-            "sellDate": "2024-10-11",
-            "buyPrice": 7.34,
-            "sellPrice": 7.01,
-            "return": -0.0463,
-            "holdingDays": 4,
-            "confidence": 0.5821,
-            "stopLossPct": 0.0425,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-12-25",
-            "sellDate": "2025-01-02",
-            "buyPrice": 7.66,
-            "sellPrice": 7.09,
-            "return": -0.0757,
-            "holdingDays": 5,
-            "confidence": 0.6901,
-            "stopLossPct": 0.0436,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-01-24",
-            "sellDate": "2025-02-19",
-            "buyPrice": 6.63,
-            "sellPrice": 7.49,
-            "return": 0.1284,
-            "holdingDays": 12,
-            "confidence": 1,
-            "stopLossPct": 0.0525,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-21",
-            "sellDate": "2025-02-24",
-            "buyPrice": 8.16,
-            "sellPrice": 8.98,
-            "return": 0.0992,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-26",
-            "sellDate": "2025-02-27",
-            "buyPrice": 8.36,
-            "sellPrice": 8.15,
-            "return": -0.0264,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-07",
-            "sellDate": "2025-03-10",
-            "buyPrice": 8.41,
-            "sellPrice": 8.47,
-            "return": 0.0058,
-            "holdingDays": 1,
-            "confidence": 0.6128,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 0.94,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 4,
-      "config": {
-        "minZoneCapture": 0.5,
-        "zoneForward": 15,
-        "zoneBackward": 5,
-        "envFilter": "none"
-      },
-      "bestModel": {
-        "featureSet": "volume_price",
         "model": "PercentileRank",
-        "precision": 0.4852,
-        "recall": 0.6363,
-        "f1": 0.4679
+        "precision": 0.2186,
+        "recall": 0.2773,
+        "f1": 0.2389
       },
       "result": {
-        "stopLossRate": 0.1923,
-        "avgReturn": 0.0372,
-        "totalTrades": 26,
-        "winRate": 0.5385,
-        "maxDrawdown": -0.1332,
+        "stopLossRate": 0.0833,
+        "avgReturn": 0.0603,
+        "totalTrades": 12,
+        "winRate": 0.5833,
+        "maxDrawdown": -0.0487,
         "skippedByEnvironment": 0,
-        "skippedByMarket": 55,
-        "avgStopLossPct": 0.0452,
-        "buyCount": 339,
-        "trades": [
-          {
-            "buyDate": "2023-01-17",
-            "sellDate": "2023-01-18",
-            "buyPrice": 11.34,
-            "sellPrice": 11.39,
-            "return": 0.0031,
-            "holdingDays": 1,
-            "confidence": 0.9922,
-            "stopLossPct": 0.0262,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-01-31",
-            "sellDate": "2023-02-01",
-            "buyPrice": 11.78,
-            "sellPrice": 11.95,
-            "return": 0.0131,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0257,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-03-24",
-            "sellDate": "2023-03-30",
-            "buyPrice": 12.6,
-            "sellPrice": 11.99,
-            "return": -0.0497,
-            "holdingDays": 4,
-            "confidence": 0.6592,
-            "stopLossPct": 0.0424,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2023-07-13",
-            "sellDate": "2023-07-14",
-            "buyPrice": 8.37,
-            "sellPrice": 8.31,
-            "return": -0.0085,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.037,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-07-25",
-            "sellDate": "2023-08-08",
-            "buyPrice": 8.26,
-            "sellPrice": 7.9,
-            "return": -0.0449,
-            "holdingDays": 10,
-            "confidence": 0.8407,
-            "stopLossPct": 0.0403,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2023-11-07",
-            "sellDate": "2023-11-09",
-            "buyPrice": 7.9,
-            "sellPrice": 7.87,
-            "return": -0.0051,
-            "holdingDays": 2,
-            "confidence": 0.8849,
-            "stopLossPct": 0.035,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-13",
-            "sellDate": "2023-11-14",
-            "buyPrice": 8.04,
-            "sellPrice": 8.08,
-            "return": 0.0037,
-            "holdingDays": 1,
-            "confidence": 0.6197,
-            "stopLossPct": 0.0315,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-16",
-            "sellDate": "2023-11-17",
-            "buyPrice": 8.01,
-            "sellPrice": 8.02,
-            "return": -0.0001,
-            "holdingDays": 1,
-            "confidence": 0.6166,
-            "stopLossPct": 0.0293,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-21",
-            "sellDate": "2023-12-01",
-            "buyPrice": 7.94,
-            "sellPrice": 7.67,
-            "return": -0.0353,
-            "holdingDays": 8,
-            "confidence": 0.9016,
-            "stopLossPct": 0.0256,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-02-06",
-            "sellDate": "2024-03-14",
-            "buyPrice": 5.33,
-            "sellPrice": 7.44,
-            "return": 0.3946,
-            "holdingDays": 21,
-            "confidence": 0.9935,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-04-17",
-            "sellDate": "2024-04-25",
-            "buyPrice": 6.62,
-            "sellPrice": 6.84,
-            "return": 0.0319,
-            "holdingDays": 6,
-            "confidence": 1,
-            "stopLossPct": 0.0597,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-07-12",
-            "sellDate": "2024-07-23",
-            "buyPrice": 6.19,
-            "sellPrice": 5.86,
-            "return": -0.0546,
-            "holdingDays": 7,
-            "confidence": 0.6678,
-            "stopLossPct": 0.0516,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-09-25",
-            "sellDate": "2024-10-18",
-            "buyPrice": 6.13,
-            "sellPrice": 7.41,
-            "return": 0.2075,
-            "holdingDays": 12,
-            "confidence": 0.5099,
-            "stopLossPct": 0.0332,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-01-24",
-            "sellDate": "2025-02-19",
-            "buyPrice": 6.63,
-            "sellPrice": 7.49,
-            "return": 0.1284,
-            "holdingDays": 12,
-            "confidence": 1,
-            "stopLossPct": 0.0525,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-21",
-            "sellDate": "2025-02-24",
-            "buyPrice": 8.16,
-            "sellPrice": 8.98,
-            "return": 0.0992,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-26",
-            "sellDate": "2025-02-27",
-            "buyPrice": 8.36,
-            "sellPrice": 8.15,
-            "return": -0.0264,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-04-25",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.46,
-            "sellPrice": 8.45,
-            "return": 0.1314,
-            "holdingDays": 4,
-            "confidence": 0.6243,
-            "stopLossPct": 0.0549,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-08",
-            "sellDate": "2025-05-09",
-            "buyPrice": 8.62,
-            "sellPrice": 8.56,
-            "return": -0.0083,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0446,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-13",
-            "sellDate": "2025-05-14",
-            "buyPrice": 8.64,
-            "sellPrice": 8.54,
-            "return": -0.0129,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.048,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-23",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.69,
-            "sellPrice": 9.44,
-            "return": 0.085,
-            "holdingDays": 22,
-            "confidence": 0.9677,
-            "stopLossPct": 0.036,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-06-27",
-            "sellDate": "2025-07-09",
-            "buyPrice": 9.7,
-            "sellPrice": 10.09,
-            "return": 0.0389,
-            "holdingDays": 8,
-            "confidence": 0.9184,
-            "stopLossPct": 0.0546,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 5,
-      "config": {
-        "minZoneCapture": 0.6,
-        "zoneForward": 15,
-        "zoneBackward": 2,
-        "envFilter": "none"
-      },
-      "bestModel": {
-        "featureSet": "volume_price",
-        "model": "ContrastRank",
-        "precision": 0.4486,
-        "recall": 0.5494,
-        "f1": 0.4343
-      },
-      "result": {
-        "stopLossRate": 0.1818,
-        "avgReturn": 0.0358,
-        "totalTrades": 22,
-        "winRate": 0.5,
-        "maxDrawdown": -0.1602,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 51,
-        "avgStopLossPct": 0.0508,
-        "buyCount": 276,
+        "skippedByMarket": 16,
+        "avgStopLossPct": 0.0468,
+        "buyCount": 126,
         "trades": [
           {
             "buyDate": "2022-11-17",
@@ -1245,8 +194,30 @@
             "sellPrice": 12.29,
             "return": -0.0062,
             "holdingDays": 1,
-            "confidence": 0.8508,
+            "confidence": 1,
             "stopLossPct": 0.0429,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2022-11-24",
+            "sellDate": "2022-12-16",
+            "buyPrice": 11.8,
+            "sellPrice": 11.31,
+            "return": -0.0428,
+            "holdingDays": 16,
+            "confidence": 0.506,
+            "stopLossPct": 0.0392,
+            "exitReason": "stopLoss"
+          },
+          {
+            "buyDate": "2023-01-31",
+            "sellDate": "2023-02-01",
+            "buyPrice": 11.78,
+            "sellPrice": 11.95,
+            "return": 0.0131,
+            "holdingDays": 1,
+            "confidence": 0.6099,
+            "stopLossPct": 0.0257,
             "exitReason": "sellSignal"
           },
           {
@@ -1256,20 +227,9 @@
             "sellPrice": 8.31,
             "return": -0.0085,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.8477,
             "stopLossPct": 0.037,
             "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-07-25",
-            "sellDate": "2023-08-08",
-            "buyPrice": 8.26,
-            "sellPrice": 7.9,
-            "return": -0.0449,
-            "holdingDays": 10,
-            "confidence": 1,
-            "stopLossPct": 0.0403,
-            "exitReason": "stopLoss"
           },
           {
             "buyDate": "2024-02-06",
@@ -1278,42 +238,31 @@
             "sellPrice": 7.44,
             "return": 0.3946,
             "holdingDays": 21,
-            "confidence": 0.947,
+            "confidence": 0.879,
             "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2024-04-17",
+            "sellDate": "2024-04-25",
+            "buyPrice": 6.62,
+            "sellPrice": 6.84,
+            "return": 0.0319,
+            "holdingDays": 6,
+            "confidence": 0.9021,
+            "stopLossPct": 0.0597,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2024-04-15",
-            "sellDate": "2024-04-16",
-            "buyPrice": 6.88,
-            "sellPrice": 6.26,
-            "return": -0.0914,
-            "holdingDays": 1,
-            "confidence": 0.5954,
-            "stopLossPct": 0.0508,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-12-25",
-            "sellDate": "2025-01-02",
-            "buyPrice": 7.66,
-            "sellPrice": 7.09,
-            "return": -0.0757,
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
             "holdingDays": 5,
-            "confidence": 0.6981,
-            "stopLossPct": 0.0436,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-01-24",
-            "sellDate": "2025-02-19",
-            "buyPrice": 6.63,
-            "sellPrice": 7.49,
-            "return": 0.1284,
-            "holdingDays": 12,
-            "confidence": 1,
-            "stopLossPct": 0.0525,
-            "exitReason": "sellSignal"
+            "confidence": 0.5496,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
           },
           {
             "buyDate": "2025-02-21",
@@ -1322,96 +271,8 @@
             "sellPrice": 8.98,
             "return": 0.0992,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.5468,
             "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-26",
-            "sellDate": "2025-02-27",
-            "buyPrice": 8.36,
-            "sellPrice": 8.15,
-            "return": -0.0264,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-07",
-            "sellDate": "2025-03-10",
-            "buyPrice": 8.41,
-            "sellPrice": 8.47,
-            "return": 0.0058,
-            "holdingDays": 1,
-            "confidence": 0.6957,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-04-25",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.46,
-            "sellPrice": 8.45,
-            "return": 0.1314,
-            "holdingDays": 4,
-            "confidence": 0.5643,
-            "stopLossPct": 0.0549,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-08",
-            "sellDate": "2025-05-09",
-            "buyPrice": 8.62,
-            "sellPrice": 8.56,
-            "return": -0.0083,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0446,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-13",
-            "sellDate": "2025-05-14",
-            "buyPrice": 8.64,
-            "sellPrice": 8.54,
-            "return": -0.0129,
-            "holdingDays": 1,
-            "confidence": 0.904,
-            "stopLossPct": 0.048,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-23",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.69,
-            "sellPrice": 9.44,
-            "return": 0.085,
-            "holdingDays": 22,
-            "confidence": 0.6708,
-            "stopLossPct": 0.036,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-06-27",
-            "sellDate": "2025-07-09",
-            "buyPrice": 9.7,
-            "sellPrice": 10.09,
-            "return": 0.0389,
-            "holdingDays": 8,
-            "confidence": 1,
-            "stopLossPct": 0.0546,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-07-23",
-            "sellDate": "2025-08-05",
-            "buyPrice": 10.58,
-            "sellPrice": 11.81,
-            "return": 0.115,
-            "holdingDays": 9,
-            "confidence": 0.5463,
-            "stopLossPct": 0.0458,
             "exitReason": "sellSignal"
           },
           {
@@ -1421,93 +282,71 @@
             "sellPrice": 13.19,
             "return": -0.0125,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.5383,
             "stopLossPct": 0.0592,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.6685,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
           },
           {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
             "holdingDays": 1,
             "confidence": 1,
-            "stopLossPct": 0.0578,
+            "stopLossPct": 0.0599,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
+            "buyDate": "2025-12-17",
             "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
+            "buyPrice": 12.86,
             "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.7174,
+            "stopLossPct": 0.0394,
             "exitReason": "timeout"
           }
         ]
       }
     },
     {
-      "rank": 6,
+      "rank": 2,
       "config": {
-        "minZoneCapture": 0.5,
-        "zoneForward": 15,
+        "minZoneCapture": 0.6,
+        "zoneForward": 3,
         "zoneBackward": 2,
         "envFilter": "none"
       },
       "bestModel": {
         "featureSet": "volume_price",
-        "model": "ContrastRank",
-        "precision": 0.4819,
-        "recall": 0.4863,
-        "f1": 0.4157
+        "model": "PercentileRank",
+        "precision": 0.1856,
+        "recall": 0.2631,
+        "f1": 0.21
       },
       "result": {
-        "stopLossRate": 0.12,
-        "avgReturn": 0.0344,
-        "totalTrades": 25,
-        "winRate": 0.56,
-        "maxDrawdown": -0.1373,
+        "stopLossRate": 0.0833,
+        "avgReturn": 0.0538,
+        "totalTrades": 12,
+        "winRate": 0.5833,
+        "maxDrawdown": -0.0487,
         "skippedByEnvironment": 0,
-        "skippedByMarket": 38,
-        "avgStopLossPct": 0.0507,
-        "buyCount": 290,
+        "skippedByMarket": 15,
+        "avgStopLossPct": 0.0488,
+        "buyCount": 114,
         "trades": [
           {
             "buyDate": "2022-11-17",
@@ -1516,9 +355,20 @@
             "sellPrice": 12.29,
             "return": -0.0062,
             "holdingDays": 1,
-            "confidence": 0.5312,
+            "confidence": 1,
             "stopLossPct": 0.0429,
             "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2022-11-24",
+            "sellDate": "2022-12-16",
+            "buyPrice": 11.8,
+            "sellPrice": 11.31,
+            "return": -0.0428,
+            "holdingDays": 16,
+            "confidence": 0.5074,
+            "stopLossPct": 0.0392,
+            "exitReason": "stopLoss"
           },
           {
             "buyDate": "2023-01-31",
@@ -1527,7 +377,7 @@
             "sellPrice": 11.95,
             "return": 0.0131,
             "holdingDays": 1,
-            "confidence": 0.5166,
+            "confidence": 0.6099,
             "stopLossPct": 0.0257,
             "exitReason": "sellSignal"
           },
@@ -1538,7 +388,7 @@
             "sellPrice": 8.31,
             "return": -0.0085,
             "holdingDays": 1,
-            "confidence": 0.8717,
+            "confidence": 0.8477,
             "stopLossPct": 0.037,
             "exitReason": "sellSignal"
           },
@@ -1549,42 +399,42 @@
             "sellPrice": 7.44,
             "return": 0.3946,
             "holdingDays": 21,
-            "confidence": 0.831,
+            "confidence": 0.879,
             "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
+            "exitReason": "trailingStop"
           },
           {
-            "buyDate": "2024-04-15",
-            "sellDate": "2024-04-16",
-            "buyPrice": 6.88,
-            "sellPrice": 6.26,
-            "return": -0.0914,
-            "holdingDays": 1,
-            "confidence": 0.6059,
-            "stopLossPct": 0.0508,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-04-18",
+            "buyDate": "2024-04-17",
             "sellDate": "2024-04-25",
-            "buyPrice": 6.65,
+            "buyPrice": 6.62,
             "sellPrice": 6.84,
-            "return": 0.0273,
-            "holdingDays": 5,
-            "confidence": 0.638,
-            "stopLossPct": 0.0585,
+            "return": 0.0319,
+            "holdingDays": 6,
+            "confidence": 0.9021,
+            "stopLossPct": 0.0597,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2024-12-25",
-            "sellDate": "2025-01-02",
-            "buyPrice": 7.66,
-            "sellPrice": 7.09,
-            "return": -0.0757,
-            "holdingDays": 5,
-            "confidence": 0.7092,
-            "stopLossPct": 0.0436,
-            "exitReason": "stopLoss"
+            "buyDate": "2024-07-15",
+            "sellDate": "2024-08-01",
+            "buyPrice": 5.98,
+            "sellPrice": 6.31,
+            "return": 0.0539,
+            "holdingDays": 13,
+            "confidence": 0.5122,
+            "stopLossPct": 0.0532,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-09-30",
+            "sellDate": "2024-10-10",
+            "buyPrice": 7.34,
+            "sellPrice": 7.5,
+            "return": 0.0205,
+            "holdingDays": 3,
+            "confidence": 0.6682,
+            "stopLossPct": 0.0425,
+            "exitReason": "trailingStop"
           },
           {
             "buyDate": "2025-01-24",
@@ -1593,7 +443,7 @@
             "sellPrice": 7.49,
             "return": 0.1284,
             "holdingDays": 12,
-            "confidence": 1,
+            "confidence": 0.7943,
             "stopLossPct": 0.0525,
             "exitReason": "sellSignal"
           },
@@ -1604,7 +454,7 @@
             "sellPrice": 8.98,
             "return": 0.0992,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.8901,
             "stopLossPct": 0.054,
             "exitReason": "sellSignal"
           },
@@ -1615,63 +465,169 @@
             "sellPrice": 8.15,
             "return": -0.0264,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.9039,
             "stopLossPct": 0.06,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-03-07",
-            "sellDate": "2025-03-10",
-            "buyPrice": 8.41,
-            "sellPrice": 8.47,
-            "return": 0.0058,
+            "buyDate": "2025-08-07",
+            "sellDate": "2025-08-08",
+            "buyPrice": 13.34,
+            "sellPrice": 13.19,
+            "return": -0.0125,
             "holdingDays": 1,
-            "confidence": 0.7147,
-            "stopLossPct": 0.06,
+            "confidence": 0.5383,
+            "stopLossPct": 0.0592,
             "exitReason": "sellSignal"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "rank": 3,
+      "config": {
+        "minZoneCapture": 0.5,
+        "zoneForward": 3,
+        "zoneBackward": 5,
+        "envFilter": "none"
+      },
+      "bestModel": {
+        "featureSet": "volume_price",
+        "model": "EnsembleVote",
+        "precision": 0.2808,
+        "recall": 0.3329,
+        "f1": 0.3016
+      },
+      "result": {
+        "stopLossRate": 0.0476,
+        "avgReturn": 0.0465,
+        "totalTrades": 21,
+        "winRate": 0.619,
+        "maxDrawdown": -0.0703,
+        "skippedByEnvironment": 0,
+        "skippedByMarket": 15,
+        "avgStopLossPct": 0.0502,
+        "buyCount": 177,
+        "trades": [
           {
-            "buyDate": "2025-04-25",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.46,
-            "sellPrice": 8.45,
-            "return": 0.1314,
-            "holdingDays": 4,
-            "confidence": 0.5643,
-            "stopLossPct": 0.0549,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-08",
-            "sellDate": "2025-05-09",
-            "buyPrice": 8.62,
-            "sellPrice": 8.56,
-            "return": -0.0083,
+            "buyDate": "2022-11-17",
+            "sellDate": "2022-11-18",
+            "buyPrice": 12.35,
+            "sellPrice": 12.29,
+            "return": -0.0062,
             "holdingDays": 1,
             "confidence": 1,
-            "stopLossPct": 0.0446,
+            "stopLossPct": 0.0429,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-05-13",
-            "sellDate": "2025-05-14",
-            "buyPrice": 8.64,
-            "sellPrice": 8.54,
-            "return": -0.0129,
+            "buyDate": "2022-11-24",
+            "sellDate": "2022-12-16",
+            "buyPrice": 11.8,
+            "sellPrice": 11.31,
+            "return": -0.0428,
+            "holdingDays": 16,
+            "confidence": 0.5693,
+            "stopLossPct": 0.0392,
+            "exitReason": "stopLoss"
+          },
+          {
+            "buyDate": "2023-01-31",
+            "sellDate": "2023-02-01",
+            "buyPrice": 11.78,
+            "sellPrice": 11.95,
+            "return": 0.0131,
             "holdingDays": 1,
-            "confidence": 0.904,
-            "stopLossPct": 0.048,
+            "confidence": 0.6492,
+            "stopLossPct": 0.0257,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-05-23",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.69,
-            "sellPrice": 9.44,
-            "return": 0.085,
-            "holdingDays": 22,
-            "confidence": 0.6708,
-            "stopLossPct": 0.036,
+            "buyDate": "2023-07-13",
+            "sellDate": "2023-07-14",
+            "buyPrice": 8.37,
+            "sellPrice": 8.31,
+            "return": -0.0085,
+            "holdingDays": 1,
+            "confidence": 0.7464,
+            "stopLossPct": 0.037,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-02-06",
+            "sellDate": "2024-03-14",
+            "buyPrice": 5.33,
+            "sellPrice": 7.44,
+            "return": 0.3946,
+            "holdingDays": 21,
+            "confidence": 0.7121,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2024-04-17",
+            "sellDate": "2024-04-25",
+            "buyPrice": 6.62,
+            "sellPrice": 6.84,
+            "return": 0.0319,
+            "holdingDays": 6,
+            "confidence": 0.8138,
+            "stopLossPct": 0.0597,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-07-15",
+            "sellDate": "2024-08-01",
+            "buyPrice": 5.98,
+            "sellPrice": 6.31,
+            "return": 0.0539,
+            "holdingDays": 13,
+            "confidence": 0.6769,
+            "stopLossPct": 0.0532,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
+            "holdingDays": 5,
+            "confidence": 0.5814,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-01-24",
+            "sellDate": "2025-02-19",
+            "buyPrice": 6.63,
+            "sellPrice": 7.49,
+            "return": 0.1284,
+            "holdingDays": 12,
+            "confidence": 0.6091,
+            "stopLossPct": 0.0525,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-21",
+            "sellDate": "2025-02-24",
+            "buyPrice": 8.16,
+            "sellPrice": 8.98,
+            "return": 0.0992,
+            "holdingDays": 1,
+            "confidence": 0.9163,
+            "stopLossPct": 0.054,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-26",
+            "sellDate": "2025-02-27",
+            "buyPrice": 8.36,
+            "sellPrice": 8.15,
+            "return": -0.0264,
+            "holdingDays": 1,
+            "confidence": 0.6846,
+            "stopLossPct": 0.06,
             "exitReason": "sellSignal"
           },
           {
@@ -1681,7 +637,7 @@
             "sellPrice": 10.09,
             "return": 0.0389,
             "holdingDays": 8,
-            "confidence": 1,
+            "confidence": 0.898,
             "stopLossPct": 0.0546,
             "exitReason": "sellSignal"
           },
@@ -1692,7 +648,7 @@
             "sellPrice": 10.53,
             "return": -0.007,
             "holdingDays": 1,
-            "confidence": 0.6071,
+            "confidence": 0.652,
             "stopLossPct": 0.0524,
             "exitReason": "sellSignal"
           },
@@ -1703,7 +659,7 @@
             "sellPrice": 10.13,
             "return": 0.0077,
             "holdingDays": 1,
-            "confidence": 0.5901,
+            "confidence": 0.5538,
             "stopLossPct": 0.0543,
             "exitReason": "sellSignal"
           },
@@ -1714,7 +670,7 @@
             "sellPrice": 11.81,
             "return": 0.0994,
             "holdingDays": 11,
-            "confidence": 0.6063,
+            "confidence": 0.7084,
             "stopLossPct": 0.0451,
             "exitReason": "sellSignal"
           },
@@ -1727,962 +683,6 @@
             "holdingDays": 1,
             "confidence": 1,
             "stopLossPct": 0.0592,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 7,
-      "config": {
-        "minZoneCapture": 0.8,
-        "zoneForward": 15,
-        "zoneBackward": 2,
-        "envFilter": "ma20"
-      },
-      "bestModel": {
-        "featureSet": "trend",
-        "model": "PositiveBiasRank",
-        "precision": 0.4167,
-        "recall": 0.3252,
-        "f1": 0.3538
-      },
-      "result": {
-        "stopLossRate": 0.0741,
-        "avgReturn": 0.033,
-        "totalTrades": 27,
-        "winRate": 0.7037,
-        "maxDrawdown": -0.1032,
-        "skippedByEnvironment": 69,
-        "skippedByMarket": 12,
-        "avgStopLossPct": 0.0478,
-        "buyCount": 217,
-        "trades": [
-          {
-            "buyDate": "2023-01-13",
-            "sellDate": "2023-01-18",
-            "buyPrice": 11.09,
-            "sellPrice": 11.39,
-            "return": 0.0258,
-            "holdingDays": 3,
-            "confidence": 0.5,
-            "stopLossPct": 0.0263,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-01-30",
-            "sellDate": "2023-01-31",
-            "buyPrice": 11.7,
-            "sellPrice": 11.78,
-            "return": 0.0055,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0252,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-02-03",
-            "sellDate": "2023-02-06",
-            "buyPrice": 12.04,
-            "sellPrice": 11.89,
-            "return": -0.0138,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0266,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-03-02",
-            "sellDate": "2023-03-23",
-            "buyPrice": 12.15,
-            "sellPrice": 12.73,
-            "return": 0.0464,
-            "holdingDays": 15,
-            "confidence": 0.5,
-            "stopLossPct": 0.031,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-07-31",
-            "sellDate": "2023-08-11",
-            "buyPrice": 8.22,
-            "sellPrice": 7.76,
-            "return": -0.0573,
-            "holdingDays": 9,
-            "confidence": 0.5,
-            "stopLossPct": 0.0428,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2023-09-06",
-            "sellDate": "2023-09-07",
-            "buyPrice": 7.82,
-            "sellPrice": 7.71,
-            "return": -0.0154,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0386,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-07",
-            "sellDate": "2023-11-09",
-            "buyPrice": 7.9,
-            "sellPrice": 7.87,
-            "return": -0.0051,
-            "holdingDays": 2,
-            "confidence": 0.5,
-            "stopLossPct": 0.035,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-02-26",
-            "sellDate": "2024-03-14",
-            "buyPrice": 6.22,
-            "sellPrice": 7.44,
-            "return": 0.1948,
-            "holdingDays": 13,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-03-18",
-            "sellDate": "2024-03-19",
-            "buyPrice": 7.69,
-            "sellPrice": 8.07,
-            "return": 0.0481,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-09-25",
-            "sellDate": "2024-10-18",
-            "buyPrice": 6.13,
-            "sellPrice": 7.41,
-            "return": 0.2075,
-            "holdingDays": 12,
-            "confidence": 0.5,
-            "stopLossPct": 0.0332,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-10-22",
-            "sellDate": "2024-10-23",
-            "buyPrice": 7.79,
-            "sellPrice": 8,
-            "return": 0.0257,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-10-29",
-            "sellDate": "2024-10-30",
-            "buyPrice": 8.19,
-            "sellPrice": 8.33,
-            "return": 0.0158,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-11-07",
-            "sellDate": "2024-11-08",
-            "buyPrice": 8.41,
-            "sellPrice": 8.6,
-            "return": 0.0213,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-11-12",
-            "sellDate": "2024-11-13",
-            "buyPrice": 8.97,
-            "sellPrice": 8.79,
-            "return": -0.0214,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-06",
-            "sellDate": "2025-02-19",
-            "buyPrice": 7.02,
-            "sellPrice": 7.49,
-            "return": 0.0657,
-            "holdingDays": 9,
-            "confidence": 0.5,
-            "stopLossPct": 0.0542,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-21",
-            "sellDate": "2025-02-24",
-            "buyPrice": 8.16,
-            "sellPrice": 8.98,
-            "return": 0.0992,
-            "holdingDays": 1,
-            "confidence": 0.5833,
-            "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-07",
-            "sellDate": "2025-05-08",
-            "buyPrice": 8.53,
-            "sellPrice": 8.62,
-            "return": 0.0093,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0464,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-15",
-            "sellDate": "2025-05-16",
-            "buyPrice": 8.52,
-            "sellPrice": 8.51,
-            "return": -0.0025,
-            "holdingDays": 1,
-            "confidence": 0.6098,
-            "stopLossPct": 0.047,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-20",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.61,
-            "sellPrice": 9.44,
-            "return": 0.0951,
-            "holdingDays": 25,
-            "confidence": 0.5,
-            "stopLossPct": 0.0439,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-06-27",
-            "sellDate": "2025-07-09",
-            "buyPrice": 9.7,
-            "sellPrice": 10.09,
-            "return": 0.0389,
-            "holdingDays": 8,
-            "confidence": 0.5,
-            "stopLossPct": 0.0546,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-07-28",
-            "sellDate": "2025-08-05",
-            "buyPrice": 11.22,
-            "sellPrice": 11.81,
-            "return": 0.0513,
-            "holdingDays": 6,
-            "confidence": 0.5,
-            "stopLossPct": 0.0484,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-08-08",
-            "sellDate": "2025-08-11",
-            "buyPrice": 13.19,
-            "sellPrice": 13.19,
-            "return": -0.0013,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-08-14",
-            "sellDate": "2025-08-15",
-            "buyPrice": 12.59,
-            "sellPrice": 12.62,
-            "return": 0.0011,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-08-20",
-            "sellDate": "2025-09-03",
-            "buyPrice": 12.58,
-            "sellPrice": 11.3,
-            "return": -0.103,
-            "holdingDays": 10,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-09-26",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.93,
-            "sellPrice": 13.4,
-            "return": 0.1219,
-            "holdingDays": 15,
-            "confidence": 0.5,
-            "stopLossPct": 0.0499,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-12-15",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.7,
-            "sellPrice": 12.93,
-            "return": 0.0168,
-            "holdingDays": 3,
-            "confidence": 0.5,
-            "stopLossPct": 0.0353,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 8,
-      "config": {
-        "minZoneCapture": 0.6,
-        "zoneForward": 5,
-        "zoneBackward": 5,
-        "envFilter": "none"
-      },
-      "bestModel": {
-        "featureSet": "volume_price",
-        "model": "PercentileRank",
-        "precision": 0.2897,
-        "recall": 0.3885,
-        "f1": 0.2536
-      },
-      "result": {
-        "stopLossRate": 0.2273,
-        "avgReturn": 0.0326,
-        "totalTrades": 22,
-        "winRate": 0.5455,
-        "maxDrawdown": -0.1634,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 24,
-        "avgStopLossPct": 0.0515,
-        "buyCount": 181,
-        "trades": [
-          {
-            "buyDate": "2023-06-21",
-            "sellDate": "2023-06-30",
-            "buyPrice": 7.66,
-            "sellPrice": 7.77,
-            "return": 0.0131,
-            "holdingDays": 5,
-            "confidence": 0.7105,
-            "stopLossPct": 0.06,
-            "exitReason": "timeout"
-          },
-          {
-            "buyDate": "2023-07-13",
-            "sellDate": "2023-07-14",
-            "buyPrice": 8.37,
-            "sellPrice": 8.31,
-            "return": -0.0085,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.037,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-07-25",
-            "sellDate": "2023-08-08",
-            "buyPrice": 8.26,
-            "sellPrice": 7.9,
-            "return": -0.0449,
-            "holdingDays": 10,
-            "confidence": 0.7131,
-            "stopLossPct": 0.0403,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-02-06",
-            "sellDate": "2024-03-14",
-            "buyPrice": 5.33,
-            "sellPrice": 7.44,
-            "return": 0.3946,
-            "holdingDays": 21,
-            "confidence": 0.9566,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-04-17",
-            "sellDate": "2024-04-25",
-            "buyPrice": 6.62,
-            "sellPrice": 6.84,
-            "return": 0.0319,
-            "holdingDays": 6,
-            "confidence": 1,
-            "stopLossPct": 0.0597,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-07-12",
-            "sellDate": "2024-07-23",
-            "buyPrice": 6.19,
-            "sellPrice": 5.86,
-            "return": -0.0546,
-            "holdingDays": 7,
-            "confidence": 0.7551,
-            "stopLossPct": 0.0516,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-09-30",
-            "sellDate": "2024-10-11",
-            "buyPrice": 7.34,
-            "sellPrice": 7.01,
-            "return": -0.0463,
-            "holdingDays": 4,
-            "confidence": 0.6816,
-            "stopLossPct": 0.0425,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-12-30",
-            "sellDate": "2025-01-02",
-            "buyPrice": 7.63,
-            "sellPrice": 7.09,
-            "return": -0.0721,
-            "holdingDays": 2,
-            "confidence": 0.5063,
-            "stopLossPct": 0.0444,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-01-24",
-            "sellDate": "2025-02-19",
-            "buyPrice": 6.63,
-            "sellPrice": 7.49,
-            "return": 0.1284,
-            "holdingDays": 12,
-            "confidence": 1,
-            "stopLossPct": 0.0525,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-21",
-            "sellDate": "2025-02-24",
-            "buyPrice": 8.16,
-            "sellPrice": 8.98,
-            "return": 0.0992,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.054,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-02-26",
-            "sellDate": "2025-02-27",
-            "buyPrice": 8.36,
-            "sellPrice": 8.15,
-            "return": -0.0264,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-07",
-            "sellDate": "2025-03-10",
-            "buyPrice": 8.41,
-            "sellPrice": 8.47,
-            "return": 0.0058,
-            "holdingDays": 1,
-            "confidence": 0.5314,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-04-28",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.55,
-            "sellPrice": 8.45,
-            "return": 0.1179,
-            "holdingDays": 3,
-            "confidence": 0.7584,
-            "stopLossPct": 0.0536,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-08",
-            "sellDate": "2025-05-09",
-            "buyPrice": 8.62,
-            "sellPrice": 8.56,
-            "return": -0.0083,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0446,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-13",
-            "sellDate": "2025-05-14",
-            "buyPrice": 8.64,
-            "sellPrice": 8.54,
-            "return": -0.0129,
-            "holdingDays": 1,
-            "confidence": 0.8226,
-            "stopLossPct": 0.048,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-23",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.69,
-            "sellPrice": 9.44,
-            "return": 0.085,
-            "holdingDays": 22,
-            "confidence": 0.594,
-            "stopLossPct": 0.036,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-06-27",
-            "sellDate": "2025-07-09",
-            "buyPrice": 9.7,
-            "sellPrice": 10.09,
-            "return": 0.0389,
-            "holdingDays": 8,
-            "confidence": 0.9184,
-            "stopLossPct": 0.0546,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0578,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
-            "confidence": 1,
-            "stopLossPct": 0.0431,
-            "exitReason": "timeout"
-          }
-        ]
-      }
-    },
-    {
-      "rank": 9,
-      "config": {
-        "minZoneCapture": 0.8,
-        "zoneForward": 10,
-        "zoneBackward": 2,
-        "envFilter": "none"
-      },
-      "bestModel": {
-        "featureSet": "trend",
-        "model": "PositiveBiasRank",
-        "precision": 0.2433,
-        "recall": 0.2828,
-        "f1": 0.2555
-      },
-      "result": {
-        "stopLossRate": 0.129,
-        "avgReturn": 0.0298,
-        "totalTrades": 31,
-        "winRate": 0.5806,
-        "maxDrawdown": -0.1059,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 97,
-        "avgStopLossPct": 0.0497,
-        "buyCount": 160,
-        "trades": [
-          {
-            "buyDate": "2023-01-19",
-            "sellDate": "2023-01-20",
-            "buyPrice": 11.49,
-            "sellPrice": 11.51,
-            "return": 0.0004,
-            "holdingDays": 1,
-            "confidence": 0.6708,
-            "stopLossPct": 0.0254,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-02-06",
-            "sellDate": "2023-03-23",
-            "buyPrice": 11.89,
-            "sellPrice": 12.73,
-            "return": 0.0693,
-            "holdingDays": 33,
-            "confidence": 0.5854,
-            "stopLossPct": 0.0282,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-04-03",
-            "sellDate": "2023-04-20",
-            "buyPrice": 12.31,
-            "sellPrice": 11.75,
-            "return": -0.0468,
-            "holdingDays": 12,
-            "confidence": 0.6144,
-            "stopLossPct": 0.042,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2023-11-06",
-            "sellDate": "2023-11-09",
-            "buyPrice": 7.89,
-            "sellPrice": 7.87,
-            "return": -0.0038,
-            "holdingDays": 3,
-            "confidence": 0.5,
-            "stopLossPct": 0.0353,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2023-11-14",
-            "sellDate": "2023-11-15",
-            "buyPrice": 8.08,
-            "sellPrice": 8.08,
-            "return": -0.0013,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0318,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-02-07",
-            "sellDate": "2024-03-14",
-            "buyPrice": 5.86,
-            "sellPrice": 7.44,
-            "return": 0.2683,
-            "holdingDays": 20,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-03-18",
-            "sellDate": "2024-03-19",
-            "buyPrice": 7.69,
-            "sellPrice": 8.07,
-            "return": 0.0481,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-07-12",
-            "sellDate": "2024-07-23",
-            "buyPrice": 6.19,
-            "sellPrice": 5.86,
-            "return": -0.0546,
-            "holdingDays": 7,
-            "confidence": 0.5,
-            "stopLossPct": 0.0516,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2024-09-25",
-            "sellDate": "2024-10-18",
-            "buyPrice": 6.13,
-            "sellPrice": 7.41,
-            "return": 0.2075,
-            "holdingDays": 12,
-            "confidence": 0.5,
-            "stopLossPct": 0.0332,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-10-22",
-            "sellDate": "2024-10-23",
-            "buyPrice": 7.79,
-            "sellPrice": 8,
-            "return": 0.0257,
-            "holdingDays": 1,
-            "confidence": 0.6568,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-10-25",
-            "sellDate": "2024-10-28",
-            "buyPrice": 8.09,
-            "sellPrice": 8.1,
-            "return": -0.0001,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-11-05",
-            "sellDate": "2024-11-08",
-            "buyPrice": 8.54,
-            "sellPrice": 8.6,
-            "return": 0.0057,
-            "holdingDays": 3,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-11-12",
-            "sellDate": "2024-11-13",
-            "buyPrice": 8.97,
-            "sellPrice": 8.79,
-            "return": -0.0214,
-            "holdingDays": 1,
-            "confidence": 0.6568,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2024-12-06",
-            "sellDate": "2024-12-23",
-            "buyPrice": 8,
-            "sellPrice": 7.78,
-            "return": -0.0288,
-            "holdingDays": 11,
-            "confidence": 0.5,
-            "stopLossPct": 0.0498,
-            "exitReason": "timeout"
-          },
-          {
-            "buyDate": "2025-02-06",
-            "sellDate": "2025-02-19",
-            "buyPrice": 7.02,
-            "sellPrice": 7.49,
-            "return": 0.0657,
-            "holdingDays": 9,
-            "confidence": 0.5,
-            "stopLossPct": 0.0542,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-11",
-            "sellDate": "2025-03-12",
-            "buyPrice": 8.71,
-            "sellPrice": 8.7,
-            "return": -0.0024,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-14",
-            "sellDate": "2025-03-17",
-            "buyPrice": 8.6,
-            "sellPrice": 8.53,
-            "return": -0.0094,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-19",
-            "sellDate": "2025-03-25",
-            "buyPrice": 8.42,
-            "sellPrice": 7.95,
-            "return": -0.0571,
-            "holdingDays": 4,
-            "confidence": 0.6568,
-            "stopLossPct": 0.0508,
-            "exitReason": "stopLoss"
-          },
-          {
-            "buyDate": "2025-04-28",
-            "sellDate": "2025-05-06",
-            "buyPrice": 7.55,
-            "sellPrice": 8.45,
-            "return": 0.1179,
-            "holdingDays": 3,
-            "confidence": 0.5,
-            "stopLossPct": 0.0536,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-09",
-            "sellDate": "2025-05-12",
-            "buyPrice": 8.56,
-            "sellPrice": 8.77,
-            "return": 0.0232,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0441,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-14",
-            "sellDate": "2025-05-15",
-            "buyPrice": 8.54,
-            "sellPrice": 8.52,
-            "return": -0.0036,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0474,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-05-20",
-            "sellDate": "2025-06-25",
-            "buyPrice": 8.61,
-            "sellPrice": 9.44,
-            "return": 0.0951,
-            "holdingDays": 25,
-            "confidence": 0.5,
-            "stopLossPct": 0.0439,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-07-11",
-            "sellDate": "2025-07-14",
-            "buyPrice": 10.59,
-            "sellPrice": 10.53,
-            "return": -0.007,
-            "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0524,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-07-18",
-            "sellDate": "2025-07-21",
-            "buyPrice": 10.5,
-            "sellPrice": 10.73,
-            "return": 0.0206,
-            "holdingDays": 1,
-            "confidence": 0.5869,
-            "stopLossPct": 0.0467,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-07-23",
-            "sellDate": "2025-08-05",
-            "buyPrice": 10.58,
-            "sellPrice": 11.81,
-            "return": 0.115,
-            "holdingDays": 9,
-            "confidence": 0.6737,
-            "stopLossPct": 0.0458,
             "exitReason": "sellSignal"
           },
           {
@@ -2692,94 +692,94 @@
             "sellPrice": 12.9,
             "return": 0.0152,
             "holdingDays": 1,
-            "confidence": 0.6737,
+            "confidence": 0.6693,
             "stopLossPct": 0.06,
             "exitReason": "sellSignal"
           },
           {
             "buyDate": "2025-08-15",
-            "sellDate": "2025-09-03",
+            "sellDate": "2025-09-02",
             "buyPrice": 12.62,
-            "sellPrice": 11.3,
-            "return": -0.1059,
-            "holdingDays": 13,
-            "confidence": 0.5869,
+            "sellPrice": 11.91,
+            "return": -0.0576,
+            "holdingDays": 12,
+            "confidence": 0.5756,
             "stopLossPct": 0.06,
-            "exitReason": "stopLoss"
+            "exitReason": "trailingStop"
           },
           {
-            "buyDate": "2025-09-05",
-            "sellDate": "2025-09-17",
-            "buyPrice": 11.01,
-            "sellPrice": 11.38,
-            "return": 0.0323,
-            "holdingDays": 8,
-            "confidence": 0.6737,
-            "stopLossPct": 0.06,
-            "exitReason": "timeout"
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.7664,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
           },
           {
-            "buyDate": "2025-09-24",
-            "sellDate": "2025-10-27",
-            "buyPrice": 12.07,
-            "sellPrice": 13.4,
-            "return": 0.1089,
-            "holdingDays": 17,
-            "confidence": 1,
-            "stopLossPct": 0.049,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
             "holdingDays": 1,
-            "confidence": 0.5,
-            "stopLossPct": 0.0578,
+            "confidence": 1,
+            "stopLossPct": 0.0599,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-12-10",
+            "buyDate": "2025-12-17",
             "sellDate": "2025-12-18",
-            "buyPrice": 12.58,
+            "buyPrice": 12.86,
             "sellPrice": 12.93,
-            "return": 0.0265,
-            "holdingDays": 6,
-            "confidence": 0.5,
-            "stopLossPct": 0.038,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.636,
+            "stopLossPct": 0.0394,
             "exitReason": "timeout"
           }
         ]
       }
     },
     {
-      "rank": 10,
+      "rank": 4,
       "config": {
-        "minZoneCapture": 0.6,
-        "zoneForward": 10,
+        "minZoneCapture": 0.7,
+        "zoneForward": 5,
         "zoneBackward": 2,
-        "envFilter": "none"
+        "envFilter": "ma20"
       },
       "bestModel": {
         "featureSet": "volume_price",
-        "model": "ContrastRank",
-        "precision": 0.3344,
-        "recall": 0.4734,
-        "f1": 0.363
+        "model": "PercentileRank",
+        "precision": 0.2186,
+        "recall": 0.2773,
+        "f1": 0.2389
       },
       "result": {
-        "stopLossRate": 0.1818,
-        "avgReturn": 0.0296,
-        "totalTrades": 22,
-        "winRate": 0.5455,
-        "maxDrawdown": -0.1058,
-        "skippedByEnvironment": 0,
-        "skippedByMarket": 40,
-        "avgStopLossPct": 0.052,
-        "buyCount": 207,
+        "stopLossRate": 0,
+        "avgReturn": 0.0378,
+        "totalTrades": 9,
+        "winRate": 0.5556,
+        "maxDrawdown": -0.0258,
+        "skippedByEnvironment": 18,
+        "skippedByMarket": 3,
+        "avgStopLossPct": 0.0448,
+        "buyCount": 126,
         "trades": [
+          {
+            "buyDate": "2022-11-17",
+            "sellDate": "2022-11-18",
+            "buyPrice": 12.35,
+            "sellPrice": 12.29,
+            "return": -0.0062,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0429,
+            "exitReason": "sellSignal"
+          },
           {
             "buyDate": "2023-01-31",
             "sellDate": "2023-02-01",
@@ -2787,7 +787,7 @@
             "sellPrice": 11.95,
             "return": 0.0131,
             "holdingDays": 1,
-            "confidence": 0.7875,
+            "confidence": 0.6099,
             "stopLossPct": 0.0257,
             "exitReason": "sellSignal"
           },
@@ -2798,20 +798,159 @@
             "sellPrice": 8.31,
             "return": -0.0085,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.8477,
             "stopLossPct": 0.037,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2023-07-25",
-            "sellDate": "2023-08-08",
-            "buyPrice": 8.26,
-            "sellPrice": 7.9,
-            "return": -0.0449,
-            "holdingDays": 10,
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
+            "holdingDays": 5,
+            "confidence": 0.5496,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-02-21",
+            "sellDate": "2025-02-24",
+            "buyPrice": 8.16,
+            "sellPrice": 8.98,
+            "return": 0.0992,
+            "holdingDays": 1,
+            "confidence": 0.5468,
+            "stopLossPct": 0.054,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-07",
+            "sellDate": "2025-08-08",
+            "buyPrice": 13.34,
+            "sellPrice": 13.19,
+            "return": -0.0125,
+            "holdingDays": 1,
+            "confidence": 0.5383,
+            "stopLossPct": 0.0592,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.6685,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
+            "holdingDays": 1,
             "confidence": 1,
-            "stopLossPct": 0.0403,
+            "stopLossPct": 0.0599,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-12-17",
+            "sellDate": "2025-12-18",
+            "buyPrice": 12.86,
+            "sellPrice": 12.93,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.7174,
+            "stopLossPct": 0.0394,
+            "exitReason": "timeout"
+          }
+        ]
+      }
+    },
+    {
+      "rank": 5,
+      "config": {
+        "minZoneCapture": 0.6,
+        "zoneForward": 10,
+        "zoneBackward": 5,
+        "envFilter": "none"
+      },
+      "bestModel": {
+        "featureSet": "volume_price",
+        "model": "PercentileRank",
+        "precision": 0.4265,
+        "recall": 0.4293,
+        "f1": 0.414
+      },
+      "result": {
+        "stopLossRate": 0.0385,
+        "avgReturn": 0.0404,
+        "totalTrades": 26,
+        "winRate": 0.5769,
+        "maxDrawdown": -0.0576,
+        "skippedByEnvironment": 0,
+        "skippedByMarket": 29,
+        "avgStopLossPct": 0.0494,
+        "buyCount": 249,
+        "trades": [
+          {
+            "buyDate": "2022-11-17",
+            "sellDate": "2022-11-18",
+            "buyPrice": 12.35,
+            "sellPrice": 12.29,
+            "return": -0.0062,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0429,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2022-11-24",
+            "sellDate": "2022-12-16",
+            "buyPrice": 11.8,
+            "sellPrice": 11.31,
+            "return": -0.0428,
+            "holdingDays": 16,
+            "confidence": 0.7287,
+            "stopLossPct": 0.0392,
             "exitReason": "stopLoss"
+          },
+          {
+            "buyDate": "2023-01-31",
+            "sellDate": "2023-02-01",
+            "buyPrice": 11.78,
+            "sellPrice": 11.95,
+            "return": 0.0131,
+            "holdingDays": 1,
+            "confidence": 0.6099,
+            "stopLossPct": 0.0257,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2023-07-13",
+            "sellDate": "2023-07-14",
+            "buyPrice": 8.37,
+            "sellPrice": 8.31,
+            "return": -0.0085,
+            "holdingDays": 1,
+            "confidence": 0.877,
+            "stopLossPct": 0.037,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2023-11-09",
+            "sellDate": "2023-11-10",
+            "buyPrice": 7.87,
+            "sellPrice": 7.9,
+            "return": 0.0025,
+            "holdingDays": 1,
+            "confidence": 0.5497,
+            "stopLossPct": 0.0343,
+            "exitReason": "sellSignal"
           },
           {
             "buyDate": "2024-02-06",
@@ -2820,9 +959,9 @@
             "sellPrice": 7.44,
             "return": 0.3946,
             "holdingDays": 21,
-            "confidence": 0.5538,
+            "confidence": 0.879,
             "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
+            "exitReason": "trailingStop"
           },
           {
             "buyDate": "2024-04-17",
@@ -2831,20 +970,20 @@
             "sellPrice": 6.84,
             "return": 0.0319,
             "holdingDays": 6,
-            "confidence": 1,
+            "confidence": 0.9943,
             "stopLossPct": 0.0597,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2024-12-25",
-            "sellDate": "2025-01-02",
-            "buyPrice": 7.66,
-            "sellPrice": 7.09,
-            "return": -0.0757,
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
             "holdingDays": 5,
-            "confidence": 1,
-            "stopLossPct": 0.0436,
-            "exitReason": "stopLoss"
+            "confidence": 0.5573,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
           },
           {
             "buyDate": "2025-01-24",
@@ -2853,7 +992,7 @@
             "sellPrice": 7.49,
             "return": 0.1284,
             "holdingDays": 12,
-            "confidence": 1,
+            "confidence": 0.7018,
             "stopLossPct": 0.0525,
             "exitReason": "sellSignal"
           },
@@ -2864,7 +1003,7 @@
             "sellPrice": 8.98,
             "return": 0.0992,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.7976,
             "stopLossPct": 0.054,
             "exitReason": "sellSignal"
           },
@@ -2875,42 +1014,53 @@
             "sellPrice": 8.15,
             "return": -0.0264,
             "holdingDays": 1,
-            "confidence": 1,
+            "confidence": 0.8114,
             "stopLossPct": 0.06,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-03-06",
-            "sellDate": "2025-03-10",
-            "buyPrice": 8.44,
-            "sellPrice": 8.47,
-            "return": 0.0023,
-            "holdingDays": 2,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-14",
-            "sellDate": "2025-03-17",
-            "buyPrice": 8.6,
-            "sellPrice": 8.53,
-            "return": -0.0094,
-            "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.06,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-03-19",
-            "sellDate": "2025-03-25",
-            "buyPrice": 8.42,
-            "sellPrice": 7.95,
-            "return": -0.0571,
+            "buyDate": "2025-04-25",
+            "sellDate": "2025-05-06",
+            "buyPrice": 7.46,
+            "sellPrice": 8.45,
+            "return": 0.1314,
             "holdingDays": 4,
-            "confidence": 1,
-            "stopLossPct": 0.0508,
-            "exitReason": "stopLoss"
+            "confidence": 0.6206,
+            "stopLossPct": 0.0549,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-05-08",
+            "sellDate": "2025-05-09",
+            "buyPrice": 8.62,
+            "sellPrice": 8.56,
+            "return": -0.0083,
+            "holdingDays": 1,
+            "confidence": 0.9289,
+            "stopLossPct": 0.0446,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-05-13",
+            "sellDate": "2025-05-14",
+            "buyPrice": 8.64,
+            "sellPrice": 8.54,
+            "return": -0.0129,
+            "holdingDays": 1,
+            "confidence": 0.7981,
+            "stopLossPct": 0.048,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-05-21",
+            "sellDate": "2025-06-20",
+            "buyPrice": 8.63,
+            "sellPrice": 8.69,
+            "return": 0.0057,
+            "holdingDays": 21,
+            "confidence": 0.5805,
+            "stopLossPct": 0.0417,
+            "exitReason": "trailingStop"
           },
           {
             "buyDate": "2025-06-27",
@@ -2919,7 +1069,7 @@
             "sellPrice": 10.09,
             "return": 0.0389,
             "holdingDays": 8,
-            "confidence": 1,
+            "confidence": 0.8653,
             "stopLossPct": 0.0546,
             "exitReason": "sellSignal"
           },
@@ -2930,7 +1080,7 @@
             "sellPrice": 10.53,
             "return": -0.007,
             "holdingDays": 1,
-            "confidence": 0.5237,
+            "confidence": 0.6346,
             "stopLossPct": 0.0524,
             "exitReason": "sellSignal"
           },
@@ -2941,7 +1091,7 @@
             "sellPrice": 10.13,
             "return": 0.0077,
             "holdingDays": 1,
-            "confidence": 0.5058,
+            "confidence": 0.5382,
             "stopLossPct": 0.0543,
             "exitReason": "sellSignal"
           },
@@ -2952,7 +1102,7 @@
             "sellPrice": 11.81,
             "return": 0.0994,
             "holdingDays": 11,
-            "confidence": 0.5669,
+            "confidence": 0.5859,
             "stopLossPct": 0.0451,
             "exitReason": "sellSignal"
           },
@@ -2968,58 +1118,1028 @@
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-09-19",
-            "sellDate": "2025-10-27",
-            "buyPrice": 11.84,
-            "sellPrice": 13.4,
-            "return": 0.1305,
-            "holdingDays": 20,
-            "confidence": 1,
-            "stopLossPct": 0.0547,
+            "buyDate": "2025-08-12",
+            "sellDate": "2025-08-13",
+            "buyPrice": 12.69,
+            "sellPrice": 12.9,
+            "return": 0.0152,
+            "holdingDays": 1,
+            "confidence": 0.7616,
+            "stopLossPct": 0.06,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-10-29",
-            "sellDate": "2025-10-30",
-            "buyPrice": 14.01,
-            "sellPrice": 14.3,
-            "return": 0.0194,
+            "buyDate": "2025-08-19",
+            "sellDate": "2025-09-02",
+            "buyPrice": 12.45,
+            "sellPrice": 11.91,
+            "return": -0.0447,
+            "holdingDays": 10,
+            "confidence": 0.5983,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.7074,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
             "holdingDays": 1,
             "confidence": 1,
-            "stopLossPct": 0.0578,
+            "stopLossPct": 0.0599,
             "exitReason": "sellSignal"
           },
           {
-            "buyDate": "2025-11-03",
-            "sellDate": "2025-11-04",
-            "buyPrice": 13.86,
-            "sellPrice": 13.34,
-            "return": -0.0388,
+            "buyDate": "2025-10-31",
+            "sellDate": "2025-11-03",
+            "buyPrice": 13.88,
+            "sellPrice": 13.86,
+            "return": -0.0027,
             "holdingDays": 1,
-            "confidence": 1,
-            "stopLossPct": 0.0586,
-            "exitReason": "sellSignal"
-          },
-          {
-            "buyDate": "2025-11-06",
-            "sellDate": "2025-11-19",
-            "buyPrice": 13.15,
-            "sellPrice": 12.25,
-            "return": -0.0697,
-            "holdingDays": 9,
             "confidence": 1,
             "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-12-17",
+            "sellDate": "2025-12-18",
+            "buyPrice": 12.86,
+            "sellPrice": 12.93,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.7193,
+            "stopLossPct": 0.0394,
+            "exitReason": "timeout"
+          }
+        ]
+      }
+    },
+    {
+      "rank": 6,
+      "config": {
+        "minZoneCapture": 0.7,
+        "zoneForward": 10,
+        "zoneBackward": 2,
+        "envFilter": "none"
+      },
+      "bestModel": {
+        "featureSet": "full_composite",
+        "model": "PercentileRank",
+        "precision": 0.5,
+        "recall": 0.0339,
+        "f1": 0.0634
+      },
+      "result": {
+        "stopLossRate": 0.1,
+        "avgReturn": 0.0443,
+        "totalTrades": 10,
+        "winRate": 0.5,
+        "maxDrawdown": -0.045,
+        "skippedByEnvironment": 0,
+        "skippedByMarket": 30,
+        "avgStopLossPct": 0.0541,
+        "buyCount": 185,
+        "trades": [
+          {
+            "buyDate": "2022-11-29",
+            "sellDate": "2022-12-19",
+            "buyPrice": 11.67,
+            "sellPrice": 11.16,
+            "return": -0.045,
+            "holdingDays": 14,
+            "confidence": 0.6984,
+            "stopLossPct": 0.0416,
             "exitReason": "stopLoss"
           },
           {
-            "buyDate": "2025-12-05",
-            "sellDate": "2025-12-18",
-            "buyPrice": 12.47,
-            "sellPrice": 12.93,
-            "return": 0.0356,
-            "holdingDays": 9,
+            "buyDate": "2024-02-06",
+            "sellDate": "2024-03-14",
+            "buyPrice": 5.33,
+            "sellPrice": 7.44,
+            "return": 0.3946,
+            "holdingDays": 21,
+            "confidence": 0.5213,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2024-04-17",
+            "sellDate": "2024-04-25",
+            "buyPrice": 6.62,
+            "sellPrice": 6.84,
+            "return": 0.0319,
+            "holdingDays": 6,
+            "confidence": 0.6424,
+            "stopLossPct": 0.0597,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-25",
+            "sellDate": "2025-02-26",
+            "buyPrice": 8.42,
+            "sellPrice": 8.36,
+            "return": -0.0084,
+            "holdingDays": 1,
+            "confidence": 0.5384,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-05-09",
+            "sellDate": "2025-05-12",
+            "buyPrice": 8.56,
+            "sellPrice": 8.77,
+            "return": 0.0232,
+            "holdingDays": 1,
+            "confidence": 0.6122,
+            "stopLossPct": 0.0441,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-06-27",
+            "sellDate": "2025-07-09",
+            "buyPrice": 9.7,
+            "sellPrice": 10.09,
+            "return": 0.0389,
+            "holdingDays": 8,
+            "confidence": 0.674,
+            "stopLossPct": 0.0546,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-11",
+            "sellDate": "2025-07-14",
+            "buyPrice": 10.59,
+            "sellPrice": 10.53,
+            "return": -0.007,
+            "holdingDays": 1,
+            "confidence": 0.5596,
+            "stopLossPct": 0.0524,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-29",
+            "sellDate": "2025-08-05",
+            "buyPrice": 11.45,
+            "sellPrice": 11.81,
+            "return": 0.0301,
+            "holdingDays": 5,
+            "confidence": 0.5195,
+            "stopLossPct": 0.0494,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-07",
+            "sellDate": "2025-08-08",
+            "buyPrice": 13.34,
+            "sellPrice": 13.19,
+            "return": -0.0125,
+            "holdingDays": 1,
+            "confidence": 0.6538,
+            "stopLossPct": 0.0592,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-10-31",
+            "sellDate": "2025-11-03",
+            "buyPrice": 13.88,
+            "sellPrice": 13.86,
+            "return": -0.0027,
+            "holdingDays": 1,
+            "confidence": 0.5327,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          }
+        ]
+      }
+    },
+    {
+      "rank": 7,
+      "config": {
+        "minZoneCapture": 0.5,
+        "zoneForward": 3,
+        "zoneBackward": 5,
+        "envFilter": "ma20"
+      },
+      "bestModel": {
+        "featureSet": "volume_price",
+        "model": "EnsembleVote",
+        "precision": 0.2808,
+        "recall": 0.3329,
+        "f1": 0.3016
+      },
+      "result": {
+        "stopLossRate": 0,
+        "avgReturn": 0.0276,
+        "totalTrades": 18,
+        "winRate": 0.6111,
+        "maxDrawdown": -0.0703,
+        "skippedByEnvironment": 20,
+        "skippedByMarket": 3,
+        "avgStopLossPct": 0.0496,
+        "buyCount": 177,
+        "trades": [
+          {
+            "buyDate": "2022-11-17",
+            "sellDate": "2022-11-18",
+            "buyPrice": 12.35,
+            "sellPrice": 12.29,
+            "return": -0.0062,
+            "holdingDays": 1,
             "confidence": 1,
-            "stopLossPct": 0.0431,
+            "stopLossPct": 0.0429,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2023-01-31",
+            "sellDate": "2023-02-01",
+            "buyPrice": 11.78,
+            "sellPrice": 11.95,
+            "return": 0.0131,
+            "holdingDays": 1,
+            "confidence": 0.6492,
+            "stopLossPct": 0.0257,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2023-07-13",
+            "sellDate": "2023-07-14",
+            "buyPrice": 8.37,
+            "sellPrice": 8.31,
+            "return": -0.0085,
+            "holdingDays": 1,
+            "confidence": 0.7464,
+            "stopLossPct": 0.037,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-07-15",
+            "sellDate": "2024-08-01",
+            "buyPrice": 5.98,
+            "sellPrice": 6.31,
+            "return": 0.0539,
+            "holdingDays": 13,
+            "confidence": 0.6769,
+            "stopLossPct": 0.0532,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
+            "holdingDays": 5,
+            "confidence": 0.5814,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-02-12",
+            "sellDate": "2025-02-19",
+            "buyPrice": 7.25,
+            "sellPrice": 7.49,
+            "return": 0.0318,
+            "holdingDays": 5,
+            "confidence": 0.649,
+            "stopLossPct": 0.0497,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-21",
+            "sellDate": "2025-02-24",
+            "buyPrice": 8.16,
+            "sellPrice": 8.98,
+            "return": 0.0992,
+            "holdingDays": 1,
+            "confidence": 0.9163,
+            "stopLossPct": 0.054,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-26",
+            "sellDate": "2025-02-27",
+            "buyPrice": 8.36,
+            "sellPrice": 8.15,
+            "return": -0.0264,
+            "holdingDays": 1,
+            "confidence": 0.6846,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-06-27",
+            "sellDate": "2025-07-09",
+            "buyPrice": 9.7,
+            "sellPrice": 10.09,
+            "return": 0.0389,
+            "holdingDays": 8,
+            "confidence": 0.898,
+            "stopLossPct": 0.0546,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-11",
+            "sellDate": "2025-07-14",
+            "buyPrice": 10.59,
+            "sellPrice": 10.53,
+            "return": -0.007,
+            "holdingDays": 1,
+            "confidence": 0.652,
+            "stopLossPct": 0.0524,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-16",
+            "sellDate": "2025-07-17",
+            "buyPrice": 10.04,
+            "sellPrice": 10.13,
+            "return": 0.0077,
+            "holdingDays": 1,
+            "confidence": 0.5538,
+            "stopLossPct": 0.0543,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-21",
+            "sellDate": "2025-08-05",
+            "buyPrice": 10.73,
+            "sellPrice": 11.81,
+            "return": 0.0994,
+            "holdingDays": 11,
+            "confidence": 0.7084,
+            "stopLossPct": 0.0451,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-07",
+            "sellDate": "2025-08-08",
+            "buyPrice": 13.34,
+            "sellPrice": 13.19,
+            "return": -0.0125,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0592,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-12",
+            "sellDate": "2025-08-13",
+            "buyPrice": 12.69,
+            "sellPrice": 12.9,
+            "return": 0.0152,
+            "holdingDays": 1,
+            "confidence": 0.6693,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-15",
+            "sellDate": "2025-09-02",
+            "buyPrice": 12.62,
+            "sellPrice": 11.91,
+            "return": -0.0576,
+            "holdingDays": 12,
+            "confidence": 0.5756,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.7664,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0599,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-12-17",
+            "sellDate": "2025-12-18",
+            "buyPrice": 12.86,
+            "sellPrice": 12.93,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.636,
+            "stopLossPct": 0.0394,
+            "exitReason": "timeout"
+          }
+        ]
+      }
+    },
+    {
+      "rank": 8,
+      "config": {
+        "minZoneCapture": 0.5,
+        "zoneForward": 3,
+        "zoneBackward": 2,
+        "envFilter": "none"
+      },
+      "bestModel": {
+        "featureSet": "quality_momentum",
+        "model": "EnsembleVote",
+        "precision": 0.2667,
+        "recall": 0.0404,
+        "f1": 0.0649
+      },
+      "result": {
+        "stopLossRate": 0.125,
+        "avgReturn": 0.046,
+        "totalTrades": 8,
+        "winRate": 0.5,
+        "maxDrawdown": -0.0667,
+        "skippedByEnvironment": 0,
+        "skippedByMarket": 8,
+        "avgStopLossPct": 0.0562,
+        "buyCount": 124,
+        "trades": [
+          {
+            "buyDate": "2023-08-09",
+            "sellDate": "2023-08-16",
+            "buyPrice": 7.92,
+            "sellPrice": 7.62,
+            "return": -0.0392,
+            "holdingDays": 5,
+            "confidence": 0.6432,
+            "stopLossPct": 0.0354,
+            "exitReason": "stopLoss"
+          },
+          {
+            "buyDate": "2024-02-06",
+            "sellDate": "2024-03-14",
+            "buyPrice": 5.33,
+            "sellPrice": 7.44,
+            "return": 0.3946,
+            "holdingDays": 21,
+            "confidence": 0.6207,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2024-04-17",
+            "sellDate": "2024-04-25",
+            "buyPrice": 6.62,
+            "sellPrice": 6.84,
+            "return": 0.0319,
+            "holdingDays": 6,
+            "confidence": 0.5856,
+            "stopLossPct": 0.0597,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-10-22",
+            "sellDate": "2024-10-23",
+            "buyPrice": 7.79,
+            "sellPrice": 8,
+            "return": 0.0257,
+            "holdingDays": 1,
+            "confidence": 0.5605,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-25",
+            "sellDate": "2025-02-26",
+            "buyPrice": 8.42,
+            "sellPrice": 8.36,
+            "return": -0.0084,
+            "holdingDays": 1,
+            "confidence": 0.5094,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-08",
+            "sellDate": "2025-08-11",
+            "buyPrice": 13.19,
+            "sellPrice": 13.19,
+            "return": -0.0013,
+            "holdingDays": 1,
+            "confidence": 0.6298,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-15",
+            "sellDate": "2025-09-02",
+            "buyPrice": 12.62,
+            "sellPrice": 11.91,
+            "return": -0.0576,
+            "holdingDays": 12,
+            "confidence": 0.5108,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-09-19",
+            "sellDate": "2025-10-22",
+            "buyPrice": 11.84,
+            "sellPrice": 12.12,
+            "return": 0.0223,
+            "holdingDays": 17,
+            "confidence": 0.6263,
+            "stopLossPct": 0.0547,
+            "exitReason": "trailingStop"
+          }
+        ]
+      }
+    },
+    {
+      "rank": 9,
+      "config": {
+        "minZoneCapture": 0.5,
+        "zoneForward": 3,
+        "zoneBackward": 5,
+        "envFilter": "ma20_0.98"
+      },
+      "bestModel": {
+        "featureSet": "volume_price",
+        "model": "EnsembleVote",
+        "precision": 0.2808,
+        "recall": 0.3329,
+        "f1": 0.3016
+      },
+      "result": {
+        "stopLossRate": 0.0526,
+        "avgReturn": 0.0239,
+        "totalTrades": 19,
+        "winRate": 0.5789,
+        "maxDrawdown": -0.0703,
+        "skippedByEnvironment": 15,
+        "skippedByMarket": 7,
+        "avgStopLossPct": 0.049,
+        "buyCount": 177,
+        "trades": [
+          {
+            "buyDate": "2022-11-17",
+            "sellDate": "2022-11-18",
+            "buyPrice": 12.35,
+            "sellPrice": 12.29,
+            "return": -0.0062,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0429,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2022-11-24",
+            "sellDate": "2022-12-16",
+            "buyPrice": 11.8,
+            "sellPrice": 11.31,
+            "return": -0.0428,
+            "holdingDays": 16,
+            "confidence": 0.5693,
+            "stopLossPct": 0.0392,
+            "exitReason": "stopLoss"
+          },
+          {
+            "buyDate": "2023-01-31",
+            "sellDate": "2023-02-01",
+            "buyPrice": 11.78,
+            "sellPrice": 11.95,
+            "return": 0.0131,
+            "holdingDays": 1,
+            "confidence": 0.6492,
+            "stopLossPct": 0.0257,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2023-07-13",
+            "sellDate": "2023-07-14",
+            "buyPrice": 8.37,
+            "sellPrice": 8.31,
+            "return": -0.0085,
+            "holdingDays": 1,
+            "confidence": 0.7464,
+            "stopLossPct": 0.037,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-07-15",
+            "sellDate": "2024-08-01",
+            "buyPrice": 5.98,
+            "sellPrice": 6.31,
+            "return": 0.0539,
+            "holdingDays": 13,
+            "confidence": 0.6769,
+            "stopLossPct": 0.0532,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
+            "holdingDays": 5,
+            "confidence": 0.5814,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-02-12",
+            "sellDate": "2025-02-19",
+            "buyPrice": 7.25,
+            "sellPrice": 7.49,
+            "return": 0.0318,
+            "holdingDays": 5,
+            "confidence": 0.649,
+            "stopLossPct": 0.0497,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-21",
+            "sellDate": "2025-02-24",
+            "buyPrice": 8.16,
+            "sellPrice": 8.98,
+            "return": 0.0992,
+            "holdingDays": 1,
+            "confidence": 0.9163,
+            "stopLossPct": 0.054,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-26",
+            "sellDate": "2025-02-27",
+            "buyPrice": 8.36,
+            "sellPrice": 8.15,
+            "return": -0.0264,
+            "holdingDays": 1,
+            "confidence": 0.6846,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-06-27",
+            "sellDate": "2025-07-09",
+            "buyPrice": 9.7,
+            "sellPrice": 10.09,
+            "return": 0.0389,
+            "holdingDays": 8,
+            "confidence": 0.898,
+            "stopLossPct": 0.0546,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-11",
+            "sellDate": "2025-07-14",
+            "buyPrice": 10.59,
+            "sellPrice": 10.53,
+            "return": -0.007,
+            "holdingDays": 1,
+            "confidence": 0.652,
+            "stopLossPct": 0.0524,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-16",
+            "sellDate": "2025-07-17",
+            "buyPrice": 10.04,
+            "sellPrice": 10.13,
+            "return": 0.0077,
+            "holdingDays": 1,
+            "confidence": 0.5538,
+            "stopLossPct": 0.0543,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-21",
+            "sellDate": "2025-08-05",
+            "buyPrice": 10.73,
+            "sellPrice": 11.81,
+            "return": 0.0994,
+            "holdingDays": 11,
+            "confidence": 0.7084,
+            "stopLossPct": 0.0451,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-07",
+            "sellDate": "2025-08-08",
+            "buyPrice": 13.34,
+            "sellPrice": 13.19,
+            "return": -0.0125,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0592,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-12",
+            "sellDate": "2025-08-13",
+            "buyPrice": 12.69,
+            "sellPrice": 12.9,
+            "return": 0.0152,
+            "holdingDays": 1,
+            "confidence": 0.6693,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-15",
+            "sellDate": "2025-09-02",
+            "buyPrice": 12.62,
+            "sellPrice": 11.91,
+            "return": -0.0576,
+            "holdingDays": 12,
+            "confidence": 0.5756,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.7664,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0599,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-12-17",
+            "sellDate": "2025-12-18",
+            "buyPrice": 12.86,
+            "sellPrice": 12.93,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.636,
+            "stopLossPct": 0.0394,
+            "exitReason": "timeout"
+          }
+        ]
+      }
+    },
+    {
+      "rank": 10,
+      "config": {
+        "minZoneCapture": 0.5,
+        "zoneForward": 3,
+        "zoneBackward": 5,
+        "envFilter": "ma20_or_ma60_rising"
+      },
+      "bestModel": {
+        "featureSet": "volume_price",
+        "model": "EnsembleVote",
+        "precision": 0.2808,
+        "recall": 0.3329,
+        "f1": 0.3016
+      },
+      "result": {
+        "stopLossRate": 0.0526,
+        "avgReturn": 0.0239,
+        "totalTrades": 19,
+        "winRate": 0.5789,
+        "maxDrawdown": -0.0703,
+        "skippedByEnvironment": 15,
+        "skippedByMarket": 7,
+        "avgStopLossPct": 0.049,
+        "buyCount": 177,
+        "trades": [
+          {
+            "buyDate": "2022-11-17",
+            "sellDate": "2022-11-18",
+            "buyPrice": 12.35,
+            "sellPrice": 12.29,
+            "return": -0.0062,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0429,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2022-11-24",
+            "sellDate": "2022-12-16",
+            "buyPrice": 11.8,
+            "sellPrice": 11.31,
+            "return": -0.0428,
+            "holdingDays": 16,
+            "confidence": 0.5693,
+            "stopLossPct": 0.0392,
+            "exitReason": "stopLoss"
+          },
+          {
+            "buyDate": "2023-01-31",
+            "sellDate": "2023-02-01",
+            "buyPrice": 11.78,
+            "sellPrice": 11.95,
+            "return": 0.0131,
+            "holdingDays": 1,
+            "confidence": 0.6492,
+            "stopLossPct": 0.0257,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2023-07-13",
+            "sellDate": "2023-07-14",
+            "buyPrice": 8.37,
+            "sellPrice": 8.31,
+            "return": -0.0085,
+            "holdingDays": 1,
+            "confidence": 0.7464,
+            "stopLossPct": 0.037,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-07-15",
+            "sellDate": "2024-08-01",
+            "buyPrice": 5.98,
+            "sellPrice": 6.31,
+            "return": 0.0539,
+            "holdingDays": 13,
+            "confidence": 0.6769,
+            "stopLossPct": 0.0532,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2024-09-25",
+            "sellDate": "2024-10-09",
+            "buyPrice": 6.13,
+            "sellPrice": 7.56,
+            "return": 0.232,
+            "holdingDays": 5,
+            "confidence": 0.5814,
+            "stopLossPct": 0.0332,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-02-12",
+            "sellDate": "2025-02-19",
+            "buyPrice": 7.25,
+            "sellPrice": 7.49,
+            "return": 0.0318,
+            "holdingDays": 5,
+            "confidence": 0.649,
+            "stopLossPct": 0.0497,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-21",
+            "sellDate": "2025-02-24",
+            "buyPrice": 8.16,
+            "sellPrice": 8.98,
+            "return": 0.0992,
+            "holdingDays": 1,
+            "confidence": 0.9163,
+            "stopLossPct": 0.054,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-02-26",
+            "sellDate": "2025-02-27",
+            "buyPrice": 8.36,
+            "sellPrice": 8.15,
+            "return": -0.0264,
+            "holdingDays": 1,
+            "confidence": 0.6846,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-06-27",
+            "sellDate": "2025-07-09",
+            "buyPrice": 9.7,
+            "sellPrice": 10.09,
+            "return": 0.0389,
+            "holdingDays": 8,
+            "confidence": 0.898,
+            "stopLossPct": 0.0546,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-11",
+            "sellDate": "2025-07-14",
+            "buyPrice": 10.59,
+            "sellPrice": 10.53,
+            "return": -0.007,
+            "holdingDays": 1,
+            "confidence": 0.652,
+            "stopLossPct": 0.0524,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-16",
+            "sellDate": "2025-07-17",
+            "buyPrice": 10.04,
+            "sellPrice": 10.13,
+            "return": 0.0077,
+            "holdingDays": 1,
+            "confidence": 0.5538,
+            "stopLossPct": 0.0543,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-07-21",
+            "sellDate": "2025-08-05",
+            "buyPrice": 10.73,
+            "sellPrice": 11.81,
+            "return": 0.0994,
+            "holdingDays": 11,
+            "confidence": 0.7084,
+            "stopLossPct": 0.0451,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-07",
+            "sellDate": "2025-08-08",
+            "buyPrice": 13.34,
+            "sellPrice": 13.19,
+            "return": -0.0125,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0592,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-12",
+            "sellDate": "2025-08-13",
+            "buyPrice": 12.69,
+            "sellPrice": 12.9,
+            "return": 0.0152,
+            "holdingDays": 1,
+            "confidence": 0.6693,
+            "stopLossPct": 0.06,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-08-15",
+            "sellDate": "2025-09-02",
+            "buyPrice": 12.62,
+            "sellPrice": 11.91,
+            "return": -0.0576,
+            "holdingDays": 12,
+            "confidence": 0.5756,
+            "stopLossPct": 0.06,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-09-22",
+            "sellDate": "2025-10-22",
+            "buyPrice": 12.27,
+            "sellPrice": 12.12,
+            "return": -0.0135,
+            "holdingDays": 16,
+            "confidence": 0.7664,
+            "stopLossPct": 0.0515,
+            "exitReason": "trailingStop"
+          },
+          {
+            "buyDate": "2025-10-28",
+            "sellDate": "2025-10-29",
+            "buyPrice": 13.55,
+            "sellPrice": 14.01,
+            "return": 0.0326,
+            "holdingDays": 1,
+            "confidence": 1,
+            "stopLossPct": 0.0599,
+            "exitReason": "sellSignal"
+          },
+          {
+            "buyDate": "2025-12-17",
+            "sellDate": "2025-12-18",
+            "buyPrice": 12.86,
+            "sellPrice": 12.93,
+            "return": 0.0041,
+            "holdingDays": 1,
+            "confidence": 0.636,
+            "stopLossPct": 0.0394,
             "exitReason": "timeout"
           }
         ]
@@ -3027,8 +2147,19 @@
     }
   ],
   "stats": {
-    "totalCombinations": 180,
-    "validCombinations": 167,
-    "scanDurationMs": 42584
+    "totalCombinations": 240,
+    "validCombinations": 42,
+    "scanDurationMs": 185119
+  },
+  "currentSignal": {
+    "signal": "hold",
+    "confidence": 0,
+    "score": -0.336,
+    "threshold": 0.56,
+    "reason": "模型打分 -0.336 未超过阈值 0.560；当前大盘在 MA20 下方，信号仅供参考",
+    "date": "2026-03-20",
+    "close": 13.32,
+    "isBuyZone": false,
+    "isSellZone": false
   }
 }

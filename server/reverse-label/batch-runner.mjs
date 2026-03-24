@@ -11,9 +11,9 @@ const OUT_DIR = resolve(process.cwd(), 'results', 'batch');
 function isStrictPass(result) {
   if (!result) return false;
   return (
-    result.stopLossRate < 0.30
-    && result.avgReturn > 0
-    && result.winRate > 0.55
+    result.stopLossRate < 0.25        // 更严格止损率（原0.30）
+    && result.avgReturn > 0.03        // 平均单笔收益 > 3%（原仅 > 0）
+    && result.winRate > 0.60          // 胜率 > 60%（原0.55）
     && result.totalTrades >= 8
     && result.validCombinations >= 5
   );
@@ -112,7 +112,7 @@ ${'='.repeat(70)}`);
     );
   });
 
-  console.log(`\n  Passed: ${passed.length}  Failed: ${failed.length}  Total: ${summary.length}`);
+  console.log(`\n  Passed: ${strictPassed.length}  Weak: ${weakPassed.length}  Failed: ${failed.length}  Total: ${summary.length}`);
 
   if (failed.length) {
     console.log('\n  Failed Symbols:');

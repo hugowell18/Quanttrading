@@ -27,7 +27,8 @@ const recall = (truth, pred) => {
   return tp + fn === 0 ? 0 : tp / (tp + fn);
 };
 const f1 = (p, r) => (p + r === 0 ? 0 : (2 * p * r) / (p + r));
-const compositeScore = (p, r, itemF1) => (p * 0.5) + (itemF1 * 0.5);
+// 精度优先：提高 precision 权重以减少假信号，达到更高胜率
+const compositeScore = (p, r, itemF1) => (p * 0.65) + (itemF1 * 0.35);
 const buildTimeSeriesSplits = (length, nSplits = 5) => {
   const splits = [];
   const minTrain = Math.max(Math.floor(length * 0.45), 80);
@@ -49,6 +50,14 @@ const FEATURE_SETS = {
   mean_rev: ['rsi6', 'bollPos', 'roc5', 'atr14'],
   anti_stoploss: ['roc20', 'macd_bar', 'rsi12', 'volRatio5', 'macd_dif', 'adx14'],
   anti_stoploss_core: ['roc20', 'macd_bar', 'macd_dif', 'adx14'],
+  // 新增：量价质量组合（低波动压缩 + 动量启动）
+  quality_momentum: ['bollWidth', 'maBull', 'rsi6', 'roc5', 'volRatio5', 'adx14'],
+  // 新增：突破前夕特征（Boll带收窄 + ADX上升 + 量能放大）
+  breakout_ready: ['bollWidth', 'bollPos', 'volRatio20', 'adx14', 'roc5', 'macd_dif'],
+  // 新增：KDJ+RSI超卖反弹
+  oversold_bounce: ['rsi6', 'rsi2', 'k', 'j', 'wr14', 'bollPos', 'volRatio5'],
+  // 新增：全要素综合（胜率最大化）
+  full_composite: ['rsi6', 'rsi12', 'macd_dif', 'macd_bar', 'macd_dea', 'maBull', 'adx14', 'bollPos', 'bollWidth', 'volRatio5', 'volRatio20', 'roc5', 'roc20', 'k', 'j'],
 };
 
 const buildFeatureStats = (featureNames, rows, labels) => {
@@ -66,11 +75,16 @@ const buildFeatureStats = (featureNames, rows, labels) => {
 
 const buildThreshold = (scores, labels) => {
   const positiveRate = labels.reduce((sum, value) => sum + value, 0) / Math.max(labels.length, 1);
+  // 扩大搜索范围：从非常严格（高精度少信号）到宽松，找精度最优点
   const targetFractions = [
-    Math.max(positiveRate * 0.3, 0.005),
+    Math.max(positiveRate * 0.15, 0.003),
+    Math.max(positiveRate * 0.25, 0.005),
+    Math.max(positiveRate * 0.35, 0.006),
     Math.max(positiveRate * 0.5, 0.008),
-    Math.max(positiveRate * 0.7, 0.01),
+    Math.max(positiveRate * 0.65, 0.01),
+    Math.max(positiveRate * 0.8, 0.012),
     Math.max(positiveRate * 1.0, 0.015),
+    Math.max(positiveRate * 1.3, 0.02),
   ];
 
   let bestThreshold = Infinity;
@@ -83,6 +97,9 @@ const buildThreshold = (scores, labels) => {
     const p = precision(labels, pred);
     const r = recall(labels, pred);
     const fi = f1(p, r);
+    // 要求至少有1个正预测才计分，避免空预测得高分
+    const totalPred = pred.reduce((s, v) => s + v, 0);
+    if (totalPred === 0) continue;
     const candidateScore = compositeScore(p, r, fi);
     if (candidateScore > bestScore) {
       bestScore = candidateScore;
@@ -90,7 +107,7 @@ const buildThreshold = (scores, labels) => {
     }
   }
 
-  return bestThreshold;
+  return bestThreshold === Infinity ? (scores.length ? Math.max(...scores) * 0.9 : 0) : bestThreshold;
 };
 
 const createRankPredictor = ({ modelName, featureNames, stats, scoreRow }) => {
@@ -135,6 +152,54 @@ const MODEL_BUILDERS = {
     const directionStats = stats.map((stat) => ({ ...stat, direction: stat.positiveMean >= stat.negativeMean ? 1 : -1 }));
     const scoreRow = (row) => average(directionStats.map((stat) => (((Number(row[stat.name] ?? 0) - stat.mean) / stat.std) * stat.direction)));
     return createRankPredictor({ modelName: 'PercentileRank', featureNames, stats: directionStats, scoreRow })({ rows, labels });
+  },
+  // 集成投票模型：将三个基础模型的分数归一化后加权组合
+  // 精度优先权重：ContrastRank(分离度)权重最高
+  EnsembleVote: ({ featureNames, rows, labels }) => {
+    const stats = buildFeatureStats(featureNames, rows, labels);
+
+    // 计算各子模型原始分数（均使用同一特征集）
+    const contrastScoreRow = (row) => stats.reduce((sum, stat) => {
+      const z = (Number(row[stat.name] ?? 0) - stat.mean) / stat.std;
+      return sum + z * (stat.separation || 0.1);
+    }, 0);
+    const directionStats = stats.map((stat) => ({ ...stat, direction: stat.positiveMean >= stat.negativeMean ? 1 : -1 }));
+    const percentileScoreRow = (row) => average(directionStats.map((stat) => (((Number(row[stat.name] ?? 0) - stat.mean) / stat.std) * stat.direction)));
+    const biasScoreRow = (row) => stats.reduce((sum, stat) => {
+      const value = Number(row[stat.name] ?? 0);
+      return sum + ((value - stat.negativeMean) / stat.std) - ((value - stat.positiveMean) / stat.std);
+    }, 0);
+
+    // 用训练集分数做归一化（min-max）
+    const normalize = (rawScores) => {
+      const minVal = Math.min(...rawScores);
+      const maxVal = Math.max(...rawScores);
+      const range = maxVal - minVal || 1;
+      return rawScores.map((s) => (s - minVal) / range);
+    };
+
+    const trainContrastRaw = rows.map(contrastScoreRow);
+    const trainPercentileRaw = rows.map(percentileScoreRow);
+    const trainBiasRaw = rows.map(biasScoreRow);
+
+    const contrastMin = Math.min(...trainContrastRaw);
+    const contrastMax = Math.max(...trainContrastRaw);
+    const percentileMin = Math.min(...trainPercentileRaw);
+    const percentileMax = Math.max(...trainPercentileRaw);
+    const biasMin = Math.min(...trainBiasRaw);
+    const biasMax = Math.max(...trainBiasRaw);
+
+    const contrastNorm = (s) => (s - contrastMin) / (contrastMax - contrastMin || 1);
+    const percentileNorm = (s) => (s - percentileMin) / (percentileMax - percentileMin || 1);
+    const biasNorm = (s) => (s - biasMin) / (biasMax - biasMin || 1);
+
+    // 精度优先权重：ContrastRank 0.5, PercentileRank 0.3, PositiveBiasRank 0.2
+    const ensembleScoreRow = (row) =>
+      contrastNorm(contrastScoreRow(row)) * 0.5 +
+      percentileNorm(percentileScoreRow(row)) * 0.3 +
+      biasNorm(biasScoreRow(row)) * 0.2;
+
+    return createRankPredictor({ modelName: 'EnsembleVote', featureNames, stats, scoreRow: ensembleScoreRow })({ rows, labels });
   },
 };
 

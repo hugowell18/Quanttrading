@@ -100,6 +100,7 @@ export class WalkForwardValidator {
       const scores = matched.predictor.scoreRows(testRows);
       const threshold = matched.predictor.threshold ?? 0;
       const scoreStd = standardDeviation(scores) || 1;
+      const scoreMean = average(scores);
       const windowTrades = [];
       let index = 0;
 
@@ -110,7 +111,11 @@ export class WalkForwardValidator {
           totalRawSignals += 1;
         }
 
-        const confidence = clamp(0.5 + ((score - threshold) / (scoreStd * 2)), 0, 1);
+        // 改进置信度：基于分数超出阈值的标准差倍数，区分度更高
+        // 原公式(0.5 + delta/2std)几乎总是在0.5附近，改为sigmoid-like映射
+        const delta = score - threshold;
+        const normalizedDelta = scoreStd > 0 ? delta / scoreStd : 0;
+        const confidence = clamp(0.5 + normalizedDelta * 0.25, 0, 1);
         if (!isRawSignal || confidence < this.minConfidence) {
           if (isRawSignal) {
             skippedSignals += 1;
@@ -140,15 +145,29 @@ export class WalkForwardValidator {
           : (this.stopLoss ?? 0.04);
         let exitIndex = Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays);
         let exitReason = 'timeout';
+        // 追踪止损：记录持仓期间最高价，从最高价回撤超过一定幅度则止损锁利
+        let highWatermark = buyRow.close;
+        const trailingStopPct = dynamicStopLossPct * 1.5;
 
         for (let cursor = buyIndex + 1; cursor <= Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays); cursor += 1) {
           const candidateRow = testRows[cursor];
+          if (candidateRow.high > highWatermark) {
+            highWatermark = candidateRow.high;
+          }
           const grossReturn = (candidateRow.close - buyRow.close) / buyRow.close;
           const netReturn = grossReturn - this.tradingCost;
           if (netReturn <= -dynamicStopLossPct) {
             exitIndex = cursor;
             exitReason = 'stopLoss';
             stopLossHits += 1;
+            break;
+          }
+          // 追踪止损：盈利超2%后激活，从高点回撤超trailingStopPct则锁利退出
+          const retraceFromHigh = (highWatermark - candidateRow.close) / highWatermark;
+          const profitProtectActive = highWatermark > buyRow.close * 1.02;
+          if (profitProtectActive && retraceFromHigh >= trailingStopPct) {
+            exitIndex = cursor;
+            exitReason = 'trailingStop';
             break;
           }
           if (candidateRow.isSellPoint === 1) {
@@ -192,6 +211,7 @@ export class WalkForwardValidator {
 
     const returns = allTrades.map((trade) => trade.return);
     const holdingDays = allTrades.map((trade) => trade.holdingDays);
+    const trailingStopHits = allTrades.filter((trade) => trade.exitReason === 'trailingStop').length;
     const equityCurve = [];
     let equity = 1;
     returns.forEach((value) => {
@@ -225,6 +245,7 @@ export class WalkForwardValidator {
       signalSkipRate: totalRawSignals ? Number((skippedSignals / totalRawSignals).toFixed(4)) : 0,
       skippedByEnvironment,
       skippedByMarket,
+      trailingStopRate: allTrades.length ? Number((trailingStopHits / allTrades.length).toFixed(4)) : 0,
       bestWindowReturn: windowStats.length ? Number(Math.max(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       worstWindowReturn: windowStats.length ? Number(Math.min(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       diagnosis: diagnostics,

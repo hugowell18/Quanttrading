@@ -69,10 +69,30 @@ export class DataEngine {
       const roc20 = previous20?.close
         ? Number((((item.close - previous20.close) / previous20.close) * 100).toFixed(3))
         : undefined;
+      // bollWidth：布林带宽度（越窄 → 压缩 → 爆发前夕），归一化为百分比
+      const bollWidth = item.bollWidth ?? (item.bollMid > 0
+        ? Number((((item.bollUpper ?? item.close) - (item.bollLower ?? item.close)) / item.bollMid * 100).toFixed(4))
+        : 0);
+
+      // rsi2：极短期RSI（超买超卖更灵敏）
+      const rsi2 = item.rsi2 ?? 50;
+
+      // k、j：KDJ指标（oversold_bounce特征集用到）
+      const kVal = item.k ?? 50;
+      const jVal = item.j ?? 50;
+
+      // wr14：威廉指标
+      const wr14 = item.wr14 ?? -50;
+
+      // obv归一化：使用OBV的20日变化率，避免绝对值过大
+      const obv20 = source[Math.max(0, index - 20)]?.obv ?? 0;
+      const obvChg20 = obv20 !== 0 ? Number(((item.obv - obv20) / Math.abs(obv20)).toFixed(4)) : 0;
+
       return {
         ...item,
         maBull,
         bollPos: Number(Math.max(0, Math.min(1, bollPos)).toFixed(4)),
+        bollWidth,
         atr14: atr14[index],
         volRatio5: Number((item.volume / Math.max(average(recent5), 1)).toFixed(4)),
         volRatio20: Number((item.volume / Math.max(average(recent20), 1)).toFixed(4)),
@@ -84,6 +104,11 @@ export class DataEngine {
         macd_bar: item.macd,
         roc5,
         roc20,
+        rsi2,
+        k: kVal,
+        j: jVal,
+        wr14,
+        obv: obvChg20,
       };
     });
 

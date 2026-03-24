@@ -4,22 +4,14 @@ import { DataEngine } from './data-engine.mjs';
 import { SignalLabeler } from './signal-labeler.mjs';
 import { ModelSelector } from './model-selector.mjs';
 import { WalkForwardValidator } from './validator.mjs';
+import { RegimeDetector } from './regime-detector.mjs';
+import { buildRegimeGrid, getExitParams, getFeaturePool, getModelPref, REGIME_CONFIGS } from './regime-config.mjs';
+import { ModelStore, checkParameterPlateau } from './model-store.mjs';
 
 const ENV_LOCAL_PATH = resolve(process.cwd(), '.env.local');
 const TUSHARE_API = 'http://api.tushare.pro';
 
-const SCAN_SPACE = {
-  minZoneCapture: [0.5, 0.6, 0.7, 0.8],
-  zoneForward: [5, 10, 15],
-  zoneBackward: [2, 3, 5],
-  envFilter: ['none', 'ma20', 'ma20_0.98', 'ma60_rising', 'ma20_or_ma60_rising'],
-};
-
 const average = (arr) => (arr.length ? arr.reduce((sum, value) => sum + value, 0) / arr.length : 0);
-const stdDev = (arr) => {
-  const mean = average(arr);
-  return Math.sqrt(average(arr.map((value) => (value - mean) ** 2)));
-};
 
 async function fetchWithRetry(fetchFn, maxRetries = 3, delayMs = 2000) {
   let lastError;
@@ -104,48 +96,85 @@ const loadIndexCandles = async (token, tsCode, startDate, endDate) => {
   return normalizeCandles(rows);
 };
 
-function classifyStock(rows) {
-  const recent = rows.slice(-120);
-  const avgAdx = average(recent.map((row) => row.adx14 ?? row.adx ?? 0));
-  const prices = recent.map((row) => row.close);
-  const volatility = prices.length ? stdDev(prices) / Math.max(average(prices), 1) : 0;
 
-  if (avgAdx >= 25 && volatility < 0.15) return 'trend';
-  if (avgAdx < 20 && volatility < 0.12) return 'range';
-  return 'high_vol';
-}
+// ─── 评分函数 ──────────────────────────────────────────────
 
 function scoreResult(result) {
   if (!result) return null;
-  if (result.stopLossRate >= 0.30) return null;
-  if (result.totalTrades < 10) return null;
+  if (result.stopLossRate >= 0.25) return null;
+  if (result.totalTrades < 8) return null;
   if (!Number.isFinite(result.avgReturn)) return null;
+  if ((result.winRate ?? 0) < 0.50) return null;
+
+  const avgReturnPct = result.avgReturn * 100;
+  const winRateExtra = ((result.winRate ?? 0) - 0.5) * 20;
+  const drawdownPct = Math.abs(result.maxDrawdown ?? 0) * 100;
+  const compositeScore = avgReturnPct + winRateExtra - drawdownPct * 0.3;
 
   return {
-    primary: result.avgReturn,
-    secondary: result.maxDrawdown ?? -Infinity,
-    tertiary: result.winRate ?? 0,
+    primary: compositeScore,
+    secondary: result.winRate ?? 0,
+    tertiary: result.avgReturn,
     trades: result.totalTrades,
   };
 }
 
-function buildGrid() {
-  const grid = [];
-  for (const minZoneCapture of SCAN_SPACE.minZoneCapture)
-    for (const zoneForward of SCAN_SPACE.zoneForward)
-      for (const zoneBackward of SCAN_SPACE.zoneBackward)
-        for (const envFilter of SCAN_SPACE.envFilter)
-          grid.push({ minZoneCapture, zoneForward, zoneBackward, envFilter });
-  return grid;
+
+// ─── 单配置运行（接受 regime 参数）────────────────────────
+
+function runOneConfig(rows, config, indexRows, regimeOptions = {}) {
+  try {
+    const labeler = new SignalLabeler(rows, {
+      minZoneCapture: config.minZoneCapture,
+      zoneForward: config.zoneForward,
+      zoneBackward: config.zoneBackward,
+    });
+    const labeledRows = labeler.getLabeledRows();
+    const buyCount = labeledRows.filter((row) => row.isBuyPoint === 1).length;
+    if (buyCount < 8) return null;
+
+    // 第二层：传入 regime featurePool 和 modelPref
+    const selector = new ModelSelector(labeledRows);
+    selector.run({
+      featurePool: regimeOptions.featurePool ?? null,
+      modelPref: regimeOptions.modelPref ?? null,
+    });
+    const best = selector.bestModel();
+    if (!best) return null;
+
+    // 第二层：传入 regime exitParams
+    const exitParams = regimeOptions.exitParams ?? {};
+    const validator = new WalkForwardValidator(labeledRows, {
+      envFilter: config.envFilter,
+      indexRows,
+      maxHoldingDays: exitParams.maxHoldingDays,
+      stopLoss: exitParams.stopLoss,
+      trailingStopMultiplier: exitParams.trailingStopMultiplier,
+    });
+    const result = validator.validate(best);
+
+    return {
+      bestModel: {
+        featureSet: best.featureSet,
+        model: best.model,
+        precision: best.precision,
+        recall: best.recall,
+        f1: best.f1,
+      },
+      validation: result,
+      buyCount,
+    };
+  } catch {
+    return null;
+  }
 }
 
-function generateCurrentSignal(rows, indexRows, bestConfig, bestResult) {
+
+// ─── 信号生成 ──────────────────────────────────────────────
+
+function generateCurrentSignal(rows, indexRows, bestConfig, bestResult, regimeOptions = {}) {
   if (!bestConfig || !bestResult) {
-    return {
-      signal: 'hold',
-      confidence: 0,
-      reason: '无有效配置，无法生成信号',
-    };
+    return { signal: 'hold', confidence: 0, reason: '无有效配置，无法生成信号' };
   }
 
   try {
@@ -157,7 +186,10 @@ function generateCurrentSignal(rows, indexRows, bestConfig, bestResult) {
     const labeledRows = labeler.getLabeledRows();
 
     const selector = new ModelSelector(labeledRows);
-    selector.run();
+    selector.run({
+      featurePool: regimeOptions.featurePool ?? null,
+      modelPref: regimeOptions.modelPref ?? null,
+    });
     const best = selector.bestModel();
     if (!best?.predictor) {
       return { signal: 'hold', confidence: 0, reason: '模型训练失败' };
@@ -216,51 +248,12 @@ function generateCurrentSignal(rows, indexRows, bestConfig, bestResult) {
       isSellZone,
     };
   } catch (error) {
-    return {
-      signal: 'hold',
-      confidence: 0,
-      reason: `信号生成失败：${error.message}`,
-    };
+    return { signal: 'hold', confidence: 0, reason: `信号生成失败：${error.message}` };
   }
 }
 
-function runOneConfig(rows, config, indexRows) {
-  try {
-    const labeler = new SignalLabeler(rows, {
-      minZoneCapture: config.minZoneCapture,
-      zoneForward: config.zoneForward,
-      zoneBackward: config.zoneBackward,
-    });
-    const labeledRows = labeler.getLabeledRows();
-    const buyCount = labeledRows.filter((row) => row.isBuyPoint === 1).length;
-    if (buyCount < 8) return null;
 
-    const selector = new ModelSelector(labeledRows);
-    selector.run();
-    const best = selector.bestModel();
-    if (!best) return null;
-
-    const validator = new WalkForwardValidator(labeledRows, {
-      envFilter: config.envFilter,
-      indexRows,
-    });
-    const result = validator.validate(best);
-
-    return {
-      bestModel: {
-        featureSet: best.featureSet,
-        model: best.model,
-        precision: best.precision,
-        recall: best.recall,
-        f1: best.f1,
-      },
-      validation: result,
-      buyCount,
-    };
-  } catch {
-    return null;
-  }
-}
+// ─── 核心优化入口（v2.0 三层架构）──────────────────────────
 
 export async function optimize(stockCode, startDate, endDate) {
   const startTime = Date.now();
@@ -269,7 +262,8 @@ export async function optimize(stockCode, startDate, endDate) {
     throw new Error('Missing TUSHARE_TOKEN environment variable');
   }
 
-  console.log(`\n[1/4] 加载数据 ${stockCode} ...`);
+  // ──── [1/5] 加载数据 ────
+  console.log(`\n[1/5] 加载数据 ${stockCode} ...`);
   const stock = await fetchWithRetry(() => loadStockInfo(token, stockCode));
   const candles = await fetchWithRetry(() => loadDailyCandles(token, stock.ts_code, startDate, endDate));
   const rows = new DataEngine(candles).computeAllFeatures();
@@ -285,21 +279,35 @@ export async function optimize(stockCode, startDate, endDate) {
     indexRows = null;
   }
 
-  const stockType = classifyStock(rows);
-  console.log(`[2/4] 股票分类：${stockType}`);
+  // ──── [2/5] 第一层：Regime Detection ────
+  const detector = new RegimeDetector();
+  const regimeResult = detector.detect(rows);
+  const regime = regimeResult.regime;
+  const regimeConf = regimeResult.confidence;
+  const regimeHistory = detector.detectHistory(rows);
+  console.log(`[2/5] Regime 识别：${regime}（置信度 ${regimeConf}）`);
+  if (regimeConf < 1) {
+    console.log(`      近期状态序列：${regimeResult.raw.join(' → ')}`);
+  }
 
-  const grid = buildGrid();
-  console.log(`[3/4] 开始扫描 ${grid.length} 组配置 ...\n`);
+  // ──── [3/5] 第二层：Regime 驱动的缩窄扫描 ────
+  const regimeConfig = REGIME_CONFIGS[regime] ?? REGIME_CONFIGS.range;
+  const grid = buildRegimeGrid(regime);
+  const featurePool = getFeaturePool(regime);
+  const modelPref = getModelPref(regime);
+  const exitParams = getExitParams(regime);
+
+  console.log(`[3/5] ${regimeConfig.label} 模式 → 扫描 ${grid.length} 组配置（特征池 ${featurePool.length} 个）`);
 
   const scanResults = [];
   let done = 0;
   for (const config of grid) {
-    const run = runOneConfig(rows, config, indexRows);
+    const run = runOneConfig(rows, config, indexRows, { featurePool, modelPref, exitParams });
     const result = run?.validation ?? null;
     const score = scoreResult(result);
 
     done += 1;
-    if (done % 30 === 0 || done === grid.length) {
+    if (done % 10 === 0 || done === grid.length) {
       process.stdout.write(`      进度：${done}/${grid.length}\r`);
     }
 
@@ -322,6 +330,30 @@ export async function optimize(stockCode, startDate, endDate) {
     return right.score.tertiary - left.score.tertiary;
   });
 
+  // ──── [4/5] 第三层：参数高原检验 ────
+  const bestEntry = scanResults[0] ?? null;
+  let plateau = { passed: false, bestScore: 0, neighborAvg: 0, neighborCount: 0 };
+  let effectiveBest = bestEntry;
+
+  if (bestEntry) {
+    plateau = checkParameterPlateau(bestEntry.config, scanResults);
+    console.log(`[4/5] 参数高原检验：${plateau.passed ? '通过' : '未通过'}`
+      + ` (邻域比 ${plateau.ratio ?? 0}, 邻域数 ${plateau.neighborCount}${plateau.hasDisaster ? ', 存在邻域灾难' : ''})`);
+
+    if (!plateau.passed && scanResults.length > 1) {
+      // 尖峰作废，尝试第二名
+      for (let idx = 1; idx < scanResults.length; idx += 1) {
+        const fallbackPlateau = checkParameterPlateau(scanResults[idx].config, scanResults);
+        if (fallbackPlateau.passed) {
+          effectiveBest = scanResults[idx];
+          plateau = fallbackPlateau;
+          console.log(`      尖峰作废，回退到第 ${idx + 1} 名配置（高原通过）`);
+          break;
+        }
+      }
+    }
+  }
+
   const leaderboard = scanResults.slice(0, 10).map((item, index) => ({
     rank: index + 1,
     config: item.config,
@@ -332,6 +364,7 @@ export async function optimize(stockCode, startDate, endDate) {
       totalTrades: item.result.totalTrades,
       winRate: item.result.winRate,
       maxDrawdown: item.result.maxDrawdown,
+      sharpe: item.result.sharpe,
       skippedByEnvironment: item.result.skippedByEnvironment,
       skippedByMarket: item.result.skippedByMarket,
       avgStopLossPct: item.result.avgStopLossPct,
@@ -343,10 +376,29 @@ export async function optimize(stockCode, startDate, endDate) {
   const summary = {
     stockCode,
     stockName: stock.name,
-    stockType,
-    bestConfig: leaderboard[0]?.config ?? null,
-    bestResult: leaderboard[0]?.result ?? null,
-    bestModel: leaderboard[0]?.bestModel ?? null,
+    regime,
+    regimeConfidence: regimeConf,
+    regimeHistory,
+    bestConfig: effectiveBest?.config ?? null,
+    bestResult: effectiveBest ? {
+      stopLossRate: effectiveBest.result.stopLossRate,
+      avgReturn: effectiveBest.result.avgReturn,
+      totalTrades: effectiveBest.result.totalTrades,
+      winRate: effectiveBest.result.winRate,
+      maxDrawdown: effectiveBest.result.maxDrawdown,
+      sharpe: effectiveBest.result.sharpe,
+      skippedByEnvironment: effectiveBest.result.skippedByEnvironment,
+      skippedByMarket: effectiveBest.result.skippedByMarket,
+      avgStopLossPct: effectiveBest.result.avgStopLossPct,
+      buyCount: effectiveBest.buyCount,
+      trades: effectiveBest.result.trades,
+    } : null,
+    bestModel: effectiveBest?.bestModel ?? null,
+    plateau: {
+      passed: plateau.passed,
+      ratio: plateau.ratio ?? 0,
+      neighborCount: plateau.neighborCount,
+    },
     leaderboard,
     stats: {
       totalCombinations: grid.length,
@@ -355,18 +407,58 @@ export async function optimize(stockCode, startDate, endDate) {
     },
   };
 
-  summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult);
+  // ──── [5/5] 第三层：ModelStore 持久化 + 替换阈值熔断 ────
+  const store = new ModelStore();
+  const newRecord = {
+    regime,
+    config: summary.bestConfig,
+    metrics: summary.bestResult ? {
+      sharpe: summary.bestResult.sharpe ?? 0,
+      avgReturn: summary.bestResult.avgReturn,
+      winRate: summary.bestResult.winRate,
+      stopLossRate: summary.bestResult.stopLossRate,
+      maxDrawdown: summary.bestResult.maxDrawdown,
+    } : null,
+    featureSet: summary.bestModel?.featureSet ?? null,
+    model: summary.bestModel?.model ?? null,
+    plateau: summary.plateau,
+  };
+
+  if (summary.bestConfig) {
+    const storeResult = store.saveWithCheck(stockCode, newRecord);
+    summary.modelStore = {
+      action: storeResult.action,
+      reason: storeResult.reason,
+      version: storeResult.record?.version ?? 0,
+    };
+    console.log(`[5/5] 模型存储：${storeResult.action} — ${storeResult.reason}`);
+
+    // 如果被熔断拒绝，用旧模型的配置覆盖
+    if (!storeResult.saved && storeResult.record?.config) {
+      console.log(`      熔断生效：沿用旧模型 v${storeResult.record.version}`);
+      summary.bestConfig = storeResult.record.config;
+      summary.modelStore.fallbackToVersion = storeResult.record.version;
+    }
+  } else {
+    summary.modelStore = { action: 'skip', reason: '无有效配置', version: 0 };
+    console.log(`[5/5] 模型存储：跳过（无有效配置）`);
+  }
+
+  summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult, { featurePool, modelPref });
   return summary;
 }
+
+
+// ─── CLI 入口 ──────────────────────────────────────────────
 
 const [, , stockCode = '600519', startDate = '20220101', endDate = '20260322'] = process.argv;
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1]?.endsWith('optimizer.mjs')) {
   optimize(stockCode, startDate, endDate)
     .then((summary) => {
-      console.log('\n' + '='.repeat(60));
-      console.log(`  扫描报告 · ${summary.stockCode} · ${summary.stockType}`);
-      console.log('='.repeat(60));
+      console.log('\n' + '='.repeat(70));
+      console.log(`  扫描报告 · ${summary.stockCode} · ${summary.regime}（置信度 ${summary.regimeConfidence}）`);
+      console.log('='.repeat(70));
 
       if (!summary.bestConfig) {
         console.log('\n  没有找到任何满足条件的配置');
@@ -386,6 +478,17 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || proce
       console.log(`    winRate        : ${(summary.bestResult.winRate * 100).toFixed(1)}%`);
       console.log(`    totalTrades    : ${summary.bestResult.totalTrades}`);
       console.log(`    maxDrawdown    : ${(summary.bestResult.maxDrawdown * 100).toFixed(2)}%`);
+      console.log(`    sharpe         : ${summary.bestResult.sharpe ?? 'N/A'}`);
+
+      console.log('\n  参数高原');
+      console.log(`    通过           : ${summary.plateau.passed}`);
+      console.log(`    邻域比         : ${summary.plateau.ratio}`);
+      console.log(`    邻域数         : ${summary.plateau.neighborCount}`);
+
+      console.log('\n  模型存储');
+      console.log(`    操作           : ${summary.modelStore.action}`);
+      console.log(`    原因           : ${summary.modelStore.reason}`);
+      console.log(`    版本           : v${summary.modelStore.version}`);
 
       console.log('\n  Current Signal');
       console.log(`    signal         : ${summary.currentSignal.signal}`);
@@ -412,6 +515,11 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || proce
           + `${String(r.totalTrades).padStart(6)}`
         );
       });
+
+      console.log('\n  Regime 历史');
+      const hist = summary.regimeHistory ?? [];
+      const histStr = hist.slice(-6).map((h) => `${h.date.slice(5)}:${h.regime}`).join(' → ');
+      console.log(`    ${histStr || '无'}`);
 
       console.log('\n  扫描统计');
       console.log(`    总组合数  : ${summary.stats.totalCombinations}`);
