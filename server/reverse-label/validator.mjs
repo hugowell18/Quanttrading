@@ -22,6 +22,9 @@ export class WalkForwardValidator {
     this.envFilter = options.envFilter ?? 'ma20';
     this.indexRows = options.indexRows ?? null;
     this.tradingCost = options.tradingCost ?? 0.0013;
+    this.trailingStopMultiplier = options.trailingStopMultiplier ?? 1.5;
+    this.featurePool = options.featurePool ?? null;
+    this.modelPref = options.modelPref ?? null;
   }
 
   _isMa60Rising(rows, currentIndex) {
@@ -90,7 +93,10 @@ export class WalkForwardValidator {
         continue;
       }
       const selector = new ModelSelector(trainRows);
-      const ranked = selector.run();
+      const ranked = selector.run({
+        featurePool: this.featurePool,
+        modelPref: this.modelPref,
+      });
       const matched = ranked.find((item) => item.featureSet === bestModel.featureSet && item.model === bestModel.model) ?? ranked[0];
       if (!matched?.predictor) {
         start += this.testSize;
@@ -147,7 +153,7 @@ export class WalkForwardValidator {
         let exitReason = 'timeout';
         // 追踪止损：记录持仓期间最高价，从最高价回撤超过一定幅度则止损锁利
         let highWatermark = buyRow.close;
-        const trailingStopPct = dynamicStopLossPct * 1.5;
+        const trailingStopPct = dynamicStopLossPct * this.trailingStopMultiplier;
 
         for (let cursor = buyIndex + 1; cursor <= Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays); cursor += 1) {
           const candidateRow = testRows[cursor];

@@ -203,24 +203,68 @@ const MODEL_BUILDERS = {
   },
 };
 
+/**
+ * 从 regime featurePool 动态生成特征组合
+ * 策略：全集 + 前半 + 后半 + 去掉每个特征的子集（leave-one-out）
+ * 比固定 FEATURE_SETS 更灵活，但仍然可控
+ */
+function buildDynamicFeatureSets(pool) {
+  const sets = {};
+  // 全集
+  sets.pool_full = [...pool];
+  // 前半：偏前面的特征（regime 配置中排在前面的是更重要的）
+  if (pool.length > 3) {
+    sets.pool_top = pool.slice(0, Math.ceil(pool.length * 0.6));
+  }
+  // 后半
+  if (pool.length > 4) {
+    sets.pool_bottom = pool.slice(Math.floor(pool.length * 0.4));
+  }
+  // leave-one-out：每次去掉一个特征，发现哪个特征是关键
+  if (pool.length >= 4) {
+    for (let i = 0; i < Math.min(pool.length, 7); i += 1) {
+      const subset = pool.filter((_, idx) => idx !== i);
+      sets[`pool_drop_${pool[i]}`] = subset;
+    }
+  }
+  return sets;
+}
+
 export class ModelSelector {
   constructor(rows) {
     this.rows = rows;
     this.results = [];
   }
 
-  run() {
+  /**
+   * @param {Object} options
+   * @param {string[]|null} options.featurePool - Regime 特征池（若提供，自动生成特征组合替代 FEATURE_SETS）
+   * @param {string[]|null} options.modelPref - Regime 偏好的模型类型（优先顺序）
+   */
+  run(options = {}) {
     const rows = this.rows;
     const labels = rows.map((row) => Number(row.isBuyPoint ?? 0));
     const splits = buildTimeSeriesSplits(rows.length, 5);
 
-    this.results = Object.entries(FEATURE_SETS)
+    // 第二层：如果提供了 featurePool，动态构建特征组合 + 保留原始 FEATURE_SETS 作为兜底
+    const featureSetsToUse = options.featurePool
+      ? { ...buildDynamicFeatureSets(options.featurePool), ...FEATURE_SETS }
+      : FEATURE_SETS;
+
+    // 第二层：如果提供了 modelPref，只测试偏好的模型类型
+    const modelEntries = options.modelPref
+      ? options.modelPref
+          .filter((name) => MODEL_BUILDERS[name])
+          .map((name) => [name, MODEL_BUILDERS[name]])
+      : Object.entries(MODEL_BUILDERS);
+
+    this.results = Object.entries(featureSetsToUse)
       .flatMap(([featureSetName, featureNames]) => {
         const available = featureNames.filter((name) => rows.every((row) => row[name] !== undefined));
         if (!available.length) {
           return [];
         }
-        return Object.entries(MODEL_BUILDERS).map(([modelName, buildModel]) => {
+        return modelEntries.map(([modelName, buildModel]) => {
           const precisions = [];
           const recalls = [];
           const f1s = [];

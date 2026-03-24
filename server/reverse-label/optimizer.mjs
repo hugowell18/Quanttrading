@@ -144,12 +144,15 @@ function runOneConfig(rows, config, indexRows, regimeOptions = {}) {
 
     // 第二层：传入 regime exitParams
     const exitParams = regimeOptions.exitParams ?? {};
+    // exitParams 只传 maxHoldingDays 和 trailingStopMultiplier
+    // stopLoss 保留 validator 内的动态 ATR 计算，不覆盖
     const validator = new WalkForwardValidator(labeledRows, {
       envFilter: config.envFilter,
       indexRows,
       maxHoldingDays: exitParams.maxHoldingDays,
-      stopLoss: exitParams.stopLoss,
       trailingStopMultiplier: exitParams.trailingStopMultiplier,
+      featurePool: regimeOptions.featurePool,
+      modelPref: regimeOptions.modelPref,
     });
     const result = validator.validate(best);
 
@@ -299,30 +302,51 @@ export async function optimize(stockCode, startDate, endDate) {
 
   console.log(`[3/5] ${regimeConfig.label} 模式 → 扫描 ${grid.length} 组配置（特征池 ${featurePool.length} 个）`);
 
-  const scanResults = [];
-  let done = 0;
-  for (const config of grid) {
-    const run = runOneConfig(rows, config, indexRows, { featurePool, modelPref, exitParams });
-    const result = run?.validation ?? null;
-    const score = scoreResult(result);
+  // 扫描函数（可复用于 fallback）
+  const runScan = (scanGrid, regimeOpts, label) => {
+    const results = [];
+    let scanDone = 0;
+    for (const config of scanGrid) {
+      const run = runOneConfig(rows, config, indexRows, regimeOpts);
+      const result = run?.validation ?? null;
+      const score = scoreResult(result);
 
-    done += 1;
-    if (done % 10 === 0 || done === grid.length) {
-      process.stdout.write(`      进度：${done}/${grid.length}\r`);
+      scanDone += 1;
+      if (scanDone % 10 === 0 || scanDone === scanGrid.length) {
+        process.stdout.write(`      ${label} 进度：${scanDone}/${scanGrid.length}\r`);
+      }
+
+      if (score === null) continue;
+
+      results.push({
+        config,
+        result,
+        score,
+        bestModel: run.bestModel,
+        buyCount: run.buyCount,
+      });
     }
+    return results;
+  };
 
-    if (score === null) continue;
+  let scanResults = runScan(grid, { featurePool, modelPref, exitParams }, 'regime');
+  console.log(`\n      Regime 扫描完成，有效配置：${scanResults.length}/${grid.length}`);
 
-    scanResults.push({
-      config,
-      result,
-      score,
-      bestModel: run.bestModel,
-      buyCount: run.buyCount,
-    });
+  // Fallback：regime 网格无有效结果 → 回退到全量网格（不限特征池，不限模型偏好）
+  let usedFallback = false;
+  if (scanResults.length === 0) {
+    console.log(`      Regime 扫描无有效结果，启动 Fallback 全量扫描...`);
+    const FALLBACK_GRID = [];
+    for (const minZoneCapture of [0.5, 0.6, 0.7, 0.8])
+      for (const zoneForward of [3, 5, 10, 15])
+        for (const zoneBackward of [2, 3, 5])
+          for (const envFilter of ['none', 'ma20', 'ma20_0.98', 'ma60_rising'])
+            FALLBACK_GRID.push({ minZoneCapture, zoneForward, zoneBackward, envFilter });
+
+    scanResults = runScan(FALLBACK_GRID, { exitParams }, 'fallback');
+    usedFallback = true;
+    console.log(`\n      Fallback 扫描完成，有效配置：${scanResults.length}/${FALLBACK_GRID.length}`);
   }
-
-  console.log(`\n      扫描完成，有效配置：${scanResults.length}/${grid.length}`);
 
   scanResults.sort((left, right) => {
     if (right.score.primary !== left.score.primary) return right.score.primary - left.score.primary;
@@ -400,8 +424,9 @@ export async function optimize(stockCode, startDate, endDate) {
       neighborCount: plateau.neighborCount,
     },
     leaderboard,
+    usedFallback,
     stats: {
-      totalCombinations: grid.length,
+      totalCombinations: usedFallback ? 192 : grid.length,
       validCombinations: scanResults.length,
       scanDurationMs: Date.now() - startTime,
     },
