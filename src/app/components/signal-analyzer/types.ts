@@ -105,9 +105,31 @@ export type OptimizerLeaderboardItem = {
 export type OptimizerSummary = {
   stockCode: string;
   stockName?: string;
-  stockType: string;
+  stockType?: string;
+  regime?: string;
+  regimeConfidence?: number;
+  regimeHistory?: Array<{ date: string; regime: string }>;
   bestConfig: OptimizerLeaderboardItem['config'] | null;
-  bestResult: OptimizerLeaderboardItem['result'] | null;
+  bestResult: (OptimizerLeaderboardItem['result'] & { sharpe?: number }) | null;
+  bestModel?: {
+    featureSet: string;
+    model: string;
+    precision: number;
+    recall: number;
+    f1: number;
+  };
+  plateau?: {
+    passed: boolean;
+    ratio: number;
+    neighborCount: number;
+  };
+  modelStore?: {
+    action: string;
+    reason: string;
+    version: number;
+    fallbackToVersion?: number;
+  };
+  usedFallback?: boolean;
   leaderboard: OptimizerLeaderboardItem[];
   stats: {
     totalCombinations: number;
