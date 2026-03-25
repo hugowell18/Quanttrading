@@ -1,0 +1,25 @@
+{
+  "regime": "range",
+  "config": {
+    "minZoneCapture": 0.5,
+    "zoneForward": 15,
+    "zoneBackward": 5,
+    "envFilter": "none"
+  },
+  "metrics": {
+    "sharpe": 5.9799,
+    "avgReturn": 0.013,
+    "winRate": 0.5,
+    "stopLossRate": 0.125,
+    "maxDrawdown": -0.0291
+  },
+  "featureSet": "anti_stoploss_core",
+  "model": "ContrastRank",
+  "plateau": {
+    "passed": true,
+    "ratio": 0
+  },
+  "stockCode": "600519",
+  "timestamp": "2026-03-25T12:51:34.023Z",
+  "version": 1
+}

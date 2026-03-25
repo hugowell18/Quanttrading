@@ -1,0 +1,25 @@
+{
+  "regime": "high_vol",
+  "config": {
+    "minZoneCapture": 0.6,
+    "zoneForward": 5,
+    "zoneBackward": 2,
+    "envFilter": "ma20_0.98"
+  },
+  "metrics": {
+    "sharpe": 14.6852,
+    "avgReturn": 0.0773,
+    "winRate": 0.8,
+    "stopLossRate": 0,
+    "maxDrawdown": -0.022
+  },
+  "featureSet": "oversold_bounce",
+  "model": "PercentileRank",
+  "plateau": {
+    "passed": true,
+    "ratio": 0
+  },
+  "stockCode": "300320",
+  "timestamp": "2026-03-25T12:31:27.450Z",
+  "version": 1
+}
