@@ -216,7 +216,7 @@ export function QuantDashboard() {
         { date: t.buyDate, type: 'buy' as const, price: Number(t.buyPrice.toFixed(2)), label: 'B' as const },
         { date: t.sellDate, type: 'sell' as const, price: Number(t.sellPrice.toFixed(2)), label: 'S' as const },
       ]);
-      setTradeRecords(derivedTrades);
+      setTradeRecords(derivedTrades.sort((a, b) => b.buyDate.localeCompare(a.buyDate)));
       setSignalMarkers(derivedMarkers);
 
       // Logs
@@ -265,7 +265,7 @@ export function QuantDashboard() {
       returnPct: Number((t.return * 100).toFixed(2)),
       returnAmount: Number((t.return * 10000).toFixed(2)),
       result: t.return >= 0 ? 'success' as const : 'failure' as const,
-    })));
+    })).sort((a, b) => b.buyDate.localeCompare(a.buyDate)));
     setSignalMarkers(optTrades.flatMap((t) => [
       { date: t.buyDate, type: 'buy' as const, price: Number(t.buyPrice.toFixed(2)), label: 'B' as const },
       { date: t.sellDate, type: 'sell' as const, price: Number(t.sellPrice.toFixed(2)), label: 'S' as const },
