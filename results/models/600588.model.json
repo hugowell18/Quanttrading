@@ -1,0 +1,26 @@
+{
+  "regime": "downtrend",
+  "config": {
+    "minZoneCapture": 0.6,
+    "zoneForward": 10,
+    "zoneBackward": 2,
+    "envFilter": "ma20_0.98"
+  },
+  "metrics": {
+    "sharpe": 6.2434,
+    "avgReturn": 0.0578,
+    "winRate": 0.7778,
+    "stopLossRate": 0.2222,
+    "maxDrawdown": -0.0975
+  },
+  "featureSet": "trend",
+  "model": "PercentileRank",
+  "plateau": {
+    "passed": true,
+    "ratio": 1.055,
+    "neighborCount": 2
+  },
+  "stockCode": "600588",
+  "timestamp": "2026-03-24T15:10:52.374Z",
+  "version": 2
+}
