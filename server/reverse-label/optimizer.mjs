@@ -107,14 +107,20 @@ function scoreResult(result) {
   if (!Number.isFinite(result.avgReturn)) return null;
   if ((result.winRate ?? 0) < 0.50) return null;
 
-  const avgReturnPct = result.avgReturn * 100;
-  const winRateExtra = ((result.winRate ?? 0) - 0.5) * 20;
-  const drawdownPct = Math.abs(result.maxDrawdown ?? 0) * 100;
-  const compositeScore = avgReturnPct + winRateExtra - drawdownPct * 0.3;
+  // 建议5：Profit Factor 门槛 — 盈亏比 < 1.2 的策略在算上滑点后必亏
+  const pf = result.profitFactor ?? 0;
+  if (pf < 1.2) return null;
+
+  // 建议5：期望值驱动评分
+  // compositeScore = profitFactor × sharpe × log(1+trades)
+  // 兼顾盈亏质量、风险调整收益、统计显著性
+  const sharpe = Math.max(result.sharpe ?? 0, 0.01);
+  const tradeSignificance = Math.log1p(result.totalTrades);
+  const compositeScore = pf * sharpe * tradeSignificance;
 
   return {
     primary: compositeScore,
-    secondary: result.winRate ?? 0,
+    secondary: pf,
     tertiary: result.avgReturn,
     trades: result.totalTrades,
   };
@@ -145,13 +151,15 @@ function runOneConfig(rows, config, indexRows, regimeOptions = {}) {
 
     // 第二层：传入 regime exitParams
     const exitParams = regimeOptions.exitParams ?? {};
-    // exitParams 只传 maxHoldingDays 和 trailingStopMultiplier
-    // stopLoss 保留 validator 内的动态 ATR 计算，不覆盖
+    // 传入完整退出参数（建议1：按regime解耦退出风格）
     const validator = new WalkForwardValidator(labeledRows, {
       envFilter: config.envFilter,
       indexRows,
       maxHoldingDays: exitParams.maxHoldingDays,
       trailingStopMultiplier: exitParams.trailingStopMultiplier,
+      takeProfitStyle: exitParams.takeProfitStyle,
+      targetProfitPct: exitParams.targetProfitPct,
+      bollUpperExit: exitParams.bollUpperExit,
       featurePool: regimeOptions.featurePool,
       modelPref: regimeOptions.modelPref,
       regime: regimeOptions.regime,
@@ -271,9 +279,8 @@ export async function optimize(stockCode, startDate, endDate) {
   console.log(`\n[1/5] 加载数据 ${stockCode} ...`);
   const stock = await fetchWithRetry(() => loadStockInfo(token, stockCode));
   const candles = await fetchWithRetry(() => loadDailyCandles(token, stock.ts_code, startDate, endDate));
-  const rows = new DataEngine(candles).computeAllFeatures();
-  console.log(`      ${rows.length} 根K线已加载`);
 
+  // 建议3：先加载指数数据，再传给股票DataEngine计算RS因子
   let indexRows = null;
   try {
     const indexCandles = await fetchWithRetry(() => loadIndexCandles(token, '000300.SH', startDate, endDate));
@@ -283,6 +290,9 @@ export async function optimize(stockCode, startDate, endDate) {
     console.warn(`      指数数据拉取失败，大盘过滤将跳过：${error.message}`);
     indexRows = null;
   }
+
+  const rows = new DataEngine(candles).computeAllFeatures(indexRows);
+  console.log(`      ${rows.length} 根K线已加载（含RS因子）`);
 
   // ──── 方向6：基本面过滤 ────
   let fundamental = { qualified: true, scores: {}, warnings: [] };
@@ -487,10 +497,18 @@ export async function optimize(stockCode, startDate, endDate) {
   summary.fundamental = fundamental;
   summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult, { featurePool, modelPref });
 
-  // 方向6：基本面不合格时，降级 buy 信号为 hold
+  // 建议4：基本面过滤与 regime 联动
+  // downtrend 抄底：严格执行基本面过滤（垃圾股无底）
+  // breakout 突破：放宽基本面（资金已用脚投票）
+  // 其他：正常执行
   if (!fundamental.qualified && summary.currentSignal.signal === 'buy') {
-    summary.currentSignal.signal = 'hold';
-    summary.currentSignal.reason += '；基本面不合格，信号降级为hold';
+    if (regime === 'breakout') {
+      // 突破状态：仅警告，不降级
+      summary.currentSignal.reason += '；基本面弱势但处于突破状态，保留信号';
+    } else {
+      summary.currentSignal.signal = 'hold';
+      summary.currentSignal.reason += '；基本面不合格，信号降级为hold';
+    }
   }
 
   return summary;

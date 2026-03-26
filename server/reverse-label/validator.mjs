@@ -26,11 +26,15 @@ export class WalkForwardValidator {
     this.featurePool = options.featurePool ?? null;
     this.modelPref = options.modelPref ?? null;
     this.regime = options.regime ?? null;
-    // 方向3：指标阈值门槛（可通过 regime-config 传入，也可用默认值）
+    // 建议1：退出风格
+    this.takeProfitStyle = options.takeProfitStyle ?? 'tiered';
+    this.targetProfitPct = options.targetProfitPct ?? 0.06;
+    this.bollUpperExit = options.bollUpperExit ?? false;
+    // 方向3：指标阈值门槛
     this.indicatorGate = options.indicatorGate ?? {
-      rsiOverbought: 80,   // RSI6 超买线：高于此值拒绝入场
-      rsiOversold: 15,     // RSI6 极端超卖：低于此值也谨慎（可能是趋势崩溃）
-      jOverbought: 95,     // KDJ J 超买线
+      rsiOverbought: 80,
+      rsiOversold: 15,
+      jOverbought: 95,
     };
   }
 
@@ -175,9 +179,9 @@ export class WalkForwardValidator {
           : (this.stopLoss ?? 0.04);
         let exitIndex = Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays);
         let exitReason = 'timeout';
-        // 追踪止损：记录持仓期间最高价，从最高价回撤超过一定幅度则止损锁利
         let highWatermark = buyRow.close;
         const trailingStopPct = dynamicStopLossPct * this.trailingStopMultiplier;
+        const style = this.takeProfitStyle;
 
         for (let cursor = buyIndex + 1; cursor <= Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays); cursor += 1) {
           const candidateRow = testRows[cursor];
@@ -186,31 +190,68 @@ export class WalkForwardValidator {
           }
           const grossReturn = (candidateRow.close - buyRow.close) / buyRow.close;
           const netReturn = grossReturn - this.tradingCost;
+
+          // ── 止损（所有风格共享）──
           if (netReturn <= -dynamicStopLossPct) {
             exitIndex = cursor;
             exitReason = 'stopLoss';
             stopLossHits += 1;
             break;
           }
-          // 分级追踪止盈：利润越大，锁利越紧
-          // 级别1：盈利 >3%  → 从高点回撤 trailingStopPct 止盈
-          // 级别2：盈利 >8%  → 从高点回撤 trailingStopPct×0.7 止盈（收紧30%）
-          // 级别3：盈利 >15% → 从高点回撤 trailingStopPct×0.5 止盈（收紧50%）
+
           const currentProfit = (highWatermark - buyRow.close) / buyRow.close;
           const retraceFromHigh = (highWatermark - candidateRow.close) / highWatermark;
-          let activeTrailingPct = 0;
-          if (currentProfit >= 0.15) {
-            activeTrailingPct = trailingStopPct * 0.5;
-          } else if (currentProfit >= 0.08) {
-            activeTrailingPct = trailingStopPct * 0.7;
-          } else if (currentProfit >= 0.03) {
-            activeTrailingPct = trailingStopPct;
+
+          // ── 建议1：按 regime 解耦止盈逻辑 ──
+          if (style === 'trend_follow') {
+            // 趋势跟随：不破MA20不走，允许大幅回撤吃满波段
+            const ma20 = candidateRow.ma20 ?? 0;
+            if (currentProfit >= 0.03 && Number.isFinite(ma20) && ma20 > 0 && candidateRow.close < ma20) {
+              exitIndex = cursor;
+              exitReason = 'trendBreak';
+              break;
+            }
+            // 极端保护：盈利超30%后从高点回撤超1.5×ATR才走
+            if (currentProfit >= 0.30 && retraceFromHigh >= trailingStopPct) {
+              exitIndex = cursor;
+              exitReason = 'trailingStop';
+              break;
+            }
+          } else if (style === 'target') {
+            // 目标止盈：摸到目标或布林上轨直接走
+            if (netReturn >= this.targetProfitPct) {
+              exitIndex = cursor;
+              exitReason = 'targetProfit';
+              break;
+            }
+            if (this.bollUpperExit && Number.isFinite(candidateRow.bollUpper) && candidateRow.close >= candidateRow.bollUpper) {
+              exitIndex = cursor;
+              exitReason = 'bollUpperExit';
+              break;
+            }
+            // 轻度追踪：盈利超3%后从高点回撤就锁利
+            if (currentProfit >= 0.03 && retraceFromHigh >= trailingStopPct) {
+              exitIndex = cursor;
+              exitReason = 'trailingStop';
+              break;
+            }
+          } else {
+            // tiered（默认）：分级追踪止盈
+            let activeTrailingPct = 0;
+            if (currentProfit >= 0.15) {
+              activeTrailingPct = trailingStopPct * 0.5;
+            } else if (currentProfit >= 0.08) {
+              activeTrailingPct = trailingStopPct * 0.7;
+            } else if (currentProfit >= 0.03) {
+              activeTrailingPct = trailingStopPct;
+            }
+            if (activeTrailingPct > 0 && retraceFromHigh >= activeTrailingPct) {
+              exitIndex = cursor;
+              exitReason = 'trailingStop';
+              break;
+            }
           }
-          if (activeTrailingPct > 0 && retraceFromHigh >= activeTrailingPct) {
-            exitIndex = cursor;
-            exitReason = 'trailingStop';
-            break;
-          }
+
           if (candidateRow.isSellPoint === 1) {
             exitIndex = cursor;
             exitReason = 'sellSignal';
@@ -253,6 +294,15 @@ export class WalkForwardValidator {
     const returns = allTrades.map((trade) => trade.return);
     const holdingDays = allTrades.map((trade) => trade.holdingDays);
     const trailingStopHits = allTrades.filter((trade) => trade.exitReason === 'trailingStop').length;
+
+    // 建议5：计算 avgWin / avgLoss / profitFactor
+    const wins = returns.filter((v) => v > 0);
+    const losses = returns.filter((v) => v <= 0);
+    const avgWin = wins.length ? average(wins) : 0;
+    const avgLoss = losses.length ? Math.abs(average(losses)) : 0;
+    const grossProfit = wins.reduce((s, v) => s + v, 0);
+    const grossLoss = Math.abs(losses.reduce((s, v) => s + v, 0));
+    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : (grossProfit > 0 ? 99 : 0);
     const equityCurve = [];
     let equity = 1;
     returns.forEach((value) => {
@@ -287,6 +337,9 @@ export class WalkForwardValidator {
       skippedByEnvironment,
       skippedByMarket,
       trailingStopRate: allTrades.length ? Number((trailingStopHits / allTrades.length).toFixed(4)) : 0,
+      avgWin: Number(avgWin.toFixed(4)),
+      avgLoss: Number(avgLoss.toFixed(4)),
+      profitFactor: Number(profitFactor.toFixed(4)),
       bestWindowReturn: windowStats.length ? Number(Math.max(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       worstWindowReturn: windowStats.length ? Number(Math.min(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       diagnosis: diagnostics,
