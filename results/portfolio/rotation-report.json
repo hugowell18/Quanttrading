@@ -1,0 +1,8445 @@
+{
+  "initialCash": 1000000,
+  "finalEquity": 1255265.9,
+  "totalReturn": 0.2553,
+  "annualizedReturn": 0.0789,
+  "annualizedSharpe": 0.5174,
+  "maxDrawdown": -0.239,
+  "totalTrades": 351,
+  "winRate": 0.5271,
+  "avgReturn": 0.0011,
+  "avgWin": 0.0586,
+  "avgLoss": 0.0629,
+  "profitFactor": 1.0386,
+  "avgHoldingDays": 6.7,
+  "stopLossRate": 0.3932,
+  "trailingStopRate": 0,
+  "trades": [
+    {
+      "code": "002415",
+      "buyDate": "2023-02-16",
+      "sellDate": "2023-02-21",
+      "buyPrice": 36.2423,
+      "sellPrice": 38.6226,
+      "shares": 5200,
+      "return": 0.0627,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2023-02-16",
+      "sellDate": "2023-02-22",
+      "buyPrice": 5.491,
+      "sellPrice": 5.6587,
+      "shares": 36400,
+      "return": 0.0275,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2023-02-16",
+      "sellDate": "2023-02-22",
+      "buyPrice": 17.8055,
+      "sellPrice": 18.3333,
+      "shares": 11200,
+      "return": 0.0266,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2023-02-16",
+      "sellDate": "2023-02-28",
+      "buyPrice": 13.4268,
+      "sellPrice": 14.2514,
+      "shares": 14800,
+      "return": 0.0584,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2023-02-23",
+      "sellDate": "2023-02-28",
+      "buyPrice": 18.6372,
+      "sellPrice": 17.7444,
+      "shares": 11300,
+      "return": -0.0509,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2023-03-01",
+      "sellDate": "2023-03-02",
+      "buyPrice": 14.9799,
+      "sellPrice": 15.958,
+      "shares": 14100,
+      "return": 0.0623,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2023-02-16",
+      "sellDate": "2023-03-10",
+      "buyPrice": 12.3046,
+      "sellPrice": 11.8962,
+      "shares": 16300,
+      "return": -0.0362,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600309",
+      "buyDate": "2023-03-01",
+      "sellDate": "2023-03-10",
+      "buyPrice": 104.4084,
+      "sellPrice": 98.5026,
+      "shares": 1900,
+      "return": -0.0596,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2023-02-22",
+      "sellDate": "2023-03-13",
+      "buyPrice": 50.1501,
+      "sellPrice": 47.405,
+      "shares": 4000,
+      "return": -0.0577,
+      "holdingDays": 13,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2023-02-23",
+      "sellDate": "2023-03-17",
+      "buyPrice": 5.6513,
+      "sellPrice": 5.3892,
+      "shares": 35900,
+      "return": -0.0494,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "603605",
+      "buyDate": "2023-03-03",
+      "sellDate": "2023-03-21",
+      "buyPrice": 186.4822,
+      "sellPrice": 175.638,
+      "shares": 1200,
+      "return": -0.0612,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601186",
+      "buyDate": "2023-03-24",
+      "sellDate": "2023-03-28",
+      "buyPrice": 9.7695,
+      "sellPrice": 9.2714,
+      "shares": 20200,
+      "return": -0.054,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2023-03-24",
+      "sellDate": "2023-03-28",
+      "buyPrice": 36.8235,
+      "sellPrice": 39.3511,
+      "shares": 5300,
+      "return": 0.0656,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2023-03-24",
+      "sellDate": "2023-03-29",
+      "buyPrice": 6.7835,
+      "sellPrice": 6.4371,
+      "shares": 29100,
+      "return": -0.0541,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2023-03-24",
+      "sellDate": "2023-03-31",
+      "buyPrice": 12.7154,
+      "sellPrice": 11.986,
+      "shares": 15600,
+      "return": -0.0604,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2023-03-31",
+      "sellDate": "2023-04-03",
+      "buyPrice": 21.052,
+      "sellPrice": 22.7744,
+      "shares": 9400,
+      "return": 0.0788,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2023-03-31",
+      "sellDate": "2023-04-03",
+      "buyPrice": 443.0543,
+      "sellPrice": 474.05,
+      "shares": 400,
+      "return": 0.067,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2023-04-03",
+      "sellDate": "2023-04-04",
+      "buyPrice": 37.4748,
+      "sellPrice": 42.0158,
+      "shares": 5000,
+      "return": 0.1182,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002415",
+      "buyDate": "2023-03-31",
+      "sellDate": "2023-04-06",
+      "buyPrice": 41.7734,
+      "sellPrice": 43.5128,
+      "shares": 4900,
+      "return": 0.0386,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2023-04-04",
+      "sellDate": "2023-04-06",
+      "buyPrice": 24.1582,
+      "sellPrice": 25.6486,
+      "shares": 8600,
+      "return": 0.0587,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002027",
+      "buyDate": "2023-03-24",
+      "sellDate": "2023-04-07",
+      "buyPrice": 6.6934,
+      "sellPrice": 6.3373,
+      "shares": 28400,
+      "return": -0.0562,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2023-04-06",
+      "sellDate": "2023-04-11",
+      "buyPrice": 64.2983,
+      "sellPrice": 58.882,
+      "shares": 3200,
+      "return": -0.0872,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002415",
+      "buyDate": "2023-04-07",
+      "sellDate": "2023-04-13",
+      "buyPrice": 43.9878,
+      "sellPrice": 45.6385,
+      "shares": 5100,
+      "return": 0.0345,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2023-04-07",
+      "sellDate": "2023-04-18",
+      "buyPrice": 39.6391,
+      "sellPrice": 34.6306,
+      "shares": 5400,
+      "return": -0.1294,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2023-04-12",
+      "sellDate": "2023-04-19",
+      "buyPrice": 542.603,
+      "sellPrice": 497.1337,
+      "shares": 300,
+      "return": -0.0868,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2023-04-14",
+      "sellDate": "2023-04-21",
+      "buyPrice": 24.7895,
+      "sellPrice": 26.8163,
+      "shares": 10200,
+      "return": 0.0788,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2023-04-20",
+      "sellDate": "2023-04-21",
+      "buyPrice": 497.5932,
+      "sellPrice": 535.926,
+      "shares": 300,
+      "return": 0.074,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2023-04-10",
+      "sellDate": "2023-04-25",
+      "buyPrice": 22.9458,
+      "sellPrice": 25.948,
+      "shares": 7900,
+      "return": 0.1278,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "001979",
+      "buyDate": "2023-04-19",
+      "sellDate": "2023-04-25",
+      "buyPrice": 15.1903,
+      "sellPrice": 14.0518,
+      "shares": 12600,
+      "return": -0.0779,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601225",
+      "buyDate": "2023-04-04",
+      "sellDate": "2023-04-27",
+      "buyPrice": 20.1703,
+      "sellPrice": 19.3712,
+      "shares": 9800,
+      "return": -0.0426,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2023-05-09",
+      "sellDate": "2023-05-15",
+      "buyPrice": 26.3125,
+      "sellPrice": 27.4949,
+      "shares": 7700,
+      "return": 0.0419,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2023-05-09",
+      "sellDate": "2023-05-15",
+      "buyPrice": 6.9539,
+      "sellPrice": 6.497,
+      "shares": 29700,
+      "return": -0.0687,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2023-05-09",
+      "sellDate": "2023-05-16",
+      "buyPrice": 108.1258,
+      "sellPrice": 115.768,
+      "shares": 1800,
+      "return": 0.0677,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2023-05-09",
+      "sellDate": "2023-05-22",
+      "buyPrice": 35.7514,
+      "sellPrice": 33.912,
+      "shares": 5500,
+      "return": -0.0544,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601166",
+      "buyDate": "2023-05-09",
+      "sellDate": "2023-05-25",
+      "buyPrice": 17.8055,
+      "sellPrice": 16.6866,
+      "shares": 11600,
+      "return": -0.0658,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2023-06-14",
+      "sellDate": "2023-06-20",
+      "buyPrice": 21.1422,
+      "sellPrice": 22.5648,
+      "shares": 9600,
+      "return": 0.0643,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2023-06-14",
+      "sellDate": "2023-06-21",
+      "buyPrice": 74.148,
+      "sellPrice": 79.83,
+      "shares": 2700,
+      "return": 0.0736,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2023-06-14",
+      "sellDate": "2023-06-21",
+      "buyPrice": 536.9718,
+      "sellPrice": 556.0257,
+      "shares": 300,
+      "return": 0.0325,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2023-06-14",
+      "sellDate": "2023-06-21",
+      "buyPrice": 29.6492,
+      "sellPrice": 27.6845,
+      "shares": 7200,
+      "return": -0.0693,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2023-06-14",
+      "sellDate": "2023-06-21",
+      "buyPrice": 28.9778,
+      "sellPrice": 31.7364,
+      "shares": 7400,
+      "return": 0.0922,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2023-06-26",
+      "sellDate": "2023-06-27",
+      "buyPrice": 76.4025,
+      "sellPrice": 73.1135,
+      "shares": 2700,
+      "return": -0.046,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2023-06-26",
+      "sellDate": "2023-06-28",
+      "buyPrice": 22.4047,
+      "sellPrice": 21.0378,
+      "shares": 9200,
+      "return": -0.064,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2023-06-26",
+      "sellDate": "2023-06-28",
+      "buyPrice": 30.06,
+      "sellPrice": 31.3272,
+      "shares": 6600,
+      "return": 0.0392,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2023-06-21",
+      "sellDate": "2023-06-29",
+      "buyPrice": 14.509,
+      "sellPrice": 15.0399,
+      "shares": 14900,
+      "return": 0.0336,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2023-06-26",
+      "sellDate": "2023-06-29",
+      "buyPrice": 37.595,
+      "sellPrice": 35.2094,
+      "shares": 5500,
+      "return": -0.0665,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2023-07-04",
+      "sellDate": "2023-07-13",
+      "buyPrice": 15.0601,
+      "sellPrice": 15.6486,
+      "shares": 13700,
+      "return": 0.0361,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601225",
+      "buyDate": "2023-07-04",
+      "sellDate": "2023-07-13",
+      "buyPrice": 18.547,
+      "sellPrice": 16.6267,
+      "shares": 11100,
+      "return": -0.1065,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2023-07-04",
+      "sellDate": "2023-07-14",
+      "buyPrice": 33.6672,
+      "sellPrice": 31.8761,
+      "shares": 5800,
+      "return": -0.0562,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601100",
+      "buyDate": "2023-07-04",
+      "sellDate": "2023-07-20",
+      "buyPrice": 64.3685,
+      "sellPrice": 68.2333,
+      "shares": 3100,
+      "return": 0.057,
+      "holdingDays": 12,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2023-07-14",
+      "sellDate": "2023-07-20",
+      "buyPrice": 118.246,
+      "sellPrice": 111.1273,
+      "shares": 1600,
+      "return": -0.0632,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2023-07-14",
+      "sellDate": "2023-07-21",
+      "buyPrice": 34.4187,
+      "sellPrice": 32.2953,
+      "shares": 5900,
+      "return": -0.0647,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2023-07-04",
+      "sellDate": "2023-07-26",
+      "buyPrice": 8.8276,
+      "sellPrice": 9.1417,
+      "shares": 23400,
+      "return": 0.0326,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601318",
+      "buyDate": "2023-07-26",
+      "sellDate": "2023-07-31",
+      "buyPrice": 49.2784,
+      "sellPrice": 52.874,
+      "shares": 3800,
+      "return": 0.07,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2023-07-17",
+      "sellDate": "2023-08-08",
+      "buyPrice": 29.8195,
+      "sellPrice": 30.7484,
+      "shares": 6500,
+      "return": 0.0281,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2023-07-27",
+      "sellDate": "2023-08-11",
+      "buyPrice": 9.038,
+      "sellPrice": 9.4311,
+      "shares": 23500,
+      "return": 0.0405,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2023-07-26",
+      "sellDate": "2023-08-14",
+      "buyPrice": 8.2865,
+      "sellPrice": 7.6846,
+      "shares": 23700,
+      "return": -0.0756,
+      "holdingDays": 13,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2023-08-01",
+      "sellDate": "2023-08-14",
+      "buyPrice": 21.7935,
+      "sellPrice": 20.3891,
+      "shares": 9200,
+      "return": -0.0674,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002027",
+      "buyDate": "2023-07-26",
+      "sellDate": "2023-08-17",
+      "buyPrice": 7.4248,
+      "sellPrice": 7.2555,
+      "shares": 26500,
+      "return": -0.0258,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "300059",
+      "buyDate": "2023-08-09",
+      "sellDate": "2023-08-22",
+      "buyPrice": 16.543,
+      "sellPrice": 15.469,
+      "shares": 12100,
+      "return": -0.0679,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2023-09-05",
+      "sellDate": "2023-09-08",
+      "buyPrice": 27.4348,
+      "sellPrice": 25.8881,
+      "shares": 7100,
+      "return": -0.0594,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2023-09-05",
+      "sellDate": "2023-09-11",
+      "buyPrice": 6.6633,
+      "sellPrice": 6.1976,
+      "shares": 29400,
+      "return": -0.0729,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2023-09-05",
+      "sellDate": "2023-09-13",
+      "buyPrice": 30.1602,
+      "sellPrice": 28.3632,
+      "shares": 6500,
+      "return": -0.0626,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002027",
+      "buyDate": "2023-09-05",
+      "sellDate": "2023-09-18",
+      "buyPrice": 7.6954,
+      "sellPrice": 7.2255,
+      "shares": 25600,
+      "return": -0.0641,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600050",
+      "buyDate": "2023-09-05",
+      "sellDate": "2023-09-27",
+      "buyPrice": 5.2906,
+      "sellPrice": 4.8902,
+      "shares": 35600,
+      "return": -0.0787,
+      "holdingDays": 16,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2023-11-07",
+      "sellDate": "2023-11-21",
+      "buyPrice": 33.2464,
+      "sellPrice": 31.1176,
+      "shares": 5500,
+      "return": -0.067,
+      "holdingDays": 10,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2023-11-07",
+      "sellDate": "2023-11-23",
+      "buyPrice": 243.486,
+      "sellPrice": 230.039,
+      "shares": 700,
+      "return": -0.0582,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002714",
+      "buyDate": "2023-11-07",
+      "sellDate": "2023-11-27",
+      "buyPrice": 37.4147,
+      "sellPrice": 38.922,
+      "shares": 4900,
+      "return": 0.0373,
+      "holdingDays": 14,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002415",
+      "buyDate": "2023-11-07",
+      "sellDate": "2023-11-29",
+      "buyPrice": 36.9638,
+      "sellPrice": 35.2094,
+      "shares": 4900,
+      "return": -0.0505,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2023-11-07",
+      "sellDate": "2023-11-29",
+      "buyPrice": 16.1823,
+      "sellPrice": 15.6187,
+      "shares": 11500,
+      "return": -0.0378,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2023-11-22",
+      "sellDate": "2023-12-14",
+      "buyPrice": 8.2865,
+      "sellPrice": 8.0638,
+      "shares": 21400,
+      "return": -0.0299,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2023-12-29",
+      "sellDate": "2024-01-04",
+      "buyPrice": 7.3948,
+      "sellPrice": 7.9042,
+      "shares": 23900,
+      "return": 0.0659,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-01-02",
+      "sellDate": "2024-01-05",
+      "buyPrice": 87.675,
+      "sellPrice": 81.9358,
+      "shares": 1900,
+      "return": -0.0685,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2023-12-29",
+      "sellDate": "2024-01-09",
+      "buyPrice": 33.2664,
+      "sellPrice": 31.4869,
+      "shares": 5300,
+      "return": -0.0565,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600050",
+      "buyDate": "2023-12-29",
+      "sellDate": "2024-01-10",
+      "buyPrice": 4.3587,
+      "sellPrice": 4.0419,
+      "shares": 40800,
+      "return": -0.0757,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600900",
+      "buyDate": "2023-12-29",
+      "sellDate": "2024-01-23",
+      "buyPrice": 23.3466,
+      "sellPrice": 23.1137,
+      "shares": 7600,
+      "return": -0.013,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-01-26",
+      "sellDate": "2024-01-30",
+      "buyPrice": 88.3664,
+      "sellPrice": 79.84,
+      "shares": 1900,
+      "return": -0.0995,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2024-01-26",
+      "sellDate": "2024-01-30",
+      "buyPrice": 22.0941,
+      "sellPrice": 22.8742,
+      "shares": 7800,
+      "return": 0.0323,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2024-01-26",
+      "sellDate": "2024-01-30",
+      "buyPrice": 22.0941,
+      "sellPrice": 20.2295,
+      "shares": 7900,
+      "return": -0.0874,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2024-01-26",
+      "sellDate": "2024-02-02",
+      "buyPrice": 7.4649,
+      "sellPrice": 7.0658,
+      "shares": 22400,
+      "return": -0.0565,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2024-02-07",
+      "sellDate": "2024-02-08",
+      "buyPrice": 23.7474,
+      "sellPrice": 25.7484,
+      "shares": 6900,
+      "return": 0.0813,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-01-26",
+      "sellDate": "2024-02-20",
+      "buyPrice": 8.2064,
+      "sellPrice": 8.6028,
+      "shares": 21000,
+      "return": 0.0453,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601088",
+      "buyDate": "2024-02-07",
+      "sellDate": "2024-02-20",
+      "buyPrice": 37.8155,
+      "sellPrice": 39.6805,
+      "shares": 4300,
+      "return": 0.0463,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2024-02-07",
+      "sellDate": "2024-02-22",
+      "buyPrice": 31.4828,
+      "sellPrice": 32.7444,
+      "shares": 5200,
+      "return": 0.0371,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601186",
+      "buyDate": "2024-02-07",
+      "sellDate": "2024-02-22",
+      "buyPrice": 8.2465,
+      "sellPrice": 8.6227,
+      "shares": 19200,
+      "return": 0.0426,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2024-02-19",
+      "sellDate": "2024-02-27",
+      "buyPrice": 25.551,
+      "sellPrice": 23.9819,
+      "shares": 6900,
+      "return": -0.0644,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-02-28",
+      "sellDate": "2024-03-08",
+      "buyPrice": 6.0521,
+      "sellPrice": 6.5169,
+      "shares": 27400,
+      "return": 0.0738,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601669",
+      "buyDate": "2024-02-21",
+      "sellDate": "2024-03-11",
+      "buyPrice": 5,
+      "sellPrice": 5.2495,
+      "shares": 36100,
+      "return": 0.0469,
+      "holdingDays": 13,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-02-23",
+      "sellDate": "2024-03-11",
+      "buyPrice": 8.8076,
+      "sellPrice": 9.2814,
+      "shares": 19700,
+      "return": 0.0508,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601088",
+      "buyDate": "2024-02-22",
+      "sellDate": "2024-03-13",
+      "buyPrice": 39.4487,
+      "sellPrice": 37.0857,
+      "shares": 4300,
+      "return": -0.0629,
+      "holdingDays": 14,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2024-03-14",
+      "sellDate": "2024-03-18",
+      "buyPrice": 19.9899,
+      "sellPrice": 19.1915,
+      "shares": 8000,
+      "return": -0.0429,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601186",
+      "buyDate": "2024-02-27",
+      "sellDate": "2024-03-20",
+      "buyPrice": 8.4769,
+      "sellPrice": 8.3932,
+      "shares": 19400,
+      "return": -0.0129,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2024-03-11",
+      "sellDate": "2024-03-22",
+      "buyPrice": 50.11,
+      "sellPrice": 51.6964,
+      "shares": 3500,
+      "return": 0.0287,
+      "holdingDays": 9,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2024-03-12",
+      "sellDate": "2024-03-22",
+      "buyPrice": 41.4628,
+      "sellPrice": 38.922,
+      "shares": 4400,
+      "return": -0.0643,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2024-03-21",
+      "sellDate": "2024-03-25",
+      "buyPrice": 20.2805,
+      "sellPrice": 19.0119,
+      "shares": 8200,
+      "return": -0.0656,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2024-03-25",
+      "sellDate": "2024-03-27",
+      "buyPrice": 51.1721,
+      "sellPrice": 48.0936,
+      "shares": 3500,
+      "return": -0.0632,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-03-19",
+      "sellDate": "2024-03-28",
+      "buyPrice": 107.9154,
+      "sellPrice": 102.3948,
+      "shares": 1400,
+      "return": -0.0542,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2024-03-12",
+      "sellDate": "2024-04-01",
+      "buyPrice": 17.2344,
+      "sellPrice": 18.443,
+      "shares": 11100,
+      "return": 0.0671,
+      "holdingDays": 14,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-03-29",
+      "sellDate": "2024-04-02",
+      "buyPrice": 102.9154,
+      "sellPrice": 107.784,
+      "shares": 1400,
+      "return": 0.0443,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-04-02",
+      "sellDate": "2024-04-08",
+      "buyPrice": 7.1843,
+      "sellPrice": 7.475,
+      "shares": 28100,
+      "return": 0.0375,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600795",
+      "buyDate": "2024-03-25",
+      "sellDate": "2024-04-09",
+      "buyPrice": 5,
+      "sellPrice": 5.1696,
+      "shares": 34600,
+      "return": 0.0309,
+      "holdingDays": 9,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2024-03-26",
+      "sellDate": "2024-04-09",
+      "buyPrice": 25.2504,
+      "sellPrice": 23.6526,
+      "shares": 6200,
+      "return": -0.0663,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-04-03",
+      "sellDate": "2024-04-11",
+      "buyPrice": 107.3042,
+      "sellPrice": 98.3529,
+      "shares": 1400,
+      "return": -0.0864,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2024-03-28",
+      "sellDate": "2024-04-16",
+      "buyPrice": 25.04,
+      "sellPrice": 26.2374,
+      "shares": 6700,
+      "return": 0.0448,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-04-09",
+      "sellDate": "2024-04-16",
+      "buyPrice": 7.2445,
+      "sellPrice": 7.4351,
+      "shares": 29100,
+      "return": 0.0233,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2024-04-10",
+      "sellDate": "2024-04-19",
+      "buyPrice": 32.2544,
+      "sellPrice": 33.4929,
+      "shares": 5200,
+      "return": 0.0354,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600795",
+      "buyDate": "2024-04-10",
+      "sellDate": "2024-04-24",
+      "buyPrice": 5.1904,
+      "sellPrice": 4.97,
+      "shares": 30900,
+      "return": -0.0454,
+      "holdingDays": 10,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-04-17",
+      "sellDate": "2024-04-29",
+      "buyPrice": 7.1944,
+      "sellPrice": 7.485,
+      "shares": 26400,
+      "return": 0.0374,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2024-04-17",
+      "sellDate": "2024-05-07",
+      "buyPrice": 19.038,
+      "sellPrice": 19.6606,
+      "shares": 10500,
+      "return": 0.0297,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-04-12",
+      "sellDate": "2024-05-09",
+      "buyPrice": 9.4088,
+      "sellPrice": 9.0618,
+      "shares": 14700,
+      "return": -0.0399,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600900",
+      "buyDate": "2024-04-22",
+      "sellDate": "2024-05-17",
+      "buyPrice": 25.9819,
+      "sellPrice": 25.3991,
+      "shares": 6700,
+      "return": -0.0254,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2024-04-25",
+      "sellDate": "2024-05-22",
+      "buyPrice": 7.0942,
+      "sellPrice": 6.986,
+      "shares": 21900,
+      "return": -0.0182,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2024-04-30",
+      "sellDate": "2024-05-27",
+      "buyPrice": 26.4728,
+      "sellPrice": 25.469,
+      "shares": 7300,
+      "return": -0.0409,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601100",
+      "buyDate": "2024-05-10",
+      "sellDate": "2024-05-27",
+      "buyPrice": 54.4286,
+      "sellPrice": 50.9978,
+      "shares": 2500,
+      "return": -0.066,
+      "holdingDays": 11,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600795",
+      "buyDate": "2024-05-08",
+      "sellDate": "2024-05-28",
+      "buyPrice": 5.2004,
+      "sellPrice": 5.4191,
+      "shares": 40000,
+      "return": 0.0391,
+      "holdingDays": 14,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-05-20",
+      "sellDate": "2024-05-30",
+      "buyPrice": 7.9559,
+      "sellPrice": 8.5628,
+      "shares": 21300,
+      "return": 0.0733,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-05-23",
+      "sellDate": "2024-06-03",
+      "buyPrice": 104.6389,
+      "sellPrice": 98.0036,
+      "shares": 1400,
+      "return": -0.0664,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600795",
+      "buyDate": "2024-05-29",
+      "sellDate": "2024-06-06",
+      "buyPrice": 5.4509,
+      "sellPrice": 5.6786,
+      "shares": 39200,
+      "return": 0.0388,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-05-31",
+      "sellDate": "2024-06-06",
+      "buyPrice": 8.3166,
+      "sellPrice": 7.7844,
+      "shares": 22100,
+      "return": -0.067,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601166",
+      "buyDate": "2024-05-28",
+      "sellDate": "2024-06-13",
+      "buyPrice": 18.2765,
+      "sellPrice": 17.2953,
+      "shares": 9000,
+      "return": -0.0567,
+      "holdingDays": 11,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601225",
+      "buyDate": "2024-06-04",
+      "sellDate": "2024-06-13",
+      "buyPrice": 26.2524,
+      "sellPrice": 27.7045,
+      "shares": 5300,
+      "return": 0.0523,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601669",
+      "buyDate": "2024-05-28",
+      "sellDate": "2024-06-20",
+      "buyPrice": 5.3607,
+      "sellPrice": 5.5589,
+      "shares": 29100,
+      "return": 0.034,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-06-07",
+      "sellDate": "2024-07-01",
+      "buyPrice": 10.1603,
+      "sellPrice": 10.6287,
+      "shares": 19800,
+      "return": 0.0431,
+      "holdingDays": 15,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601088",
+      "buyDate": "2024-06-07",
+      "sellDate": "2024-07-02",
+      "buyPrice": 44.2984,
+      "sellPrice": 45.2094,
+      "shares": 4300,
+      "return": 0.0176,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2024-07-15",
+      "sellDate": "2024-07-18",
+      "buyPrice": 7.9158,
+      "sellPrice": 7.2355,
+      "shares": 22200,
+      "return": -0.0889,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600900",
+      "buyDate": "2024-07-15",
+      "sellDate": "2024-07-19",
+      "buyPrice": 29.8496,
+      "sellPrice": 30.439,
+      "shares": 5900,
+      "return": 0.0167,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-07-15",
+      "sellDate": "2024-07-22",
+      "buyPrice": 11.1923,
+      "sellPrice": 11.6267,
+      "shares": 15700,
+      "return": 0.0358,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2024-07-16",
+      "sellDate": "2024-07-24",
+      "buyPrice": 18.1963,
+      "sellPrice": 16.8862,
+      "shares": 9200,
+      "return": -0.075,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601888",
+      "buyDate": "2024-07-22",
+      "sellDate": "2024-07-25",
+      "buyPrice": 69.9797,
+      "sellPrice": 64.7003,
+      "shares": 2400,
+      "return": -0.0784,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-07-23",
+      "sellDate": "2024-07-25",
+      "buyPrice": 11.503,
+      "sellPrice": 12.1357,
+      "shares": 15800,
+      "return": 0.052,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2024-07-15",
+      "sellDate": "2024-08-06",
+      "buyPrice": 6.9439,
+      "sellPrice": 6.507,
+      "shares": 25400,
+      "return": -0.0659,
+      "holdingDays": 16,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600900",
+      "buyDate": "2024-07-22",
+      "sellDate": "2024-08-13",
+      "buyPrice": 30.6412,
+      "sellPrice": 29.2214,
+      "shares": 5600,
+      "return": -0.0493,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2024-09-25",
+      "sellDate": "2024-09-27",
+      "buyPrice": 258.516,
+      "sellPrice": 272.454,
+      "shares": 600,
+      "return": 0.0509,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2024-09-25",
+      "sellDate": "2024-09-30",
+      "buyPrice": 207.414,
+      "sellPrice": 232.554,
+      "shares": 800,
+      "return": 0.1182,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-09-25",
+      "sellDate": "2024-09-30",
+      "buyPrice": 77.9356,
+      "sellPrice": 88.7022,
+      "shares": 2100,
+      "return": 0.1351,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2024-09-25",
+      "sellDate": "2024-09-30",
+      "buyPrice": 207.8048,
+      "sellPrice": 232.554,
+      "shares": 800,
+      "return": 0.1161,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2024-09-25",
+      "sellDate": "2024-09-30",
+      "buyPrice": 6.2124,
+      "sellPrice": 6.8862,
+      "shares": 29100,
+      "return": 0.1055,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2024-09-30",
+      "sellDate": "2024-10-09",
+      "buyPrice": 50.3004,
+      "sellPrice": 54.89,
+      "shares": 3200,
+      "return": 0.0882,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2024-10-10",
+      "sellDate": "2024-10-14",
+      "buyPrice": 255.51,
+      "sellPrice": 249.49,
+      "shares": 700,
+      "return": -0.0266,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2024-10-10",
+      "sellDate": "2024-10-14",
+      "buyPrice": 25.3005,
+      "sellPrice": 23.5628,
+      "shares": 7500,
+      "return": -0.0717,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2024-10-10",
+      "sellDate": "2024-10-14",
+      "buyPrice": 245.3898,
+      "sellPrice": 227.8434,
+      "shares": 700,
+      "return": -0.0745,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2024-10-10",
+      "sellDate": "2024-10-16",
+      "buyPrice": 99.198,
+      "sellPrice": 89.83,
+      "shares": 1900,
+      "return": -0.0974,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2024-10-15",
+      "sellDate": "2024-10-17",
+      "buyPrice": 250.3096,
+      "sellPrice": 233.532,
+      "shares": 700,
+      "return": -0.07,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2024-10-18",
+      "sellDate": "2024-10-21",
+      "buyPrice": 230.46,
+      "sellPrice": 258.482,
+      "shares": 700,
+      "return": 0.1186,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2024-10-15",
+      "sellDate": "2024-10-22",
+      "buyPrice": 23.8777,
+      "sellPrice": 24.9001,
+      "shares": 7500,
+      "return": 0.0398,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601318",
+      "buyDate": "2024-10-10",
+      "sellDate": "2024-11-01",
+      "buyPrice": 56.7433,
+      "sellPrice": 56.0377,
+      "shares": 3400,
+      "return": -0.0154,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2024-10-15",
+      "sellDate": "2024-11-06",
+      "buyPrice": 39.2483,
+      "sellPrice": 38.922,
+      "shares": 4400,
+      "return": -0.0113,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2024-10-17",
+      "sellDate": "2024-11-06",
+      "buyPrice": 25.9017,
+      "sellPrice": 27.0258,
+      "shares": 6500,
+      "return": 0.0404,
+      "holdingDays": 14,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601669",
+      "buyDate": "2024-10-23",
+      "sellDate": "2024-11-08",
+      "buyPrice": 5.5912,
+      "sellPrice": 5.998,
+      "shares": 34500,
+      "return": 0.0698,
+      "holdingDays": 12,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2024-10-22",
+      "sellDate": "2024-11-12",
+      "buyPrice": 254.508,
+      "sellPrice": 277.7234,
+      "shares": 700,
+      "return": 0.0882,
+      "holdingDays": 15,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2024-11-13",
+      "sellDate": "2024-11-18",
+      "buyPrice": 54.2583,
+      "sellPrice": 50.419,
+      "shares": 3600,
+      "return": -0.0738,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002714",
+      "buyDate": "2024-11-11",
+      "sellDate": "2024-11-19",
+      "buyPrice": 44.2283,
+      "sellPrice": 41.936,
+      "shares": 4600,
+      "return": -0.0548,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2024-11-07",
+      "sellDate": "2024-11-25",
+      "buyPrice": 26.7334,
+      "sellPrice": 25.2494,
+      "shares": 6600,
+      "return": -0.0585,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "000876",
+      "buyDate": "2024-11-07",
+      "sellDate": "2024-11-25",
+      "buyPrice": 10.1703,
+      "sellPrice": 9.4211,
+      "shares": 16900,
+      "return": -0.0767,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2024-11-04",
+      "sellDate": "2024-11-26",
+      "buyPrice": 6.6934,
+      "sellPrice": 6.5469,
+      "shares": 28400,
+      "return": -0.0249,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2024-11-19",
+      "sellDate": "2024-11-28",
+      "buyPrice": 7.7154,
+      "sellPrice": 8.2734,
+      "shares": 23800,
+      "return": 0.0693,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2024-11-26",
+      "sellDate": "2024-11-28",
+      "buyPrice": 28.066,
+      "sellPrice": 29.5009,
+      "shares": 6000,
+      "return": 0.0481,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2024-11-26",
+      "sellDate": "2024-12-02",
+      "buyPrice": 7.2545,
+      "sellPrice": 7.6746,
+      "shares": 22600,
+      "return": 0.0549,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2024-11-27",
+      "sellDate": "2024-12-02",
+      "buyPrice": 48.7172,
+      "sellPrice": 50.4988,
+      "shares": 3700,
+      "return": 0.0336,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2024-11-29",
+      "sellDate": "2024-12-10",
+      "buyPrice": 28.3566,
+      "sellPrice": 31.8362,
+      "shares": 6800,
+      "return": 0.1197,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2024-12-02",
+      "sellDate": "2024-12-10",
+      "buyPrice": 8.2665,
+      "sellPrice": 8.8822,
+      "shares": 22400,
+      "return": 0.0715,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2024-11-20",
+      "sellDate": "2024-12-12",
+      "buyPrice": 267.4839,
+      "sellPrice": 265.3682,
+      "shares": 700,
+      "return": -0.0109,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2024-12-11",
+      "sellDate": "2024-12-13",
+      "buyPrice": 8.0861,
+      "sellPrice": 8.4231,
+      "shares": 25100,
+      "return": 0.0387,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2024-12-04",
+      "sellDate": "2024-12-16",
+      "buyPrice": 49.7493,
+      "sellPrice": 46.4868,
+      "shares": 3700,
+      "return": -0.0686,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2024-12-17",
+      "sellDate": "2024-12-19",
+      "buyPrice": 212.6044,
+      "sellPrice": 224.1508,
+      "shares": 800,
+      "return": 0.0513,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300413",
+      "buyDate": "2024-12-11",
+      "sellDate": "2024-12-24",
+      "buyPrice": 30.3606,
+      "sellPrice": 28.443,
+      "shares": 7000,
+      "return": -0.0662,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2024-12-16",
+      "sellDate": "2024-12-24",
+      "buyPrice": 8.2164,
+      "sellPrice": 7.6547,
+      "shares": 25600,
+      "return": -0.0714,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601166",
+      "buyDate": "2024-12-06",
+      "sellDate": "2024-12-26",
+      "buyPrice": 18.3266,
+      "sellPrice": 19.1217,
+      "shares": 9600,
+      "return": 0.0404,
+      "holdingDays": 14,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2024-12-20",
+      "sellDate": "2024-12-27",
+      "buyPrice": 231.8628,
+      "sellPrice": 218.562,
+      "shares": 700,
+      "return": -0.0604,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2024-12-25",
+      "sellDate": "2025-01-03",
+      "buyPrice": 41.4828,
+      "sellPrice": 39.1316,
+      "shares": 5100,
+      "return": -0.0597,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2024-12-30",
+      "sellDate": "2025-01-03",
+      "buyPrice": 224.2476,
+      "sellPrice": 209.4203,
+      "shares": 700,
+      "return": -0.0691,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2024-12-13",
+      "sellDate": "2025-01-07",
+      "buyPrice": 6.9038,
+      "sellPrice": 6.8962,
+      "shares": 27000,
+      "return": -0.0041,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601985",
+      "buyDate": "2024-12-25",
+      "sellDate": "2025-01-13",
+      "buyPrice": 10.3607,
+      "sellPrice": 9.2515,
+      "shares": 19500,
+      "return": -0.1101,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2024-12-27",
+      "sellDate": "2025-01-21",
+      "buyPrice": 39.559,
+      "sellPrice": 40.2394,
+      "shares": 4600,
+      "return": 0.0142,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-01-27",
+      "sellDate": "2025-02-19",
+      "buyPrice": 7.6653,
+      "sellPrice": 7.1956,
+      "shares": 23900,
+      "return": -0.0643,
+      "holdingDays": 11,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2025-01-27",
+      "sellDate": "2025-02-20",
+      "buyPrice": 24.549,
+      "sellPrice": 23.1436,
+      "shares": 7300,
+      "return": -0.0602,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2025-01-27",
+      "sellDate": "2025-02-20",
+      "buyPrice": 261.1513,
+      "sellPrice": 272.2544,
+      "shares": 600,
+      "return": 0.0395,
+      "holdingDays": 12,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2025-02-20",
+      "sellDate": "2025-02-21",
+      "buyPrice": 17.024,
+      "sellPrice": 18.0039,
+      "shares": 11100,
+      "return": 0.0546,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2025-02-21",
+      "sellDate": "2025-02-24",
+      "buyPrice": 366.732,
+      "sellPrice": 384.23,
+      "shares": 400,
+      "return": 0.0447,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601166",
+      "buyDate": "2025-01-27",
+      "sellDate": "2025-02-26",
+      "buyPrice": 20.3606,
+      "sellPrice": 20.449,
+      "shares": 8900,
+      "return": 0.0013,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2025-01-27",
+      "sellDate": "2025-02-26",
+      "buyPrice": 40.6612,
+      "sellPrice": 41.0477,
+      "shares": 4400,
+      "return": 0.0065,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2025-02-24",
+      "sellDate": "2025-02-28",
+      "buyPrice": 17.2344,
+      "sellPrice": 15.9181,
+      "shares": 11600,
+      "return": -0.0794,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2025-02-27",
+      "sellDate": "2025-03-03",
+      "buyPrice": 382.764,
+      "sellPrice": 368.262,
+      "shares": 400,
+      "return": -0.0409,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-02-27",
+      "sellDate": "2025-03-03",
+      "buyPrice": 8.4068,
+      "sellPrice": 7.9341,
+      "shares": 24600,
+      "return": -0.0592,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2025-02-21",
+      "sellDate": "2025-03-04",
+      "buyPrice": 17.2945,
+      "sellPrice": 16.2474,
+      "shares": 10700,
+      "return": -0.0635,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600050",
+      "buyDate": "2025-02-25",
+      "sellDate": "2025-03-05",
+      "buyPrice": 6.5431,
+      "sellPrice": 6.1876,
+      "shares": 23900,
+      "return": -0.0573,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2025-03-06",
+      "sellDate": "2025-03-10",
+      "buyPrice": 17.8055,
+      "sellPrice": 19.1616,
+      "shares": 9600,
+      "return": 0.0732,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601100",
+      "buyDate": "2025-03-06",
+      "sellDate": "2025-03-10",
+      "buyPrice": 85.9015,
+      "sellPrice": 95.8479,
+      "shares": 2000,
+      "return": 0.1128,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-03-06",
+      "sellDate": "2025-03-12",
+      "buyPrice": 8.2565,
+      "sellPrice": 8.6926,
+      "shares": 22500,
+      "return": 0.0498,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2025-03-06",
+      "sellDate": "2025-03-14",
+      "buyPrice": 16.8837,
+      "sellPrice": 17.7644,
+      "shares": 10500,
+      "return": 0.0492,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2025-03-06",
+      "sellDate": "2025-03-17",
+      "buyPrice": 360.9004,
+      "sellPrice": 381.5554,
+      "shares": 400,
+      "return": 0.0542,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2025-03-11",
+      "sellDate": "2025-03-19",
+      "buyPrice": 17.034,
+      "sellPrice": 17.8243,
+      "shares": 10700,
+      "return": 0.0434,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2025-03-11",
+      "sellDate": "2025-03-20",
+      "buyPrice": 17.6853,
+      "sellPrice": 16.5468,
+      "shares": 10900,
+      "return": -0.0674,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002236",
+      "buyDate": "2025-03-20",
+      "sellDate": "2025-03-24",
+      "buyPrice": 18.8376,
+      "sellPrice": 17.7844,
+      "shares": 10000,
+      "return": -0.0589,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-03-17",
+      "sellDate": "2025-03-25",
+      "buyPrice": 8.6272,
+      "sellPrice": 8.0439,
+      "shares": 22000,
+      "return": -0.0706,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601100",
+      "buyDate": "2025-03-13",
+      "sellDate": "2025-03-26",
+      "buyPrice": 87.675,
+      "sellPrice": 82.2951,
+      "shares": 2200,
+      "return": -0.0644,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600019",
+      "buyDate": "2025-03-18",
+      "sellDate": "2025-04-08",
+      "buyPrice": 7.515,
+      "sellPrice": 6.6267,
+      "shares": 20500,
+      "return": -0.1212,
+      "holdingDays": 14,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002027",
+      "buyDate": "2025-03-21",
+      "sellDate": "2025-04-08",
+      "buyPrice": 6.9238,
+      "sellPrice": 6.507,
+      "shares": 26200,
+      "return": -0.0632,
+      "holdingDays": 11,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2025-03-25",
+      "sellDate": "2025-04-08",
+      "buyPrice": 18.7675,
+      "sellPrice": 16.1177,
+      "shares": 9500,
+      "return": -0.1442,
+      "holdingDays": 9,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-03-26",
+      "sellDate": "2025-04-08",
+      "buyPrice": 8.006,
+      "sellPrice": 7.0559,
+      "shares": 22100,
+      "return": -0.1217,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2025-03-27",
+      "sellDate": "2025-04-21",
+      "buyPrice": 24.7494,
+      "sellPrice": 25.0298,
+      "shares": 7300,
+      "return": 0.0083,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2025-04-28",
+      "sellDate": "2025-05-06",
+      "buyPrice": 26.052,
+      "sellPrice": 24.2414,
+      "shares": 6200,
+      "return": -0.0725,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-04-28",
+      "sellDate": "2025-05-06",
+      "buyPrice": 8.1362,
+      "sellPrice": 9.97,
+      "shares": 19900,
+      "return": 0.2224,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2025-05-07",
+      "sellDate": "2025-05-19",
+      "buyPrice": 365.73,
+      "sellPrice": 387.224,
+      "shares": 400,
+      "return": 0.0558,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-05-20",
+      "sellDate": "2025-05-21",
+      "buyPrice": 10.8917,
+      "sellPrice": 11.2075,
+      "shares": 14400,
+      "return": 0.026,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600900",
+      "buyDate": "2025-04-28",
+      "sellDate": "2025-05-22",
+      "buyPrice": 29.579,
+      "sellPrice": 30.7384,
+      "shares": 5400,
+      "return": 0.0362,
+      "holdingDays": 15,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601669",
+      "buyDate": "2025-04-28",
+      "sellDate": "2025-05-23",
+      "buyPrice": 4.8296,
+      "sellPrice": 4.7605,
+      "shares": 33600,
+      "return": -0.0173,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601186",
+      "buyDate": "2025-04-28",
+      "sellDate": "2025-05-23",
+      "buyPrice": 8.026,
+      "sellPrice": 7.9241,
+      "shares": 19200,
+      "return": -0.0157,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-05-23",
+      "sellDate": "2025-05-28",
+      "buyPrice": 11.3326,
+      "sellPrice": 12.974,
+      "shares": 14600,
+      "return": 0.1418,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "000709",
+      "buyDate": "2025-05-07",
+      "sellDate": "2025-05-29",
+      "buyPrice": 2.2244,
+      "sellPrice": 2.1856,
+      "shares": 90000,
+      "return": -0.0205,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2025-05-26",
+      "sellDate": "2025-05-30",
+      "buyPrice": 265.53,
+      "sellPrice": 250.3982,
+      "shares": 600,
+      "return": -0.06,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-05-26",
+      "sellDate": "2025-06-03",
+      "buyPrice": 235.47,
+      "sellPrice": 253.991,
+      "shares": 600,
+      "return": 0.0757,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-06-05",
+      "sellDate": "2025-06-09",
+      "buyPrice": 12.4849,
+      "sellPrice": 11.6267,
+      "shares": 14200,
+      "return": -0.0717,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-06-05",
+      "sellDate": "2025-06-10",
+      "buyPrice": 49.4788,
+      "sellPrice": 53.4429,
+      "shares": 3500,
+      "return": 0.0771,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-06-11",
+      "sellDate": "2025-06-13",
+      "buyPrice": 267.4238,
+      "sellPrice": 281.3761,
+      "shares": 600,
+      "return": 0.0492,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-05-22",
+      "sellDate": "2025-06-16",
+      "buyPrice": 8.6473,
+      "sellPrice": 8.9321,
+      "shares": 18600,
+      "return": 0.0299,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2025-06-10",
+      "sellDate": "2025-06-16",
+      "buyPrice": 12.1643,
+      "sellPrice": 10.9381,
+      "shares": 13700,
+      "return": -0.1038,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2025-06-05",
+      "sellDate": "2025-06-18",
+      "buyPrice": 44.1481,
+      "sellPrice": 45.8282,
+      "shares": 4000,
+      "return": 0.0351,
+      "holdingDays": 9,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601318",
+      "buyDate": "2025-06-05",
+      "sellDate": "2025-06-25",
+      "buyPrice": 53.8775,
+      "sellPrice": 56.6864,
+      "shares": 3200,
+      "return": 0.0491,
+      "holdingDays": 14,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-06-16",
+      "sellDate": "2025-07-01",
+      "buyPrice": 287.4538,
+      "sellPrice": 307.374,
+      "shares": 600,
+      "return": 0.0663,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-06-17",
+      "sellDate": "2025-07-01",
+      "buyPrice": 54.5188,
+      "sellPrice": 58.5227,
+      "shares": 3100,
+      "return": 0.0704,
+      "holdingDays": 10,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-06-26",
+      "sellDate": "2025-07-02",
+      "buyPrice": 65.641,
+      "sellPrice": 68.5626,
+      "shares": 2700,
+      "return": 0.0415,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601166",
+      "buyDate": "2025-06-17",
+      "sellDate": "2025-07-08",
+      "buyPrice": 24.048,
+      "sellPrice": 25.0099,
+      "shares": 7000,
+      "return": 0.037,
+      "holdingDays": 15,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-07-03",
+      "sellDate": "2025-07-08",
+      "buyPrice": 56.6831,
+      "sellPrice": 59.5606,
+      "shares": 3200,
+      "return": 0.0478,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2025-06-19",
+      "sellDate": "2025-07-11",
+      "buyPrice": 6.9138,
+      "sellPrice": 7.1257,
+      "shares": 26600,
+      "return": 0.0277,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "300059",
+      "buyDate": "2025-07-02",
+      "sellDate": "2025-07-14",
+      "buyPrice": 22.9358,
+      "sellPrice": 23.9221,
+      "shares": 7900,
+      "return": 0.04,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-07-09",
+      "sellDate": "2025-07-14",
+      "buyPrice": 10.0701,
+      "sellPrice": 10.7784,
+      "shares": 18800,
+      "return": 0.0673,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-07-15",
+      "sellDate": "2025-07-16",
+      "buyPrice": 10.7214,
+      "sellPrice": 10.1197,
+      "shares": 18800,
+      "return": -0.0591,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-07-09",
+      "sellDate": "2025-07-18",
+      "buyPrice": 60.2002,
+      "sellPrice": 63.7423,
+      "shares": 2900,
+      "return": 0.0558,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2025-07-14",
+      "sellDate": "2025-07-18",
+      "buyPrice": 35.6512,
+      "sellPrice": 39.2713,
+      "shares": 5400,
+      "return": 0.0985,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-07-15",
+      "sellDate": "2025-07-23",
+      "buyPrice": 34.8896,
+      "sellPrice": 37.0757,
+      "shares": 5500,
+      "return": 0.0597,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2025-07-02",
+      "sellDate": "2025-07-24",
+      "buyPrice": 18.1963,
+      "sellPrice": 18.0039,
+      "shares": 10400,
+      "return": -0.0136,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "300059",
+      "buyDate": "2025-07-21",
+      "sellDate": "2025-07-25",
+      "buyPrice": 23.2264,
+      "sellPrice": 24.5009,
+      "shares": 8300,
+      "return": 0.0519,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-07-21",
+      "sellDate": "2025-07-29",
+      "buyPrice": 10.5911,
+      "sellPrice": 11.1776,
+      "shares": 19300,
+      "return": 0.0524,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-07-24",
+      "sellDate": "2025-07-30",
+      "buyPrice": 63.2563,
+      "sellPrice": 66.0576,
+      "shares": 3200,
+      "return": 0.0413,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-07-25",
+      "sellDate": "2025-07-31",
+      "buyPrice": 326.4015,
+      "sellPrice": 344.31,
+      "shares": 500,
+      "return": 0.0519,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601669",
+      "buyDate": "2025-07-31",
+      "sellDate": "2025-08-07",
+      "buyPrice": 6.7034,
+      "sellPrice": 6.3173,
+      "shares": 31600,
+      "return": -0.0606,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-07-17",
+      "sellDate": "2025-08-08",
+      "buyPrice": 75.2001,
+      "sellPrice": 74.371,
+      "shares": 2500,
+      "return": -0.014,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-08-01",
+      "sellDate": "2025-08-13",
+      "buyPrice": 64.8494,
+      "sellPrice": 59.6604,
+      "shares": 2600,
+      "return": -0.083,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "000709",
+      "buyDate": "2025-07-30",
+      "sellDate": "2025-08-15",
+      "buyPrice": 2.515,
+      "sellPrice": 2.3553,
+      "shares": 86600,
+      "return": -0.0665,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2025-07-28",
+      "sellDate": "2025-08-19",
+      "buyPrice": 24.4488,
+      "sellPrice": 24.1516,
+      "shares": 9300,
+      "return": -0.0152,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2025-08-11",
+      "sellDate": "2025-08-19",
+      "buyPrice": 15.1001,
+      "sellPrice": 16.2175,
+      "shares": 12400,
+      "return": 0.071,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-08-18",
+      "sellDate": "2025-08-19",
+      "buyPrice": 411.6216,
+      "sellPrice": 386.0963,
+      "shares": 400,
+      "return": -0.065,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-08-20",
+      "sellDate": "2025-08-21",
+      "buyPrice": 400.82,
+      "sellPrice": 423.142,
+      "shares": 500,
+      "return": 0.0527,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2025-08-20",
+      "sellDate": "2025-08-25",
+      "buyPrice": 16.3126,
+      "sellPrice": 17.2754,
+      "shares": 13100,
+      "return": 0.056,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2025-08-20",
+      "sellDate": "2025-08-25",
+      "buyPrice": 61.7833,
+      "sellPrice": 64.85,
+      "shares": 3300,
+      "return": 0.0466,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2025-08-08",
+      "sellDate": "2025-08-26",
+      "buyPrice": 12.515,
+      "sellPrice": 13.0738,
+      "shares": 16200,
+      "return": 0.0417,
+      "holdingDays": 12,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-08-22",
+      "sellDate": "2025-08-26",
+      "buyPrice": 434.8981,
+      "sellPrice": 455.088,
+      "shares": 400,
+      "return": 0.0434,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-08-27",
+      "sellDate": "2025-09-01",
+      "buyPrice": 95.7411,
+      "sellPrice": 99.3808,
+      "shares": 2100,
+      "return": 0.035,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002027",
+      "buyDate": "2025-08-26",
+      "sellDate": "2025-09-02",
+      "buyPrice": 8.1863,
+      "sellPrice": 8.6427,
+      "shares": 28400,
+      "return": 0.0527,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-08-14",
+      "sellDate": "2025-09-03",
+      "buyPrice": 12.9058,
+      "sellPrice": 11.8862,
+      "shares": 12100,
+      "return": -0.082,
+      "holdingDays": 14,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600050",
+      "buyDate": "2025-08-27",
+      "sellDate": "2025-09-04",
+      "buyPrice": 5.8216,
+      "sellPrice": 5.4491,
+      "shares": 33400,
+      "return": -0.067,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-09-02",
+      "sellDate": "2025-09-04",
+      "buyPrice": 99.8894,
+      "sellPrice": 118.263,
+      "shares": 2000,
+      "return": 0.1809,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-09-03",
+      "sellDate": "2025-09-04",
+      "buyPrice": 449.908,
+      "sellPrice": 471.056,
+      "shares": 500,
+      "return": 0.044,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300059",
+      "buyDate": "2025-08-26",
+      "sellDate": "2025-09-05",
+      "buyPrice": 28.0259,
+      "sellPrice": 26.2674,
+      "shares": 8700,
+      "return": -0.0657,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2025-09-04",
+      "sellDate": "2025-09-08",
+      "buyPrice": 43.7974,
+      "sellPrice": 48.9918,
+      "shares": 3900,
+      "return": 0.1156,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2025-09-05",
+      "sellDate": "2025-09-08",
+      "buyPrice": 69.138,
+      "sellPrice": 72.854,
+      "shares": 3500,
+      "return": 0.0507,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-09-05",
+      "sellDate": "2025-09-09",
+      "buyPrice": 445.89,
+      "sellPrice": 471.0859,
+      "shares": 400,
+      "return": 0.0535,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002714",
+      "buyDate": "2025-09-08",
+      "sellDate": "2025-09-12",
+      "buyPrice": 54.609,
+      "sellPrice": 57.2852,
+      "shares": 4200,
+      "return": 0.046,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2025-09-09",
+      "sellDate": "2025-09-12",
+      "buyPrice": 49.8796,
+      "sellPrice": 54.0916,
+      "shares": 4600,
+      "return": 0.0814,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2025-09-09",
+      "sellDate": "2025-09-12",
+      "buyPrice": 72.3143,
+      "sellPrice": 68.1434,
+      "shares": 3000,
+      "return": -0.0607,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-09-10",
+      "sellDate": "2025-09-12",
+      "buyPrice": 474.5472,
+      "sellPrice": 513.97,
+      "shares": 400,
+      "return": 0.0801,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601888",
+      "buyDate": "2025-09-15",
+      "sellDate": "2025-09-22",
+      "buyPrice": 70.4206,
+      "sellPrice": 73.8121,
+      "shares": 3200,
+      "return": 0.0452,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2025-09-05",
+      "sellDate": "2025-09-23",
+      "buyPrice": 17.515,
+      "sellPrice": 16.5169,
+      "shares": 13300,
+      "return": -0.06,
+      "holdingDays": 12,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600309",
+      "buyDate": "2025-09-15",
+      "sellDate": "2025-09-23",
+      "buyPrice": 67.9256,
+      "sellPrice": 63.9918,
+      "shares": 3300,
+      "return": -0.0609,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-09-15",
+      "sellDate": "2025-09-25",
+      "buyPrice": 138.276,
+      "sellPrice": 153.672,
+      "shares": 1600,
+      "return": 0.1083,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2025-09-24",
+      "sellDate": "2025-09-25",
+      "buyPrice": 26.3827,
+      "sellPrice": 27.6346,
+      "shares": 8400,
+      "return": 0.0445,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-09-24",
+      "sellDate": "2025-09-25",
+      "buyPrice": 52.7052,
+      "sellPrice": 55.389,
+      "shares": 4000,
+      "return": 0.0479,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2025-09-15",
+      "sellDate": "2025-09-26",
+      "buyPrice": 68.9877,
+      "sellPrice": 70.6584,
+      "shares": 3300,
+      "return": 0.0212,
+      "holdingDays": 9,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603659",
+      "buyDate": "2025-09-26",
+      "sellDate": "2025-10-09",
+      "buyPrice": 28.5069,
+      "sellPrice": 31.0378,
+      "shares": 8300,
+      "return": 0.0858,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601100",
+      "buyDate": "2025-09-23",
+      "sellDate": "2025-10-10",
+      "buyPrice": 92.9555,
+      "sellPrice": 102.794,
+      "shares": 2500,
+      "return": 0.1028,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2025-09-26",
+      "sellDate": "2025-10-10",
+      "buyPrice": 392.804,
+      "sellPrice": 400.198,
+      "shares": 600,
+      "return": 0.0158,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2025-09-26",
+      "sellDate": "2025-10-13",
+      "buyPrice": 12.3246,
+      "sellPrice": 12.5748,
+      "shares": 18600,
+      "return": 0.0173,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-09-29",
+      "sellDate": "2025-10-13",
+      "buyPrice": 163.326,
+      "sellPrice": 138.742,
+      "shares": 1400,
+      "return": -0.1535,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002475",
+      "buyDate": "2025-10-10",
+      "sellDate": "2025-10-13",
+      "buyPrice": 64.629,
+      "sellPrice": 55.0098,
+      "shares": 4000,
+      "return": -0.1518,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-10-13",
+      "sellDate": "2025-10-14",
+      "buyPrice": 59.3184,
+      "sellPrice": 69.6105,
+      "shares": 4300,
+      "return": 0.1705,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2025-10-14",
+      "sellDate": "2025-10-16",
+      "buyPrice": 31.4628,
+      "sellPrice": 29.2913,
+      "shares": 7200,
+      "return": -0.072,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-10-14",
+      "sellDate": "2025-10-20",
+      "buyPrice": 12.9859,
+      "sellPrice": 12.3453,
+      "shares": 17700,
+      "return": -0.0523,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-10-17",
+      "sellDate": "2025-10-20",
+      "buyPrice": 65.13,
+      "sellPrice": 61.876,
+      "shares": 3300,
+      "return": -0.053,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600760",
+      "buyDate": "2025-10-15",
+      "sellDate": "2025-10-22",
+      "buyPrice": 67.8554,
+      "sellPrice": 64.1015,
+      "shares": 4300,
+      "return": -0.0583,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-10-21",
+      "sellDate": "2025-10-24",
+      "buyPrice": 61.4527,
+      "sellPrice": 64.351,
+      "shares": 3500,
+      "return": 0.0442,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2025-10-23",
+      "sellDate": "2025-10-24",
+      "buyPrice": 31.062,
+      "sellPrice": 29.1715,
+      "shares": 8800,
+      "return": -0.0639,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "300750",
+      "buyDate": "2025-10-13",
+      "sellDate": "2025-10-27",
+      "buyPrice": 363.5857,
+      "sellPrice": 392.214,
+      "shares": 600,
+      "return": 0.0757,
+      "holdingDays": 10,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-10-21",
+      "sellDate": "2025-10-27",
+      "buyPrice": 150.0996,
+      "sellPrice": 168.8416,
+      "shares": 1400,
+      "return": 0.1219,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2025-10-27",
+      "sellDate": "2025-10-30",
+      "buyPrice": 30.1602,
+      "sellPrice": 28.5428,
+      "shares": 8200,
+      "return": -0.0566,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-10-27",
+      "sellDate": "2025-10-30",
+      "buyPrice": 65.13,
+      "sellPrice": 69.0317,
+      "shares": 3600,
+      "return": 0.0569,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2025-10-28",
+      "sellDate": "2025-10-30",
+      "buyPrice": 19.2284,
+      "sellPrice": 20.968,
+      "shares": 12700,
+      "return": 0.0875,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002415",
+      "buyDate": "2025-10-14",
+      "sellDate": "2025-11-05",
+      "buyPrice": 33.587,
+      "sellPrice": 31.3971,
+      "shares": 6500,
+      "return": -0.0682,
+      "holdingDays": 16,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601225",
+      "buyDate": "2025-10-31",
+      "sellDate": "2025-11-06",
+      "buyPrice": 23.026,
+      "sellPrice": 23.952,
+      "shares": 11000,
+      "return": 0.0372,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2025-11-06",
+      "sellDate": "2025-11-07",
+      "buyPrice": 9.8897,
+      "sellPrice": 10.6786,
+      "shares": 20800,
+      "return": 0.0768,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2025-10-31",
+      "sellDate": "2025-11-11",
+      "buyPrice": 8.2164,
+      "sellPrice": 8.7624,
+      "shares": 30900,
+      "return": 0.0635,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-11-07",
+      "sellDate": "2025-11-13",
+      "buyPrice": 202.414,
+      "sellPrice": 189.8495,
+      "shares": 1200,
+      "return": -0.0651,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2025-11-10",
+      "sellDate": "2025-11-13",
+      "buyPrice": 10.8416,
+      "sellPrice": 11.6766,
+      "shares": 22200,
+      "return": 0.074,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2025-11-12",
+      "sellDate": "2025-11-13",
+      "buyPrice": 22.3446,
+      "sellPrice": 20.7584,
+      "shares": 12000,
+      "return": -0.074,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601088",
+      "buyDate": "2025-10-28",
+      "sellDate": "2025-11-19",
+      "buyPrice": 42.7754,
+      "sellPrice": 41.7663,
+      "shares": 5400,
+      "return": -0.0266,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "300274",
+      "buyDate": "2025-11-14",
+      "sellDate": "2025-11-19",
+      "buyPrice": 185.37,
+      "sellPrice": 173.6819,
+      "shares": 1300,
+      "return": -0.0661,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-11-14",
+      "sellDate": "2025-11-19",
+      "buyPrice": 13.3466,
+      "sellPrice": 11.986,
+      "shares": 19100,
+      "return": -0.1049,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601012",
+      "buyDate": "2025-11-20",
+      "sellDate": "2025-11-21",
+      "buyPrice": 21.2424,
+      "sellPrice": 19.6606,
+      "shares": 10600,
+      "return": -0.0775,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601318",
+      "buyDate": "2025-10-31",
+      "sellDate": "2025-11-24",
+      "buyPrice": 59.108,
+      "sellPrice": 59.0417,
+      "shares": 4100,
+      "return": -0.0041,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "601225",
+      "buyDate": "2025-11-14",
+      "sellDate": "2025-11-24",
+      "buyPrice": 24.2484,
+      "sellPrice": 22.954,
+      "shares": 10000,
+      "return": -0.0564,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2025-11-20",
+      "sellDate": "2025-11-24",
+      "buyPrice": 11.1222,
+      "sellPrice": 10.5588,
+      "shares": 20700,
+      "return": -0.0537,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2025-11-20",
+      "sellDate": "2025-11-24",
+      "buyPrice": 72.665,
+      "sellPrice": 61.876,
+      "shares": 3100,
+      "return": -0.1515,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600050",
+      "buyDate": "2025-12-02",
+      "sellDate": "2025-12-16",
+      "buyPrice": 5.4509,
+      "sellPrice": 5.1397,
+      "shares": 40700,
+      "return": -0.0601,
+      "holdingDays": 10,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600276",
+      "buyDate": "2025-12-08",
+      "sellDate": "2025-12-17",
+      "buyPrice": 62.7252,
+      "sellPrice": 59.2313,
+      "shares": 3300,
+      "return": -0.0587,
+      "holdingDays": 7,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2025-12-02",
+      "sellDate": "2025-12-18",
+      "buyPrice": 8.3968,
+      "sellPrice": 8.7026,
+      "shares": 26200,
+      "return": 0.0334,
+      "holdingDays": 12,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-12-19",
+      "sellDate": "2025-12-23",
+      "buyPrice": 12.9959,
+      "sellPrice": 14.7504,
+      "shares": 18800,
+      "return": 0.132,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600036",
+      "buyDate": "2025-12-02",
+      "sellDate": "2025-12-24",
+      "buyPrice": 43.5269,
+      "sellPrice": 41.8461,
+      "shares": 5000,
+      "return": -0.0416,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2025-12-02",
+      "sellDate": "2025-12-24",
+      "buyPrice": 13.1362,
+      "sellPrice": 13.3333,
+      "shares": 16900,
+      "return": 0.012,
+      "holdingDays": 16,
+      "exitReason": "timeout"
+    },
+    {
+      "code": "603444",
+      "buyDate": "2025-12-18",
+      "sellDate": "2025-12-24",
+      "buyPrice": 465.93,
+      "sellPrice": 439.2198,
+      "shares": 400,
+      "return": -0.0603,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601888",
+      "buyDate": "2025-12-24",
+      "sellDate": "2025-12-29",
+      "buyPrice": 87.4345,
+      "sellPrice": 92.814,
+      "shares": 3100,
+      "return": 0.0585,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600795",
+      "buyDate": "2025-12-25",
+      "sellDate": "2025-12-30",
+      "buyPrice": 5.9519,
+      "sellPrice": 5.2894,
+      "shares": 35200,
+      "return": -0.1143,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2025-12-25",
+      "sellDate": "2025-12-30",
+      "buyPrice": 8.7174,
+      "sellPrice": 9.0818,
+      "shares": 24100,
+      "return": 0.0388,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601100",
+      "buyDate": "2025-12-18",
+      "sellDate": "2025-12-31",
+      "buyPrice": 107.3142,
+      "sellPrice": 112.9137,
+      "shares": 1900,
+      "return": 0.0492,
+      "holdingDays": 9,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2025-12-31",
+      "sellDate": "2026-01-06",
+      "buyPrice": 14.7895,
+      "sellPrice": 16.467,
+      "shares": 14300,
+      "return": 0.1104,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2025-12-25",
+      "sellDate": "2026-01-07",
+      "buyPrice": 13.517,
+      "sellPrice": 14.2115,
+      "shares": 14700,
+      "return": 0.0484,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601318",
+      "buyDate": "2025-12-30",
+      "sellDate": "2026-01-07",
+      "buyPrice": 69.8895,
+      "sellPrice": 73.7422,
+      "shares": 4000,
+      "return": 0.0521,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600309",
+      "buyDate": "2025-12-31",
+      "sellDate": "2026-01-07",
+      "buyPrice": 76.9536,
+      "sellPrice": 82.0855,
+      "shares": 2600,
+      "return": 0.0637,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601318",
+      "buyDate": "2026-01-08",
+      "sellDate": "2026-01-12",
+      "buyPrice": 73.5167,
+      "sellPrice": 68.7622,
+      "shares": 3300,
+      "return": -0.0677,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2026-01-07",
+      "sellDate": "2026-01-14",
+      "buyPrice": 67.134,
+      "sellPrice": 69.87,
+      "shares": 3500,
+      "return": 0.0378,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601111",
+      "buyDate": "2026-01-08",
+      "sellDate": "2026-01-15",
+      "buyPrice": 9.1583,
+      "sellPrice": 8.5628,
+      "shares": 26600,
+      "return": -0.068,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601888",
+      "buyDate": "2026-01-05",
+      "sellDate": "2026-01-19",
+      "buyPrice": 93.1559,
+      "sellPrice": 88.5925,
+      "shares": 2300,
+      "return": -0.052,
+      "holdingDays": 10,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2026-01-16",
+      "sellDate": "2026-01-19",
+      "buyPrice": 17.044,
+      "sellPrice": 17.9341,
+      "shares": 13400,
+      "return": 0.0492,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600309",
+      "buyDate": "2026-01-13",
+      "sellDate": "2026-01-20",
+      "buyPrice": 78.2362,
+      "sellPrice": 82.2152,
+      "shares": 2900,
+      "return": 0.0479,
+      "holdingDays": 5,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2026-01-08",
+      "sellDate": "2026-01-23",
+      "buyPrice": 9.6392,
+      "sellPrice": 10.0399,
+      "shares": 24100,
+      "return": 0.0386,
+      "holdingDays": 11,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2026-01-20",
+      "sellDate": "2026-01-26",
+      "buyPrice": 17.3847,
+      "sellPrice": 18.453,
+      "shares": 13100,
+      "return": 0.0585,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "603156",
+      "buyDate": "2026-01-20",
+      "sellDate": "2026-01-28",
+      "buyPrice": 34.068,
+      "sellPrice": 31.8761,
+      "shares": 6400,
+      "return": -0.0673,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2026-01-15",
+      "sellDate": "2026-01-29",
+      "buyPrice": 13.507,
+      "sellPrice": 14.98,
+      "shares": 18000,
+      "return": 0.1061,
+      "holdingDays": 10,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2026-01-21",
+      "sellDate": "2026-01-30",
+      "buyPrice": 58.1461,
+      "sellPrice": 60.5586,
+      "shares": 4000,
+      "return": 0.0385,
+      "holdingDays": 7,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002414",
+      "buyDate": "2026-01-27",
+      "sellDate": "2026-01-30",
+      "buyPrice": 17.8757,
+      "sellPrice": 17.1856,
+      "shares": 13500,
+      "return": -0.0416,
+      "holdingDays": 3,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2026-01-29",
+      "sellDate": "2026-01-30",
+      "buyPrice": 16.533,
+      "sellPrice": 17.7644,
+      "shares": 12500,
+      "return": 0.0715,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600588",
+      "buyDate": "2026-01-26",
+      "sellDate": "2026-02-02",
+      "buyPrice": 15.9819,
+      "sellPrice": 15.1796,
+      "shares": 15400,
+      "return": -0.0532,
+      "holdingDays": 5,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002460",
+      "buyDate": "2026-01-30",
+      "sellDate": "2026-02-02",
+      "buyPrice": 72.5949,
+      "sellPrice": 67.2452,
+      "shares": 3600,
+      "return": -0.0767,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2026-02-02",
+      "sellDate": "2026-02-03",
+      "buyPrice": 17.1342,
+      "sellPrice": 16.467,
+      "shares": 13900,
+      "return": -0.0419,
+      "holdingDays": 1,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "001979",
+      "buyDate": "2026-02-02",
+      "sellDate": "2026-02-05",
+      "buyPrice": 10.2004,
+      "sellPrice": 10.7984,
+      "shares": 23400,
+      "return": 0.0556,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2026-02-04",
+      "sellDate": "2026-02-05",
+      "buyPrice": 17.1142,
+      "sellPrice": 18.2235,
+      "shares": 14000,
+      "return": 0.0618,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002230",
+      "buyDate": "2026-02-02",
+      "sellDate": "2026-02-06",
+      "buyPrice": 59.7192,
+      "sellPrice": 55.1395,
+      "shares": 3800,
+      "return": -0.0797,
+      "holdingDays": 4,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2026-02-04",
+      "sellDate": "2026-02-12",
+      "buyPrice": 24.3686,
+      "sellPrice": 25.2694,
+      "shares": 9300,
+      "return": 0.034,
+      "holdingDays": 6,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2026-02-06",
+      "sellDate": "2026-02-24",
+      "buyPrice": 18.2965,
+      "sellPrice": 17.3452,
+      "shares": 14200,
+      "return": -0.055,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "001979",
+      "buyDate": "2026-02-06",
+      "sellDate": "2026-02-24",
+      "buyPrice": 10.8817,
+      "sellPrice": 10.3293,
+      "shares": 22800,
+      "return": -0.0538,
+      "holdingDays": 6,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "600585",
+      "buyDate": "2026-02-13",
+      "sellDate": "2026-02-26",
+      "buyPrice": 25.2604,
+      "sellPrice": 26.2075,
+      "shares": 9300,
+      "return": 0.0345,
+      "holdingDays": 3,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2026-02-25",
+      "sellDate": "2026-02-27",
+      "buyPrice": 10.5811,
+      "sellPrice": 11.1277,
+      "shares": 23400,
+      "return": 0.0487,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "600309",
+      "buyDate": "2026-02-09",
+      "sellDate": "2026-03-02",
+      "buyPrice": 87.0237,
+      "sellPrice": 92.9138,
+      "shares": 2400,
+      "return": 0.0647,
+      "holdingDays": 9,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2026-02-04",
+      "sellDate": "2026-03-03",
+      "buyPrice": 22.7654,
+      "sellPrice": 24.7304,
+      "shares": 10400,
+      "return": 0.0833,
+      "holdingDays": 13,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601088",
+      "buyDate": "2026-02-25",
+      "sellDate": "2026-03-03",
+      "buyPrice": 42.6151,
+      "sellPrice": 44.6106,
+      "shares": 5500,
+      "return": 0.0438,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002271",
+      "buyDate": "2026-02-27",
+      "sellDate": "2026-03-03",
+      "buyPrice": 18.036,
+      "sellPrice": 18.962,
+      "shares": 13500,
+      "return": 0.0483,
+      "holdingDays": 2,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2026-03-02",
+      "sellDate": "2026-03-04",
+      "buyPrice": 10.9819,
+      "sellPrice": 10.0698,
+      "shares": 23700,
+      "return": -0.0861,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002648",
+      "buyDate": "2026-03-11",
+      "sellDate": "2026-03-12",
+      "buyPrice": 25.7614,
+      "sellPrice": 28.3432,
+      "shares": 9800,
+      "return": 0.0972,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601088",
+      "buyDate": "2026-03-11",
+      "sellDate": "2026-03-12",
+      "buyPrice": 45.8916,
+      "sellPrice": 48.1535,
+      "shares": 5500,
+      "return": 0.0463,
+      "holdingDays": 1,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601225",
+      "buyDate": "2026-03-03",
+      "sellDate": "2026-03-13",
+      "buyPrice": 24.8596,
+      "sellPrice": 26.6366,
+      "shares": 9000,
+      "return": 0.0685,
+      "holdingDays": 8,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "002594",
+      "buyDate": "2026-03-11",
+      "sellDate": "2026-03-17",
+      "buyPrice": 96.9435,
+      "sellPrice": 104.4207,
+      "shares": 2600,
+      "return": 0.0741,
+      "holdingDays": 4,
+      "exitReason": "takeProfit"
+    },
+    {
+      "code": "601600",
+      "buyDate": "2026-03-13",
+      "sellDate": "2026-03-17",
+      "buyPrice": 14.7294,
+      "sellPrice": 13.5628,
+      "shares": 17900,
+      "return": -0.0822,
+      "holdingDays": 2,
+      "exitReason": "stopLoss"
+    },
+    {
+      "code": "002286",
+      "buyDate": "2026-03-11",
+      "sellDate": "2026-03-23",
+      "buyPrice": 10.541,
+      "sellPrice": 9.5908,
+      "shares": 22900,
+      "return": -0.0931,
+      "holdingDays": 8,
+      "exitReason": "stopLoss"
+    }
+  ],
+  "equityCurve": [
+    {
+      "date": "2023-02-15",
+      "equity": 1000000,
+      "cash": 1000000,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-02-16",
+      "equity": 988157.872,
+      "cash": 12965.871999999974,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-02-17",
+      "equity": 980572.872,
+      "cash": 12965.871999999974,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-02-20",
+      "equity": 1018048.872,
+      "cash": 12965.871999999974,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-02-21",
+      "equity": 1028711.392,
+      "cash": 213803.392,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-02-22",
+      "equity": 1023281.728,
+      "cash": 424510.728,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-02-23",
+      "equity": 1001767.416,
+      "cash": 11029.416000000027,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-02-24",
+      "equity": 999055.416,
+      "cash": 11029.416000000027,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-02-27",
+      "equity": 996451.416,
+      "cash": 11029.416000000027,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-02-28",
+      "equity": 1008808.9,
+      "cash": 422462.9,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-03-01",
+      "equity": 1033235.3500000001,
+      "cash": 12870.350000000035,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-02",
+      "equity": 1046180.432,
+      "cash": 237878.43200000003,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-03-03",
+      "equity": 1043813.768,
+      "cash": 14099.768000000011,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-06",
+      "equity": 1041269.768,
+      "cash": 14099.768000000011,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-07",
+      "equity": 1025029.768,
+      "cash": 14099.768000000011,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-08",
+      "equity": 1021160.768,
+      "cash": 14099.768000000011,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-09",
+      "equity": 1018359.768,
+      "cash": 14099.768000000011,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-10",
+      "equity": 1000876.116,
+      "cash": 395162.11600000004,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-03-13",
+      "equity": 1006467.116,
+      "cash": 584782.116,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-03-14",
+      "equity": 1005384.116,
+      "cash": 584782.116,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-03-15",
+      "equity": 1003394.116,
+      "cash": 584782.116,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-03-16",
+      "equity": 995244.116,
+      "cash": 584782.116,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-03-17",
+      "equity": 994206.3960000001,
+      "cash": 778254.3960000001,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-03-20",
+      "equity": 988134.3960000001,
+      "cash": 778254.3960000001,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-03-21",
+      "equity": 989020.02,
+      "cash": 989020.02,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-03-22",
+      "equity": 989020.02,
+      "cash": 989020.02,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-03-23",
+      "equity": 989020.02,
+      "cash": 989020.02,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-03-24",
+      "equity": 980348.204,
+      "cash": 10659.204000000027,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-27",
+      "equity": 982295.204,
+      "cash": 10659.204000000027,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-03-28",
+      "equity": 976147.93,
+      "cash": 406502.93000000005,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-03-29",
+      "equity": 971470.54,
+      "cash": 593822.54,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-03-30",
+      "equity": 973702.54,
+      "cash": 593822.54,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-03-31",
+      "equity": 1008383.542,
+      "cash": 201003.54200000004,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-03",
+      "equity": 1025367.5260000001,
+      "cash": 417328.52600000007,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-04-04",
+      "equity": 1050609.286,
+      "cash": 221978.28600000008,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-06",
+      "equity": 1031188.278,
+      "cash": 450014.27800000005,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-04-07",
+      "equity": 1035896.5700000001,
+      "cash": 191604.57000000004,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-10",
+      "equity": 1007155.75,
+      "cash": 10332.750000000058,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-04-11",
+      "equity": 1005851.15,
+      "cash": 198755.15000000005,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-12",
+      "equity": 1024140.2380000001,
+      "cash": 35974.23800000007,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-04-13",
+      "equity": 1015349.7920000001,
+      "cash": 268730.7920000001,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-14",
+      "equity": 998331.0960000001,
+      "cash": 15878.096000000107,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-04-17",
+      "equity": 979614.0960000001,
+      "cash": 15878.096000000107,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-04-18",
+      "equity": 986568.3360000001,
+      "cash": 202883.33600000013,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-19",
+      "equity": 983361.4260000001,
+      "cash": 160625.42600000012,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-04-20",
+      "equity": 1000808.4660000001,
+      "cash": 11347.466000000102,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-04-21",
+      "equity": 1002524.1180000001,
+      "cash": 445651.11800000013,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-04-24",
+      "equity": 1010932.1180000001,
+      "cash": 445651.11800000013,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-04-25",
+      "equity": 1017323.5020000002,
+      "cash": 827693.5020000002,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-04-26",
+      "equity": 1017029.5020000002,
+      "cash": 827693.5020000002,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-04-27",
+      "equity": 1017531.0660000002,
+      "cash": 1017531.0660000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-04-28",
+      "equity": 1017531.0660000002,
+      "cash": 1017531.0660000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-04",
+      "equity": 1017531.0660000002,
+      "cash": 1017531.0660000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-05",
+      "equity": 1017531.0660000002,
+      "cash": 1017531.0660000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-08",
+      "equity": 1017531.0660000002,
+      "cash": 1017531.0660000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-09",
+      "equity": 1010802.2060000002,
+      "cash": 10591.20600000021,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-05-10",
+      "equity": 1005222.2060000002,
+      "cash": 10591.20600000021,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-05-11",
+      "equity": 1005617.2060000002,
+      "cash": 10591.20600000021,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-05-12",
+      "equity": 995551.2060000002,
+      "cash": 10591.20600000021,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-05-15",
+      "equity": 1014734.2420000002,
+      "cash": 415262.2420000002,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-05-16",
+      "equity": 1015138.6420000002,
+      "cash": 623644.6420000002,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-05-17",
+      "equity": 1012218.6420000002,
+      "cash": 623644.6420000002,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-05-18",
+      "equity": 1012407.6420000002,
+      "cash": 623644.6420000002,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-05-19",
+      "equity": 1008033.6420000002,
+      "cash": 623644.6420000002,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-05-22",
+      "equity": 1008288.8620000002,
+      "cash": 810160.8620000002,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-05-23",
+      "equity": 1006780.8620000002,
+      "cash": 810160.8620000002,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-05-24",
+      "equity": 1004112.8620000002,
+      "cash": 810160.8620000002,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-05-25",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-26",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-29",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-30",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-05-31",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-01",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-02",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-05",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-06",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-07",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-08",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-09",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-12",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-13",
+      "equity": 1003724.9580000002,
+      "cash": 1003724.9580000002,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-14",
+      "equity": 1001997.5860000001,
+      "cash": 11558.586000000156,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-06-15",
+      "equity": 996114.5860000001,
+      "cash": 11558.586000000156,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-06-16",
+      "equity": 1015127.5860000001,
+      "cash": 11558.586000000156,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-06-19",
+      "equity": 1026982.5860000001,
+      "cash": 11558.586000000156,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-06-20",
+      "equity": 1048240.4740000002,
+      "cash": 228180.47400000013,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-06-21",
+      "equity": 1045467.6440000001,
+      "cash": 828523.6440000001,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-06-26",
+      "equity": 1021130.75,
+      "cash": 10944.750000000058,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-06-27",
+      "equity": 1031974.1460000001,
+      "cash": 208351.1460000001,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-06-28",
+      "equity": 1026343.9260000001,
+      "cash": 608658.9260000001,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-06-29",
+      "equity": 1026404.7600000001,
+      "cash": 1026404.7600000001,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-06-30",
+      "equity": 1026404.7600000001,
+      "cash": 1026404.7600000001,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-07-03",
+      "equity": 1026404.7600000001,
+      "cash": 1026404.7600000001,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-07-04",
+      "equity": 1023213.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-05",
+      "equity": 1028054.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-06",
+      "equity": 1021747.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-07",
+      "equity": 1023873.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-10",
+      "equity": 1020093.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-11",
+      "equity": 1025073.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-12",
+      "equity": 1008030.6600000001,
+      "cash": 12831.66000000009,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-13",
+      "equity": 999779.1760000001,
+      "cash": 411774.1760000001,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-07-14",
+      "equity": 991786.7100000001,
+      "cash": 204391.71000000008,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-07-17",
+      "equity": 990612.8300000001,
+      "cash": 10564.830000000075,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-18",
+      "equity": 996461.8300000001,
+      "cash": 10564.830000000075,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-19",
+      "equity": 992236.8300000001,
+      "cash": 10564.830000000075,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-20",
+      "equity": 985658.616,
+      "cash": 399891.61600000004,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-07-21",
+      "equity": 981200.768,
+      "cash": 590433.768,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-07-24",
+      "equity": 981265.768,
+      "cash": 590433.768,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-07-25",
+      "equity": 994941.768,
+      "cash": 590433.768,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-07-26",
+      "equity": 991403.584,
+      "cash": 223942.58400000003,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-07-27",
+      "equity": 985328.6440000001,
+      "cash": 11548.644000000058,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-28",
+      "equity": 1002445.6440000001,
+      "cash": 11548.644000000058,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-07-31",
+      "equity": 1018458.996,
+      "cash": 212469.99600000004,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-08-01",
+      "equity": 1014529.7960000001,
+      "cash": 11969.796000000031,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-02",
+      "equity": 1008191.7960000001,
+      "cash": 11969.796000000031,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-03",
+      "equity": 1014894.7960000001,
+      "cash": 11969.796000000031,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-04",
+      "equity": 1024989.7960000001,
+      "cash": 11969.796000000031,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-07",
+      "equity": 1020404.7960000001,
+      "cash": 11969.796000000031,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-08",
+      "equity": 1014614.2660000001,
+      "cash": 211834.266,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-08-09",
+      "equity": 1004065.7239999999,
+      "cash": 11663.723999999987,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-10",
+      "equity": 1019454.7239999999,
+      "cash": 11663.723999999987,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-08-11",
+      "equity": 992961.574,
+      "cash": 233294.57399999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-08-14",
+      "equity": 990838.682,
+      "cash": 602999.682,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-08-15",
+      "equity": 995955.682,
+      "cash": 602999.682,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-08-16",
+      "equity": 992400.682,
+      "cash": 602999.682,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-08-17",
+      "equity": 991652.372,
+      "cash": 795269.372,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-08-18",
+      "equity": 989716.372,
+      "cash": 795269.372,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-08-21",
+      "equity": 981125.372,
+      "cash": 795269.372,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-08-22",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-23",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-24",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-25",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-28",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-29",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-30",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-08-31",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-09-01",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-09-04",
+      "equity": 982444.272,
+      "cash": 982444.272,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-09-05",
+      "equity": 967706.004,
+      "cash": 10370.003999999957,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-09-06",
+      "equity": 959044.004,
+      "cash": 10370.003999999957,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-09-07",
+      "equity": 950855.004,
+      "cash": 10370.003999999957,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-09-08",
+      "equity": 941666.656,
+      "cash": 194175.65599999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-09-11",
+      "equity": 940325.5079999999,
+      "cash": 376384.508,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-09-12",
+      "equity": 935938.5079999999,
+      "cash": 376384.508,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-09-13",
+      "equity": 933981.048,
+      "cash": 560745.048,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-09-14",
+      "equity": 934381.048,
+      "cash": 560745.048,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-09-15",
+      "equity": 930653.048,
+      "cash": 560745.048,
+      "positionCount": 2
+    },
+    {
+      "date": "2023-09-18",
+      "equity": 927634.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-19",
+      "equity": 927278.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-20",
+      "equity": 926566.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-21",
+      "equity": 925498.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-22",
+      "equity": 927634.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-25",
+      "equity": 926566.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-26",
+      "equity": 920514.36,
+      "cash": 745718.36,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-09-27",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-09-28",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-09",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-10",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-11",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-12",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-13",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-16",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-17",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-18",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-19",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-20",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-23",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-24",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-25",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-26",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-27",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-30",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-10-31",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-11-01",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-11-02",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-11-03",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-11-06",
+      "equity": 919809.48,
+      "cash": 919809.48,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-11-07",
+      "equity": 910565.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-08",
+      "equity": 908409.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-09",
+      "equity": 903374.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-10",
+      "equity": 904521.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-13",
+      "equity": 908662.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-14",
+      "equity": 904678.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-15",
+      "equity": 910755.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-16",
+      "equity": 902766.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-17",
+      "equity": 895339.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-20",
+      "equity": 896567.396,
+      "cash": 15963.396000000008,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-21",
+      "equity": 899535.416,
+      "cash": 187110.416,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-11-22",
+      "equity": 892479.46,
+      "cash": 9778.459999999992,
+      "positionCount": 5
+    },
+    {
+      "date": "2023-11-23",
+      "equity": 896972.76,
+      "cash": 170805.75999999998,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-11-24",
+      "equity": 897371.76,
+      "cash": 170805.75999999998,
+      "positionCount": 4
+    },
+    {
+      "date": "2023-11-27",
+      "equity": 894194.5599999999,
+      "cash": 361523.55999999994,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-11-28",
+      "equity": 892600.5599999999,
+      "cash": 361523.55999999994,
+      "positionCount": 3
+    },
+    {
+      "date": "2023-11-29",
+      "equity": 892140.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-11-30",
+      "equity": 892354.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-01",
+      "equity": 891070.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-04",
+      "equity": 889572.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-05",
+      "equity": 889786.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-06",
+      "equity": 892140.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-07",
+      "equity": 890856.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-08",
+      "equity": 887218.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-11",
+      "equity": 886576.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-12",
+      "equity": 887432.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-13",
+      "equity": 886148.8659999999,
+      "cash": 713664.8659999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2023-12-14",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-15",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-18",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-19",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-20",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-21",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-22",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-25",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-26",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-27",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-28",
+      "equity": 886231.0419999999,
+      "cash": 886231.0419999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2023-12-29",
+      "equity": 895838.2379999999,
+      "cash": 177915.23799999987,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-01-02",
+      "equity": 892238.7379999999,
+      "cash": 11332.737999999867,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-01-03",
+      "equity": 893143.7379999999,
+      "cash": 11332.737999999867,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-01-04",
+      "equity": 885050.1619999999,
+      "cash": 200242.16199999987,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-01-05",
+      "equity": 881994.1819999998,
+      "cash": 355920.18199999986,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-01-08",
+      "equity": 872281.1819999998,
+      "cash": 355920.18199999986,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-01-09",
+      "equity": 867760.7519999999,
+      "cash": 522800.75199999986,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-01-10",
+      "equity": 865094.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-11",
+      "equity": 863878.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-12",
+      "equity": 866538.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-15",
+      "equity": 866310.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-16",
+      "equity": 866690.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-17",
+      "equity": 864942.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-18",
+      "equity": 864942.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-19",
+      "equity": 866310.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-22",
+      "equity": 864258.2719999999,
+      "cash": 687710.2719999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-01-23",
+      "equity": 863374.2399999999,
+      "cash": 863374.2399999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-01-24",
+      "equity": 863374.2399999999,
+      "cash": 863374.2399999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-01-25",
+      "equity": 863374.2399999999,
+      "cash": 863374.2399999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-01-26",
+      "equity": 863802.0079999999,
+      "cash": 9053.007999999914,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-01-29",
+      "equity": 845691.0079999999,
+      "cash": 9053.007999999914,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-01-30",
+      "equity": 837920.19,
+      "cash": 498980.18999999994,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-01-31",
+      "equity": 832334.19,
+      "cash": 498980.18999999994,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-02-01",
+      "equity": 829772.19,
+      "cash": 498980.18999999994,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-02-02",
+      "equity": 830715.0059999999,
+      "cash": 657255.0059999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-02-05",
+      "equity": 832815.0059999999,
+      "cash": 657255.0059999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-02-06",
+      "equity": 832605.0059999999,
+      "cash": 657255.0059999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-02-07",
+      "equity": 849975.5819999999,
+      "cash": 8748.581999999937,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-02-08",
+      "equity": 846909.5419999999,
+      "cash": 186412.54199999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-02-19",
+      "equity": 861318.642,
+      "cash": 10110.641999999934,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-02-20",
+      "equity": 860488.666,
+      "cash": 361394.6659999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-02-21",
+      "equity": 879826.3879999999,
+      "cash": 180895.38799999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-02-22",
+      "equity": 882047.8059999999,
+      "cash": 347092.8059999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-02-23",
+      "equity": 872013.48,
+      "cash": 173583.47999999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-02-26",
+      "equity": 854518.48,
+      "cash": 173583.47999999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-02-27",
+      "equity": 855901.6179999999,
+      "cash": 174606.6179999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-02-28",
+      "equity": 857321.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-02-29",
+      "equity": 864388.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-01",
+      "equity": 860331.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-04",
+      "equity": 868668.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-05",
+      "equity": 875739.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-06",
+      "equity": 874972.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-07",
+      "equity": 882205.6259999999,
+      "cash": 8779.625999999902,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-08",
+      "equity": 895091.7819999999,
+      "cash": 187343.7819999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-11",
+      "equity": 896415.5199999999,
+      "cash": 384308.5199999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-03-12",
+      "equity": 878178.5359999998,
+      "cash": 10570.535999999905,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-13",
+      "equity": 874487.96,
+      "cash": 170038.9599999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-14",
+      "equity": 863840.7599999999,
+      "cash": 10119.759999999922,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-15",
+      "equity": 865447.7599999999,
+      "cash": 10119.759999999922,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-18",
+      "equity": 876720.08,
+      "cash": 163652.07999999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-19",
+      "equity": 863632.5199999999,
+      "cash": 12570.519999999931,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-20",
+      "equity": 870004.2119999999,
+      "cash": 175398.21199999994,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-21",
+      "equity": 863399.276,
+      "cash": 9098.275999999954,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-22",
+      "equity": 850896.4759999999,
+      "cash": 361292.4759999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-03-25",
+      "equity": 842757.2579999999,
+      "cash": 165088.25799999994,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-26",
+      "equity": 836698.7779999999,
+      "cash": 8535.777999999962,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-03-27",
+      "equity": 827307.448,
+      "cash": 176863.44799999995,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-28",
+      "equity": 834464.3019999999,
+      "cash": 152448.3019999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-03-29",
+      "equity": 854936.7139999999,
+      "cash": 8366.71399999992,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-01",
+      "equity": 862720.4579999999,
+      "cash": 213084.45799999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-02",
+      "equity": 862308.1039999999,
+      "cash": 162102.10399999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-03",
+      "equity": 862544.2519999999,
+      "cash": 11876.25199999992,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-08",
+      "equity": 863037.3139999999,
+      "cash": 221924.31399999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-09",
+      "equity": 860383.1919999999,
+      "cash": 336626.1919999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-04-10",
+      "equity": 858146.2919999999,
+      "cash": 8521.291999999929,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-11",
+      "equity": 863129.352,
+      "cash": 146215.35199999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-12",
+      "equity": 863656.286,
+      "cash": 7906.285999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-15",
+      "equity": 880345.286,
+      "cash": 7906.285999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-16",
+      "equity": 869011.4099999999,
+      "cash": 400058.4099999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-04-17",
+      "equity": 885871.3059999999,
+      "cash": 10228.305999999924,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-18",
+      "equity": 875865.3059999999,
+      "cash": 10228.305999999924,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-19",
+      "equity": 875414.2819999999,
+      "cash": 184391.28199999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-22",
+      "equity": 873388.82,
+      "cash": 10312.81999999992,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-23",
+      "equity": 843319.82,
+      "cash": 10312.81999999992,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-24",
+      "equity": 853599.0559999999,
+      "cash": 163887.05599999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-25",
+      "equity": 860407.9519999999,
+      "cash": 8524.951999999903,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-26",
+      "equity": 862892.9519999999,
+      "cash": 8524.951999999903,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-04-29",
+      "equity": 865331.9519999999,
+      "cash": 206128.9519999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-04-30",
+      "equity": 867987.2199999999,
+      "cash": 12877.219999999885,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-06",
+      "equity": 876119.2199999999,
+      "cash": 12877.219999999885,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-07",
+      "equity": 869898.5199999999,
+      "cash": 219313.51999999987,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-05-08",
+      "equity": 866039.3199999998,
+      "cash": 11298.319999999861,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-09",
+      "equity": 871476.3679999999,
+      "cash": 144507.36799999987,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-05-10",
+      "equity": 877324.7679999999,
+      "cash": 8435.767999999865,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-13",
+      "equity": 883161.7679999999,
+      "cash": 8435.767999999865,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-14",
+      "equity": 879531.7679999999,
+      "cash": 8435.767999999865,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-15",
+      "equity": 869764.7679999999,
+      "cash": 8435.767999999865,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-16",
+      "equity": 860523.7679999999,
+      "cash": 8435.767999999865,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-17",
+      "equity": 860270.7379999999,
+      "cash": 178609.73799999987,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-05-20",
+      "equity": 869104.4939999998,
+      "cash": 9149.49399999986,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-21",
+      "equity": 863394.4939999998,
+      "cash": 9149.49399999986,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-22",
+      "equity": 861813.8939999999,
+      "cash": 162142.89399999985,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-05-23",
+      "equity": 842329.4899999999,
+      "cash": 15648.489999999845,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-24",
+      "equity": 846651.4899999999,
+      "cash": 15648.489999999845,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-27",
+      "equity": 858917.3979999998,
+      "cash": 329066.3979999998,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-05-28",
+      "equity": 859660.3079999997,
+      "cash": 225347.3079999998,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-05-29",
+      "equity": 865162.8119999998,
+      "cash": 11672.811999999773,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-05-30",
+      "equity": 863361.3039999998,
+      "cash": 194061.30399999977,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-05-31",
+      "equity": 856628.4439999998,
+      "cash": 10264.443999999756,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-06-03",
+      "equity": 852801.4839999997,
+      "cash": 147469.48399999976,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-06-04",
+      "equity": 857319.7639999997,
+      "cash": 8331.763999999763,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-06-05",
+      "equity": 853831.7639999997,
+      "cash": 8331.763999999763,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-06-06",
+      "equity": 857790.9079999998,
+      "cash": 402968.90799999976,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-06-07",
+      "equity": 861804.1579999998,
+      "cash": 11312.157999999763,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-06-11",
+      "equity": 851299.1579999998,
+      "cash": 11312.157999999763,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-06-12",
+      "equity": 862563.1579999998,
+      "cash": 11312.157999999763,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-06-13",
+      "equity": 861585.9619999998,
+      "cash": 313803.96199999977,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-06-14",
+      "equity": 853165.9619999998,
+      "cash": 313803.96199999977,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-06-17",
+      "equity": 851521.9619999998,
+      "cash": 313803.96199999977,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-06-18",
+      "equity": 863338.9619999998,
+      "cash": 313803.96199999977,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-06-19",
+      "equity": 865341.9619999998,
+      "cash": 313803.96199999977,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-06-20",
+      "equity": 872999.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-06-21",
+      "equity": 870763.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-06-24",
+      "equity": 874533.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-06-25",
+      "equity": 872761.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-06-26",
+      "equity": 872581.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-06-27",
+      "equity": 868734.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-06-28",
+      "equity": 877425.7879999997,
+      "cash": 475566.78799999977,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-07-01",
+      "equity": 880719.0479999997,
+      "cash": 686015.0479999997,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-07-02",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-03",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-04",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-05",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-08",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-09",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-10",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-11",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-12",
+      "equity": 880415.4679999996,
+      "cash": 880415.4679999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-07-15",
+      "equity": 891191.4039999996,
+      "cash": 176478.40399999963,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-07-16",
+      "equity": 892281.2599999997,
+      "cash": 9072.259999999631,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-07-17",
+      "equity": 875583.2599999997,
+      "cash": 9072.259999999631,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-07-18",
+      "equity": 883780.3599999996,
+      "cash": 169700.35999999964,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-07-19",
+      "equity": 877882.4599999996,
+      "cash": 349290.4599999996,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-07-22",
+      "equity": 870129.9219999996,
+      "cash": 192287.9219999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-07-23",
+      "equity": 859583.1539999996,
+      "cash": 10541.153999999602,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-07-24",
+      "equity": 865717.8259999997,
+      "cash": 165893.8259999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-07-25",
+      "equity": 861080.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-07-26",
+      "equity": 855494.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-07-29",
+      "equity": 858822.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-07-30",
+      "equity": 857556.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-07-31",
+      "equity": 852854.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-08-01",
+      "equity": 854818.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-08-02",
+      "equity": 852950.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-08-05",
+      "equity": 845966.3859999996,
+      "cash": 512918.3859999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-08-06",
+      "equity": 843171.1699999996,
+      "cash": 678195.1699999996,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-08-07",
+      "equity": 844795.1699999996,
+      "cash": 678195.1699999996,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-08-08",
+      "equity": 844963.1699999996,
+      "cash": 678195.1699999996,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-08-09",
+      "equity": 843619.1699999996,
+      "cash": 678195.1699999996,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-08-12",
+      "equity": 841603.1699999996,
+      "cash": 678195.1699999996,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-08-13",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-14",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-15",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-16",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-19",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-20",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-21",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-22",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-23",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-26",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-27",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-28",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-29",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-08-30",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-02",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-03",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-04",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-05",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-06",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-09",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-10",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-11",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-12",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-13",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-18",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-19",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-20",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-23",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-24",
+      "equity": 841835.2339999996,
+      "cash": 841835.2339999996,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-09-25",
+      "equity": 834224.0939999996,
+      "cash": 10105.093999999604,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-09-26",
+      "equity": 855776.0939999996,
+      "cash": 10105.093999999604,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-09-27",
+      "equity": 905933.4939999996,
+      "cash": 173577.4939999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-09-30",
+      "equity": 938725.6739999995,
+      "cash": 771365.6739999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-10-08",
+      "equity": 950597.6739999995,
+      "cash": 771365.6739999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2024-10-09",
+      "equity": 947013.6739999995,
+      "cash": 947013.6739999995,
+      "positionCount": 0
+    },
+    {
+      "date": "2024-10-10",
+      "equity": 958524.7799999996,
+      "cash": 25226.779999999562,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-11",
+      "equity": 911295.7799999996,
+      "cash": 25226.779999999562,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-14",
+      "equity": 919384.0239999996,
+      "cash": 536081.0239999996,
+      "positionCount": 2
+    },
+    {
+      "date": "2024-10-15",
+      "equity": 893244.1439999996,
+      "cash": 9089.143999999651,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-16",
+      "equity": 886128.1059999997,
+      "cash": 179766.10599999965,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-10-17",
+      "equity": 874328.4559999997,
+      "cash": 174877.45599999963,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-10-18",
+      "equity": 900820.4559999997,
+      "cash": 13555.455999999627,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-21",
+      "equity": 909597.8559999997,
+      "cash": 194492.85599999965,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-10-22",
+      "equity": 908755.0059999996,
+      "cash": 203088.00599999964,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-10-23",
+      "equity": 919385.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-24",
+      "equity": 908323.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-25",
+      "equity": 917908.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-28",
+      "equity": 918418.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-29",
+      "equity": 912485.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-30",
+      "equity": 902943.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-10-31",
+      "equity": 900515.9859999996,
+      "cash": 10192.985999999626,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-01",
+      "equity": 907015.1659999996,
+      "cash": 200721.16599999962,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-11-04",
+      "equity": 914315.7419999996,
+      "cash": 10629.74199999965,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-05",
+      "equity": 931271.7419999996,
+      "cash": 10629.74199999965,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-06",
+      "equity": 930040.5019999996,
+      "cash": 357554.50199999963,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-11-07",
+      "equity": 955114.2559999996,
+      "cash": 9236.255999999616,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-08",
+      "equity": 943112.5659999996,
+      "cash": 216166.5659999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-11-11",
+      "equity": 943458.4779999997,
+      "cash": 12716.477999999624,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-12",
+      "equity": 945320.8859999996,
+      "cash": 207122.88599999962,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-11-13",
+      "equity": 945122.0059999996,
+      "cash": 11793.005999999616,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-14",
+      "equity": 924025.0059999996,
+      "cash": 11793.005999999616,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-15",
+      "equity": 908157.0059999996,
+      "cash": 11793.005999999616,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-18",
+      "equity": 917128.2619999996,
+      "cash": 193301.26199999964,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-11-19",
+      "equity": 916199.1579999996,
+      "cash": 202580.15799999965,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-11-20",
+      "equity": 919015.4279999996,
+      "cash": 15341.427999999636,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-21",
+      "equity": 918795.4279999996,
+      "cash": 15341.427999999636,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-22",
+      "equity": 900404.4279999996,
+      "cash": 15341.427999999636,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-25",
+      "equity": 898970.3959999997,
+      "cash": 341204.39599999966,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-11-26",
+      "equity": 901470.4199999997,
+      "cash": 194788.41999999963,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-11-27",
+      "equity": 916519.6319999996,
+      "cash": 14534.631999999634,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-11-28",
+      "equity": 916511.3079999996,
+      "cash": 388447.3079999996,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-11-29",
+      "equity": 937847.4279999996,
+      "cash": 195622.4279999996,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-02",
+      "equity": 933121.7999999996,
+      "cash": 370744.7999999996,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-12-03",
+      "equity": 929752.7999999996,
+      "cash": 370744.7999999996,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-12-04",
+      "equity": 916643.3899999995,
+      "cash": 186672.38999999958,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-05",
+      "equity": 920815.3899999995,
+      "cash": 186672.38999999958,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-06",
+      "equity": 946987.2219999996,
+      "cash": 10737.221999999572,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-09",
+      "equity": 962138.2219999996,
+      "cash": 10737.221999999572,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-10",
+      "equity": 972992.6619999995,
+      "cash": 426184.66199999955,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-12-11",
+      "equity": 972257.3479999995,
+      "cash": 10698.347999999532,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-12",
+      "equity": 975669.0879999995,
+      "cash": 196456.08799999952,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-13",
+      "equity": 960487.3399999995,
+      "cash": 221474.33999999953,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-16",
+      "equity": 962887.8079999995,
+      "cash": 183135.80799999952,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-17",
+      "equity": 958886.3199999995,
+      "cash": 13052.319999999512,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-18",
+      "equity": 976408.3199999995,
+      "cash": 13052.319999999512,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-19",
+      "equity": 965824.9599999995,
+      "cash": 192372.95999999953,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-20",
+      "equity": 967436.9999999995,
+      "cash": 30068.999999999534,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-23",
+      "equity": 949269.9999999995,
+      "cash": 30068.999999999534,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-24",
+      "equity": 953166.2959999995,
+      "cash": 425129.2959999995,
+      "positionCount": 3
+    },
+    {
+      "date": "2024-12-25",
+      "equity": 952629.7559999995,
+      "cash": 11533.7559999995,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-26",
+      "equity": 952291.8839999995,
+      "cash": 195101.88399999953,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-27",
+      "equity": 950463.0679999995,
+      "cash": 166124.06799999953,
+      "positionCount": 4
+    },
+    {
+      "date": "2024-12-30",
+      "equity": 953132.7479999996,
+      "cash": 9150.747999999527,
+      "positionCount": 5
+    },
+    {
+      "date": "2024-12-31",
+      "equity": 943379.7479999996,
+      "cash": 9150.747999999527,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-01-02",
+      "equity": 918018.7479999996,
+      "cash": 9150.747999999527,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-01-03",
+      "equity": 914302.0299999996,
+      "cash": 355316.02999999956,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-01-06",
+      "equity": 915541.0299999996,
+      "cash": 355316.02999999956,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-01-07",
+      "equity": 915062.8899999995,
+      "cash": 541512.8899999995,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-01-08",
+      "equity": 920905.8899999995,
+      "cash": 541512.8899999995,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-01-09",
+      "equity": 913377.8899999995,
+      "cash": 541512.8899999995,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-01-10",
+      "equity": 904705.8899999995,
+      "cash": 541512.8899999995,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-01-13",
+      "equity": 901638.3599999995,
+      "cash": 721916.3599999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-01-14",
+      "equity": 905226.3599999995,
+      "cash": 721916.3599999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-01-15",
+      "equity": 908860.3599999995,
+      "cash": 721916.3599999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-01-16",
+      "equity": 910470.3599999995,
+      "cash": 721916.3599999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-01-17",
+      "equity": 909182.3599999995,
+      "cash": 721916.3599999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-01-20",
+      "equity": 906468.3599999995,
+      "cash": 721916.3599999995,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-01-21",
+      "equity": 907017.4159999995,
+      "cash": 907017.4159999995,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-01-22",
+      "equity": 907017.4159999995,
+      "cash": 907017.4159999995,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-01-23",
+      "equity": 907017.4159999995,
+      "cash": 907017.4159999995,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-01-24",
+      "equity": 907017.4159999995,
+      "cash": 907017.4159999995,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-01-27",
+      "equity": 908374.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-05",
+      "equity": 889097.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-06",
+      "equity": 892699.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-07",
+      "equity": 900648.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-10",
+      "equity": 902770.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-11",
+      "equity": 897053.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-12",
+      "equity": 901188.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-13",
+      "equity": 904638.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-14",
+      "equity": 912266.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-17",
+      "equity": 909160.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-18",
+      "equity": 905453.4899999995,
+      "cash": 27799.489999999554,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-19",
+      "equity": 905532.8519999995,
+      "cash": 199773.85199999955,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-02-20",
+      "equity": 909638.7399999995,
+      "cash": 343108.7399999996,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-02-21",
+      "equity": 919921.0879999995,
+      "cash": 211208.08799999955,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-02-24",
+      "equity": 915322.0479999995,
+      "cash": 164981.04799999954,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-02-25",
+      "equity": 910109.9139999995,
+      "cash": 8601.913999999524,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-26",
+      "equity": 909148.2479999994,
+      "cash": 371208.2479999995,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-02-27",
+      "equity": 884607.8599999994,
+      "cash": 11295.859999999462,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-02-28",
+      "equity": 862264.8199999995,
+      "cash": 195945.81999999945,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-03",
+      "equity": 862353.4799999994,
+      "cash": 538429.4799999994,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-03-04",
+      "equity": 859979.0879999994,
+      "cash": 712277.0879999994,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-03-05",
+      "equity": 860160.7279999994,
+      "cash": 860160.7279999994,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-03-06",
+      "equity": 871869.8299999994,
+      "cash": 10014.829999999405,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-07",
+      "equity": 898834.8299999994,
+      "cash": 10014.829999999405,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-10",
+      "equity": 896502.0299999993,
+      "cash": 385662.0299999994,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-03-11",
+      "equity": 910832.4599999994,
+      "cash": 10628.45999999941,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-12",
+      "equity": 902649.5099999994,
+      "cash": 206211.50999999943,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-13",
+      "equity": 904271.5099999994,
+      "cash": 13326.509999999427,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-14",
+      "equity": 919878.7099999995,
+      "cash": 199852.70999999944,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-17",
+      "equity": 917371.0139999995,
+      "cash": 162676.01399999944,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-18",
+      "equity": 916150.5139999995,
+      "cash": 8618.513999999443,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-19",
+      "equity": 907139.3099999994,
+      "cash": 199338.30999999942,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-20",
+      "equity": 900962.8659999993,
+      "cash": 191322.86599999937,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-21",
+      "equity": 888479.7819999994,
+      "cash": 9918.781999999366,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-24",
+      "equity": 894235.3819999994,
+      "cash": 187762.38199999937,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-25",
+      "equity": 891819.8719999994,
+      "cash": 186436.87199999936,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-26",
+      "equity": 884280.8899999993,
+      "cash": 190553.88999999934,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-03-27",
+      "equity": 881501.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-28",
+      "equity": 873324.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-03-31",
+      "equity": 863756.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-01",
+      "equity": 863892.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-02",
+      "equity": 866453.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-03",
+      "equity": 865336.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-07",
+      "equity": 799523.2699999993,
+      "cash": 9883.26999999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-08",
+      "equity": 806452.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-09",
+      "equity": 811416.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-10",
+      "equity": 812876.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-11",
+      "equity": 812000.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-14",
+      "equity": 809007.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-15",
+      "equity": 810540.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-16",
+      "equity": 811416.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-17",
+      "equity": 810102.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-18",
+      "equity": 808569.0379999992,
+      "cash": 625266.0379999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-04-21",
+      "equity": 807983.8699999992,
+      "cash": 807983.8699999992,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-04-22",
+      "equity": 807983.8699999992,
+      "cash": 807983.8699999992,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-04-23",
+      "equity": 807983.8699999992,
+      "cash": 807983.8699999992,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-04-24",
+      "equity": 807983.8699999992,
+      "cash": 807983.8699999992,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-04-25",
+      "equity": 807983.8699999992,
+      "cash": 807983.8699999992,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-04-28",
+      "equity": 802106.9899999992,
+      "cash": 8447.989999999205,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-29",
+      "equity": 804131.9899999992,
+      "cash": 8447.989999999205,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-04-30",
+      "equity": 810305.9899999992,
+      "cash": 8447.989999999205,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-06",
+      "equity": 824896.1919999991,
+      "cash": 357148.19199999917,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-05-07",
+      "equity": 829198.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-08",
+      "equity": 826266.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-09",
+      "equity": 825742.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-12",
+      "equity": 830828.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-13",
+      "equity": 835652.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-14",
+      "equity": 843044.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-15",
+      "equity": 842970.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-16",
+      "equity": 843316.5919999991,
+      "cash": 10656.591999999131,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-19",
+      "equity": 846852.1919999991,
+      "cash": 165546.19199999914,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-05-20",
+      "equity": 853985.1359999991,
+      "cash": 8705.135999999155,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-21",
+      "equity": 851573.7119999991,
+      "cash": 170093.71199999916,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-05-22",
+      "equity": 847632.0359999991,
+      "cash": 175242.03599999915,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-05-23",
+      "equity": 840168.3439999991,
+      "cash": 321880.3439999991,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-05-26",
+      "equity": 839600.3439999991,
+      "cash": 21280.34399999914,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-27",
+      "equity": 855640.3439999991,
+      "cash": 21280.34399999914,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-05-28",
+      "equity": 863782.7439999991,
+      "cash": 210700.74399999913,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-05-29",
+      "equity": 867006.5439999992,
+      "cash": 407406.5439999992,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-05-30",
+      "equity": 872993.4639999992,
+      "cash": 557645.4639999992,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-06-03",
+      "equity": 874464.0639999992,
+      "cash": 710040.0639999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-06-04",
+      "equity": 869070.0639999992,
+      "cash": 710040.0639999992,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-06-05",
+      "equity": 862895.9319999992,
+      "cash": 10577.931999999215,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-06",
+      "equity": 857703.9319999992,
+      "cash": 10577.931999999215,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-09",
+      "equity": 875542.0719999992,
+      "cash": 175677.0719999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-06-10",
+      "equity": 863691.5859999992,
+      "cash": 196076.5859999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-06-11",
+      "equity": 871214.3179999993,
+      "cash": 35622.31799999921,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-12",
+      "equity": 886517.3179999993,
+      "cash": 35622.31799999921,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-13",
+      "equity": 876330.9899999993,
+      "cash": 204447.98999999923,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-06-16",
+      "equity": 880678.4899999993,
+      "cash": 347964.4899999993,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-06-17",
+      "equity": 878295.1479999993,
+      "cash": 10620.147999999288,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-18",
+      "equity": 877212.7879999992,
+      "cash": 193932.7879999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-06-19",
+      "equity": 863948.7079999993,
+      "cash": 10025.707999999286,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-20",
+      "equity": 865452.7079999993,
+      "cash": 10025.707999999286,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-23",
+      "equity": 868015.7079999993,
+      "cash": 10025.707999999286,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-24",
+      "equity": 877007.7079999993,
+      "cash": 10025.707999999286,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-25",
+      "equity": 879520.1879999993,
+      "cash": 191422.1879999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-06-26",
+      "equity": 876070.4339999992,
+      "cash": 14191.433999999252,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-27",
+      "equity": 880519.4339999992,
+      "cash": 14191.433999999252,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-06-30",
+      "equity": 910706.4339999992,
+      "cash": 14191.433999999252,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-01",
+      "equity": 918677.2779999992,
+      "cash": 380036.27799999923,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-07-02",
+      "equity": 921547.9079999992,
+      "cash": 194720.90799999924,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-03",
+      "equity": 928668.8599999992,
+      "cash": 13334.85999999923,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-04",
+      "equity": 936224.8599999992,
+      "cash": 13334.85999999923,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-07",
+      "equity": 941715.8599999992,
+      "cash": 13334.85999999923,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-08",
+      "equity": 943639.0679999993,
+      "cash": 378998.0679999993,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-07-09",
+      "equity": 936174.7239999992,
+      "cash": 15099.723999999289,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-10",
+      "equity": 943402.7239999992,
+      "cash": 15099.723999999289,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-11",
+      "equity": 951641.8759999992,
+      "cash": 204643.87599999926,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-14",
+      "equity": 950392.8059999993,
+      "cash": 403745.8059999993,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-07-15",
+      "equity": 942683.4659999993,
+      "cash": 10290.465999999316,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-16",
+      "equity": 941173.2019999993,
+      "cash": 200541.20199999932,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-17",
+      "equity": 975512.9519999993,
+      "cash": 12540.95199999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-18",
+      "equity": 975969.5259999994,
+      "cash": 409458.5259999994,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-07-21",
+      "equity": 981853.7359999993,
+      "cash": 12270.735999999364,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-22",
+      "equity": 994132.7359999993,
+      "cash": 12270.735999999364,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-23",
+      "equity": 988397.0859999993,
+      "cash": 216187.08599999934,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-24",
+      "equity": 1003392.8219999993,
+      "cash": 201007.82199999935,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-25",
+      "equity": 1000790.5419999993,
+      "cash": 241164.54199999935,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-28",
+      "equity": 1010812.7019999993,
+      "cash": 13790.70199999935,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-07-29",
+      "equity": 1021531.3819999993,
+      "cash": 229518.38199999934,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-30",
+      "equity": 1026618.0339999993,
+      "cash": 223102.03399999934,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-07-31",
+      "equity": 1006113.2259999993,
+      "cash": 183430.22599999935,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-08-01",
+      "equity": 995417.6819999993,
+      "cash": 14821.68199999936,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-04",
+      "equity": 993347.6819999993,
+      "cash": 14821.68199999936,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-05",
+      "equity": 995742.6819999993,
+      "cash": 14821.68199999936,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-06",
+      "equity": 1003150.6819999993,
+      "cash": 14821.68199999936,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-07",
+      "equity": 999699.6259999993,
+      "cash": 214449.62599999935,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-08-08",
+      "equity": 997352.3499999994,
+      "cash": 197634.34999999934,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-08-11",
+      "equity": 1004947.6139999994,
+      "cash": 10392.613999999332,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-12",
+      "equity": 990926.6139999994,
+      "cash": 10392.613999999332,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-13",
+      "equity": 987833.7579999993,
+      "cash": 165509.75799999933,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-08-14",
+      "equity": 969655.0619999993,
+      "cash": 9350.061999999336,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-15",
+      "equity": 976568.3099999994,
+      "cash": 213317.30999999933,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-08-18",
+      "equity": 983666.6699999993,
+      "cash": 48668.669999999314,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-19",
+      "equity": 981311.0539999993,
+      "cash": 628814.0539999993,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-08-20",
+      "equity": 998234.5419999993,
+      "cash": 10824.541999999288,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-21",
+      "equity": 1003069.5519999993,
+      "cash": 222395.5519999993,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-08-22",
+      "equity": 1025766.3279999993,
+      "cash": 48436.32799999931,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-25",
+      "equity": 1041824.9379999993,
+      "cash": 488748.93799999927,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-08-26",
+      "equity": 1037664.9639999993,
+      "cash": 406261.96399999934,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-08-27",
+      "equity": 1018120.5459999994,
+      "cash": 10763.545999999362,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-28",
+      "equity": 1041643.5459999994,
+      "cash": 10763.545999999362,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-08-29",
+      "equity": 1050367.5459999994,
+      "cash": 10763.545999999362,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-01",
+      "equity": 1057171.3099999994,
+      "cash": 219463.30999999936,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-02",
+      "equity": 1038216.6619999993,
+      "cash": 265136.66199999937,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-03",
+      "equity": 1064092.4299999995,
+      "cash": 184005.42999999938,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-04",
+      "equity": 1068396.7639999995,
+      "cash": 667248.7639999994,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-09-05",
+      "equity": 1104909.8279999993,
+      "cash": 242486.82799999934,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-08",
+      "equity": 1122983.1259999992,
+      "cash": 459186.12599999935,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-09-09",
+      "equity": 1097416.5059999994,
+      "cash": 201231.50599999932,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-10",
+      "equity": 1092146.6259999992,
+      "cash": 11412.62599999932,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-11",
+      "equity": 1135936.6259999992,
+      "cash": 11412.62599999932,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-12",
+      "equity": 1138546.1459999993,
+      "cash": 910850.1459999993,
+      "positionCount": 1
+    },
+    {
+      "date": "2025-09-15",
+      "equity": 1134728.9299999992,
+      "cash": 12448.929999999236,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-16",
+      "equity": 1140645.9299999992,
+      "cash": 12448.929999999236,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-17",
+      "equity": 1148364.9299999992,
+      "cash": 12448.929999999236,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-18",
+      "equity": 1145611.9299999992,
+      "cash": 12448.929999999236,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-19",
+      "equity": 1138810.9299999992,
+      "cash": 12448.929999999236,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-22",
+      "equity": 1134990.5859999992,
+      "cash": 248647.58599999922,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-23",
+      "equity": 1136255.3139999993,
+      "cash": 447106.3139999992,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-09-24",
+      "equity": 1177624.1699999992,
+      "cash": 14671.169999999198,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-25",
+      "equity": 1186074.2419999992,
+      "cash": 714233.2419999992,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-09-26",
+      "equity": 1158329.7079999992,
+      "cash": 245878.70799999917,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-09-29",
+      "equity": 1192844.3079999993,
+      "cash": 17222.307999999175,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-09-30",
+      "equity": 1210407.3079999993,
+      "cash": 17222.307999999175,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-09",
+      "equity": 1233856.0479999993,
+      "cash": 274836.0479999992,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-10-10",
+      "equity": 1200947.847999999,
+      "cash": 513423.8479999991,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-10-13",
+      "equity": 1212997.359999999,
+      "cash": 688372.359999999,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-10-14",
+      "equity": 1186096.805999999,
+      "cash": 312998.80599999905,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-10-15",
+      "equity": 1180765.413999999,
+      "cash": 21220.41399999906,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-16",
+      "equity": 1180269.773999999,
+      "cash": 232117.77399999904,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-10-17",
+      "equity": 1143845.773999999,
+      "cash": 17188.773999999074,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-20",
+      "equity": 1147523.675999999,
+      "cash": 439890.67599999905,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-10-21",
+      "equity": 1158066.925999999,
+      "cash": 14666.925999999046,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-22",
+      "equity": 1153352.547999999,
+      "cash": 290303.547999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-10-23",
+      "equity": 1158330.947999999,
+      "cash": 16957.947999998985,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-24",
+      "equity": 1177743.139999999,
+      "cash": 498896.13999999897,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-10-27",
+      "equity": 1190669.195999999,
+      "cash": 488821.195999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-10-28",
+      "equity": 1167027.717999999,
+      "cash": 13633.717999999004,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-29",
+      "equity": 1203509.717999999,
+      "cash": 13633.717999999004,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-10-30",
+      "equity": 1210837.999999999,
+      "cash": 762491.9999999991,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-10-31",
+      "equity": 1185862.961999999,
+      "cash": 12976.96199999898,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-03",
+      "equity": 1209583.961999999,
+      "cash": 12976.96199999898,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-04",
+      "equity": 1205613.961999999,
+      "cash": 12976.96199999898,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-05",
+      "equity": 1210735.981999999,
+      "cash": 217057.981999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-11-06",
+      "equity": 1236526.389999999,
+      "cash": 274823.38999999897,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-11-07",
+      "equity": 1229302.445999999,
+      "cash": 254041.44599999895,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-11-10",
+      "equity": 1240328.037999999,
+      "cash": 13357.037999998953,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-11",
+      "equity": 1233312.433999999,
+      "cash": 284116.43399999896,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-11-12",
+      "equity": 1226742.233999999,
+      "cash": 15981.233999998949,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-13",
+      "equity": 1231878.001999999,
+      "cash": 752122.0019999989,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-11-14",
+      "equity": 1213732.177999999,
+      "cash": 13736.177999998908,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-17",
+      "equity": 1214189.177999999,
+      "cash": 13736.177999998908,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-18",
+      "equity": 1187596.177999999,
+      "cash": 13736.177999998908,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-19",
+      "equity": 1179109.937999999,
+      "cash": 693992.9379999989,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-11-20",
+      "equity": 1154377.3339999989,
+      "cash": 13332.333999998955,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-11-21",
+      "equity": 1108863.693999999,
+      "cash": 221734.69399999894,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-11-24",
+      "equity": 1103729.169999999,
+      "cash": 1103729.169999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-11-25",
+      "equity": 1103729.169999999,
+      "cash": 1103729.169999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-11-26",
+      "equity": 1103729.169999999,
+      "cash": 1103729.169999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-11-27",
+      "equity": 1103729.169999999,
+      "cash": 1103729.169999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-11-28",
+      "equity": 1103729.169999999,
+      "cash": 1103729.169999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-12-01",
+      "equity": 1103729.169999999,
+      "cash": 1103729.169999999,
+      "positionCount": 0
+    },
+    {
+      "date": "2025-12-02",
+      "equity": 1107374.723999999,
+      "cash": 222246.72399999897,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-03",
+      "equity": 1103109.723999999,
+      "cash": 222246.72399999897,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-04",
+      "equity": 1099641.723999999,
+      "cash": 222246.72399999897,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-05",
+      "equity": 1101744.723999999,
+      "cash": 222246.72399999897,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-08",
+      "equity": 1096145.5639999988,
+      "cash": 15253.563999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-09",
+      "equity": 1085839.5639999988,
+      "cash": 15253.563999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-10",
+      "equity": 1084098.5639999988,
+      "cash": 15253.563999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-11",
+      "equity": 1077864.5639999988,
+      "cash": 15253.563999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-12",
+      "equity": 1087843.5639999988,
+      "cash": 15253.563999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-15",
+      "equity": 1082573.5639999988,
+      "cash": 15253.563999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-16",
+      "equity": 1073804.353999999,
+      "cash": 224439.35399999897,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-17",
+      "equity": 1083381.643999999,
+      "cash": 419902.643999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-12-18",
+      "equity": 1086205.735999999,
+      "cash": 257640.735999999,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-19",
+      "equity": 1086020.0639999988,
+      "cash": 13317.063999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-22",
+      "equity": 1107016.0639999988,
+      "cash": 13317.063999998965,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-23",
+      "equity": 1104931.335999999,
+      "cash": 290625.33599999896,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-24",
+      "equity": 1101125.3759999988,
+      "cash": 629829.3759999989,
+      "positionCount": 2
+    },
+    {
+      "date": "2025-12-25",
+      "equity": 1096242.2539999988,
+      "cash": 11534.25399999891,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-26",
+      "equity": 1122696.2539999988,
+      "cash": 11534.25399999891,
+      "positionCount": 5
+    },
+    {
+      "date": "2025-12-29",
+      "equity": 1113830.653999999,
+      "cash": 299257.6539999989,
+      "positionCount": 4
+    },
+    {
+      "date": "2025-12-30",
+      "equity": 1113619.913999999,
+      "cash": 424757.9139999988,
+      "positionCount": 3
+    },
+    {
+      "date": "2025-12-31",
+      "equity": 1110246.4859999989,
+      "cash": 227724.48599999884,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-05",
+      "equity": 1148967.8239999989,
+      "cash": 13465.82399999883,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-06",
+      "equity": 1179578.9239999987,
+      "cash": 248943.9239999988,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-07",
+      "equity": 1178798.447999999,
+      "cash": 731275.4479999988,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-01-08",
+      "equity": 1162027.2739999988,
+      "cash": 12754.27399999884,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-09",
+      "equity": 1160323.2739999988,
+      "cash": 12754.27399999884,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-12",
+      "equity": 1169697.5339999988,
+      "cash": 239669.53399999885,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-13",
+      "equity": 1166328.6699999988,
+      "cash": 12784.669999998849,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-14",
+      "equity": 1148372.599999999,
+      "cash": 257329.59999999884,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-15",
+      "equity": 1156710.863999999,
+      "cash": 241975.8639999988,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-16",
+      "equity": 1156100.9959999989,
+      "cash": 13585.995999998762,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-19",
+      "equity": 1173227.0579999988,
+      "cash": 457665.05799999874,
+      "positionCount": 3
+    },
+    {
+      "date": "2026-01-20",
+      "equity": 1173075.4839999988,
+      "cash": 250314.48399999872,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-21",
+      "equity": 1174075.2439999988,
+      "cash": 17730.243999998725,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-22",
+      "equity": 1180661.2439999988,
+      "cash": 17730.243999998725,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-23",
+      "equity": 1191885.3519999988,
+      "cash": 259691.35199999873,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-26",
+      "equity": 1177974.6539999987,
+      "cash": 255304.65399999873,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-27",
+      "equity": 1176158.9739999988,
+      "cash": 13982.973999998736,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-01-28",
+      "equity": 1196358.1419999988,
+      "cash": 217990.14199999874,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-29",
+      "equity": 1219770.2819999987,
+      "cash": 280967.2819999987,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-01-30",
+      "equity": 1196652.2619999987,
+      "cash": 715920.2619999987,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-02-02",
+      "equity": 1166328.8939999987,
+      "cash": 487981.8939999987,
+      "positionCount": 3
+    },
+    {
+      "date": "2026-02-03",
+      "equity": 1174771.1939999987,
+      "cash": 716873.1939999987,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-02-04",
+      "equity": 1210718.0259999987,
+      "cash": 13886.02599999879,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-02-05",
+      "equity": 1198786.3699999987,
+      "cash": 521696.36999999883,
+      "positionCount": 3
+    },
+    {
+      "date": "2026-02-06",
+      "equity": 1190125.6699999988,
+      "cash": 223312.66999999885,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-02-09",
+      "equity": 1193525.7899999989,
+      "cash": 14455.789999998873,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-02-10",
+      "equity": 1174606.7899999989,
+      "cash": 14455.789999998873,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-02-11",
+      "equity": 1191953.7899999989,
+      "cash": 14455.789999998873,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-02-12",
+      "equity": 1189068.8379999988,
+      "cash": 249460.83799999885,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-02-13",
+      "equity": 1156426.9319999989,
+      "cash": 14538.931999998866,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-02-24",
+      "equity": 1178057.379999999,
+      "cash": 496349.37999999884,
+      "positionCount": 3
+    },
+    {
+      "date": "2026-02-25",
+      "equity": 1197538.3419999988,
+      "cash": 14368.34199999884,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-02-26",
+      "equity": 1216852.9059999988,
+      "cash": 258097.90599999885,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-02-27",
+      "equity": 1216782.0859999987,
+      "cash": 275000.08599999885,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-03-02",
+      "equity": 1251963.701999999,
+      "cash": 237721.70199999883,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-03-03",
+      "equity": 1240691.9979999987,
+      "cash": 772526.9979999989,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-03-04",
+      "equity": 1238521.731999999,
+      "cash": 1011181.7319999989,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-05",
+      "equity": 1237891.731999999,
+      "cash": 1011181.7319999989,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-06",
+      "equity": 1235731.731999999,
+      "cash": 1011181.7319999989,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-09",
+      "equity": 1239961.731999999,
+      "cash": 1011181.7319999989,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-10",
+      "equity": 1236901.731999999,
+      "cash": 1011181.7319999989,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-11",
+      "equity": 1274335.099999999,
+      "cash": 12873.099999998987,
+      "positionCount": 5
+    },
+    {
+      "date": "2026-03-12",
+      "equity": 1287478.709999999,
+      "cash": 555480.709999999,
+      "positionCount": 3
+    },
+    {
+      "date": "2026-03-13",
+      "equity": 1271865.637999999,
+      "cash": 254304.63799999905,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-03-16",
+      "equity": 1287088.637999999,
+      "cash": 254304.63799999905,
+      "positionCount": 4
+    },
+    {
+      "date": "2026-03-17",
+      "equity": 1273619.039999999,
+      "cash": 768573.039999999,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-03-18",
+      "equity": 1274911.039999999,
+      "cash": 768573.039999999,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-03-19",
+      "equity": 1278269.039999999,
+      "cash": 768573.039999999,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-03-20",
+      "equity": 1271618.039999999,
+      "cash": 768573.039999999,
+      "positionCount": 2
+    },
+    {
+      "date": "2026-03-23",
+      "equity": 1265401.9019999988,
+      "cash": 988201.901999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-24",
+      "equity": 1259689.9019999988,
+      "cash": 988201.901999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-25",
+      "equity": 1252801.9019999988,
+      "cash": 988201.901999999,
+      "positionCount": 1
+    },
+    {
+      "date": "2026-03-26",
+      "equity": 1255265.9019999988,
+      "cash": 988201.901999999,
+      "positionCount": 1
+    }
+  ],
+  "yearlyBreakdown": [
+    {
+      "year": "2023",
+      "trades": 74,
+      "winRate": 0.4189,
+      "avgReturn": -0.0116,
+      "totalReturn": 74.1401
+    },
+    {
+      "year": "2024",
+      "trades": 99,
+      "winRate": 0.5051,
+      "avgReturn": -0.001,
+      "totalReturn": 99.8962
+    },
+    {
+      "year": "2025",
+      "trades": 143,
+      "winRate": 0.5804,
+      "avgReturn": 0.0075,
+      "totalReturn": 145.0764
+    },
+    {
+      "year": "2026",
+      "trades": 35,
+      "winRate": 0.6,
+      "avgReturn": 0.0083,
+      "totalReturn": 36.2906
+    }
+  ],
+  "config": {
+    "maxPositions": 5,
+    "retrainInterval": 120,
+    "trainLookback": 500,
+    "stockCount": 50,
+    "testDays": 754,
+    "testStart": "2023-02-15",
+    "testEnd": "2026-03-26"
+  }
+}

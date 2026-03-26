@@ -87,3 +87,10 @@ out/
 .nuxi.buildDir
 dist-ssr
 *.local
+
+# ============================================
+# Quanttrading data & tools
+# ============================================
+results/data-cache/
+.claude/
+.kiro/
