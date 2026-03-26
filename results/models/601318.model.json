@@ -1,26 +1,26 @@
 {
-  "regime": "high_vol",
+  "regime": "downtrend",
   "config": {
-    "minZoneCapture": 0.8,
-    "zoneForward": 10,
-    "zoneBackward": 2,
-    "envFilter": "none"
+    "minZoneCapture": 0.7,
+    "zoneForward": 15,
+    "zoneBackward": 3,
+    "envFilter": "ma20_0.98"
   },
   "metrics": {
-    "sharpe": 9.0979,
-    "avgReturn": 0.0327,
-    "winRate": 0.6667,
-    "stopLossRate": 0.2222,
-    "maxDrawdown": -0.0605
+    "sharpe": 6.8991,
+    "avgReturn": 0.0174,
+    "winRate": 0.625,
+    "stopLossRate": 0.125,
+    "maxDrawdown": -0.0484
   },
   "featureSet": "oversold_bounce",
   "model": "PercentileRank",
   "plateau": {
     "passed": true,
-    "ratio": 1.689,
-    "neighborCount": 1
+    "ratio": 1,
+    "neighborCount": 0
   },
   "stockCode": "601318",
-  "timestamp": "2026-03-24T15:11:51.364Z",
-  "version": 2
+  "timestamp": "2026-03-26T13:20:26.407Z",
+  "version": 3
 }

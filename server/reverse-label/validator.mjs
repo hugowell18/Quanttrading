@@ -147,16 +147,16 @@ export class WalkForwardValidator {
           continue;
         }
 
-        // T+1 实盘模拟：信号日是 index，买入日是 index+1，实际成交在 index+2 的 open
+        // T+1 实盘模拟：信号日 index（T日收盘后出信号），T+1日开盘买入
         const signalIndex = index;
-        const buyIndex = index + 2; // T+1: 次日开盘买入 → 实际是 signal+2（signal日收盘出信号，+1日开盘挂单）
+        const buyIndex = index + 1; // T+1: 次日开盘买入
         if (buyIndex >= testRows.length) {
           break;
         }
         const buyRow = testRows[buyIndex];
 
-        // 涨停检测：如果买入日开盘价 = 涨停价（前日收盘×1.1），无法买入
-        const prevClose = testRows[buyIndex - 1]?.close ?? 0;
+        // 涨停检测：如果买入日开盘价 >= 前日收盘×1.098，一字涨停无法买入
+        const prevClose = testRows[signalIndex]?.close ?? 0; // 信号日收盘 = 买入日前一天
         const limitUpPrice = prevClose * 1.098; // A股涨停板（留0.2%容差）
         if (prevClose > 0 && buyRow.open >= limitUpPrice) {
           skippedByEnvironment += 1;
@@ -190,8 +190,8 @@ export class WalkForwardValidator {
         const actualBuyPrice = buyRow.open * (1 + this.slippage);
         const atr14 = buyRow.atr14 ?? null;
         const dynamicStopLossPct = Number.isFinite(atr14) && actualBuyPrice > 0
-          ? Math.max(0.02, Math.min(0.06, (1.5 * atr14) / actualBuyPrice))
-          : (this.stopLoss ?? 0.04);
+          ? Math.max(0.03, Math.min(0.08, (2.0 * atr14) / actualBuyPrice))
+          : (this.stopLoss ?? 0.05);
         let exitIndex = Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays);
         let exitReason = 'timeout';
         let highWatermark = actualBuyPrice;
@@ -274,24 +274,34 @@ export class WalkForwardValidator {
           }
         }
 
-        const sellRow = testRows[exitIndex];
-        // T+1 卖出：以卖出日收盘价 - 滑点 模拟实际成交
-        const actualSellPrice = sellRow.close * (1 - this.slippage);
+        // T+1 卖出：退出信号在 exitIndex 日触发，实际卖出在 exitIndex+1 日开盘
+        const sellDayIndex = Math.min(exitIndex + 1, testRows.length - 1);
+        const sellRow = testRows[sellDayIndex];
+        // 跌停检测：如果卖出日开盘价 <= 前日收盘×0.902，跌停无法卖出，顺延
+        const exitDayClose = testRows[exitIndex]?.close ?? 0;
+        const limitDownPrice = exitDayClose * 0.902;
+        let actualSellDayIndex = sellDayIndex;
+        if (exitDayClose > 0 && sellRow.open <= limitDownPrice && sellDayIndex + 1 < testRows.length) {
+          // 跌停无法卖出，顺延到下一个交易日
+          actualSellDayIndex = sellDayIndex + 1;
+        }
+        const actualSellRow = testRows[actualSellDayIndex];
+        const actualSellPrice = actualSellRow.open * (1 - this.slippage);
         const netReturn = ((actualSellPrice - actualBuyPrice) / actualBuyPrice) - this.tradingCost;
         const trade = {
           buyDate: buyRow.date,
-          sellDate: sellRow.date,
+          sellDate: actualSellRow.date,
           buyPrice: Number(actualBuyPrice.toFixed(4)),
           sellPrice: Number(actualSellPrice.toFixed(4)),
           return: Number(netReturn.toFixed(4)),
-          holdingDays: exitIndex - buyIndex,
+          holdingDays: actualSellDayIndex - buyIndex,
           confidence: Number(confidence.toFixed(4)),
           stopLossPct: Number(dynamicStopLossPct.toFixed(4)),
           exitReason,
         };
         allTrades.push(trade);
         windowTrades.push(trade);
-        index = exitIndex + 1;
+        index = actualSellDayIndex + 1;
       }
 
       if (windowTrades.length) {

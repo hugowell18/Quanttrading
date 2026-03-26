@@ -29,6 +29,28 @@ const recall = (truth, pred) => {
 const f1 = (p, r) => (p + r === 0 ? 0 : (2 * p * r) / (p + r));
 // 精度优先：提高 precision 权重以减少假信号，达到更高胜率
 const compositeScore = (p, r, itemF1) => (p * 0.65) + (itemF1 * 0.35);
+
+// 硬伤2修复：计算被选中行的真实前瞻收益率（T+1开盘买 → 持有N日后卖）
+const computeReturnMetric = (rows, predictions, forwardDays = 10) => {
+  const selectedReturns = [];
+  for (let i = 0; i < predictions.length; i += 1) {
+    if (predictions[i] !== 1) continue;
+    const buyIdx = i + 1; // T+1 买入
+    const sellIdx = Math.min(i + 1 + forwardDays, rows.length - 1);
+    if (buyIdx >= rows.length || sellIdx >= rows.length) continue;
+    const buyPrice = rows[buyIdx]?.open ?? rows[buyIdx]?.close ?? 0;
+    const sellPrice = rows[sellIdx]?.open ?? rows[sellIdx]?.close ?? 0;
+    if (buyPrice > 0) {
+      selectedReturns.push((sellPrice - buyPrice) / buyPrice);
+    }
+  }
+  if (selectedReturns.length === 0) return 0;
+  const avgRet = selectedReturns.reduce((s, v) => s + v, 0) / selectedReturns.length;
+  // 盈利因子：正收益笔数的占比 × 平均收益
+  const winCount = selectedReturns.filter((v) => v > 0).length;
+  const winRate = winCount / selectedReturns.length;
+  return avgRet * (0.5 + winRate); // 收益率 × 胜率加成
+};
 const buildTimeSeriesSplits = (length, nSplits = 5) => {
   const splits = [];
   const minTrain = Math.max(Math.floor(length * 0.45), 80);
@@ -79,7 +101,7 @@ const buildFeatureStats = (featureNames, rows, labels) => {
   });
 };
 
-const buildThreshold = (scores, labels) => {
+const buildThreshold = (scores, labels, rows = null) => {
   const positiveRate = labels.reduce((sum, value) => sum + value, 0) / Math.max(labels.length, 1);
   // 扩大搜索范围：从非常严格（高精度少信号）到宽松，找精度最优点
   const targetFractions = [
@@ -106,7 +128,22 @@ const buildThreshold = (scores, labels) => {
     // 要求至少有1个正预测才计分，避免空预测得高分
     const totalPred = pred.reduce((s, v) => s + v, 0);
     if (totalPred === 0) continue;
-    const candidateScore = compositeScore(p, r, fi);
+
+    // 硬伤2修复：融合真实收益率到阈值评分
+    // classificationScore: 分类精度（60%权重）
+    // returnMetric: 被选中行的真实前瞻收益率（40%权重）
+    const classificationScore = compositeScore(p, r, fi);
+    let candidateScore = classificationScore;
+
+    if (rows && rows.length > 0) {
+      const returnMetric = computeReturnMetric(rows, pred, 10);
+      // 收益率为负 → 惩罚；收益率为正 → 奖励
+      // 将 returnMetric 映射到 [0, 1] 区间做加权
+      const returnBonus = Math.max(0, returnMetric) * 5; // 5%收益 → 0.25加分
+      const returnPenalty = Math.min(0, returnMetric) * 10; // -5%亏损 → -0.5惩罚
+      candidateScore = classificationScore * 0.6 + (classificationScore + returnBonus + returnPenalty) * 0.4;
+    }
+
     if (candidateScore > bestScore) {
       bestScore = candidateScore;
       bestThreshold = threshold;
@@ -119,7 +156,7 @@ const buildThreshold = (scores, labels) => {
 const createRankPredictor = ({ modelName, featureNames, stats, scoreRow }) => {
   return ({ rows, labels }) => {
     const trainScores = rows.map(scoreRow);
-    const threshold = buildThreshold(trainScores, labels);
+    const threshold = buildThreshold(trainScores, labels, rows);
     return {
       modelName,
       featureNames,

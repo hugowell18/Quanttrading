@@ -1,0 +1,46 @@
+{
+  "tsCode": "600519.SH",
+  "timestamp": 1774530283888,
+  "records": [
+    {
+      "ts_code": "600519.SH",
+      "end_date": "20250930",
+      "roe": 26.3688,
+      "grossprofit_margin": 91.2934,
+      "current_ratio": 6.6193
+    },
+    {
+      "ts_code": "600519.SH",
+      "end_date": "20250630",
+      "roe": 19.2486,
+      "grossprofit_margin": 91.2993,
+      "current_ratio": 5.7297
+    },
+    {
+      "ts_code": "600519.SH",
+      "end_date": "20250331",
+      "roe": 10.9255,
+      "grossprofit_margin": 91.9736,
+      "current_ratio": 6.0749
+    },
+    {
+      "ts_code": "600519.SH",
+      "end_date": "20250331",
+      "roe": 10.9255,
+      "grossprofit_margin": 91.9736,
+      "current_ratio": 6.0749
+    }
+  ],
+  "result": {
+    "qualified": true,
+    "scores": {
+      "roe": 26.37,
+      "grossProfitMargin": 91.29,
+      "revenueGrowth": 0,
+      "currentRatio": 6.62,
+      "reportDate": "20250930"
+    },
+    "warnings": [],
+    "failCount": 0
+  }
+}

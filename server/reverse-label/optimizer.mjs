@@ -100,16 +100,28 @@ const loadIndexCandles = async (token, tsCode, startDate, endDate) => {
 
 // ─── 评分函数 ──────────────────────────────────────────────
 
-function scoreResult(result) {
+function scoreResult(result, diagnostics = null) {
   if (!result) return null;
-  if (result.stopLossRate >= 0.25) return null;
-  if (result.totalTrades < 15) return null;
+  if (result.stopLossRate >= 0.35) {
+    if (diagnostics) diagnostics.stopLossReject = (diagnostics.stopLossReject ?? 0) + 1;
+    return null;
+  }
+  if (result.totalTrades < 10) {
+    if (diagnostics) diagnostics.tradeCountReject = (diagnostics.tradeCountReject ?? 0) + 1;
+    return null;
+  }
   if (!Number.isFinite(result.avgReturn)) return null;
-  if ((result.winRate ?? 0) < 0.50) return null;
+  if ((result.winRate ?? 0) < 0.45) {
+    if (diagnostics) diagnostics.winRateReject = (diagnostics.winRateReject ?? 0) + 1;
+    return null;
+  }
 
-  // 建议5：Profit Factor 门槛 — 盈亏比 < 1.2 的策略在算上滑点后必亏
+  // 建议5：Profit Factor 门槛 — 盈亏比 < 1.0 无意义
   const pf = result.profitFactor ?? 0;
-  if (pf < 1.2) return null;
+  if (pf < 1.0) {
+    if (diagnostics) diagnostics.pfReject = (diagnostics.pfReject ?? 0) + 1;
+    return null;
+  }
 
   // 建议5：期望值驱动评分
   // compositeScore = profitFactor × sharpe × log(1+trades)
@@ -330,11 +342,13 @@ export async function optimize(stockCode, startDate, endDate) {
   // 扫描函数（可复用于 fallback）
   const runScan = (scanGrid, regimeOpts, label) => {
     const results = [];
+    const diag = { stopLossReject: 0, tradeCountReject: 0, winRateReject: 0, pfReject: 0, nullRun: 0 };
     let scanDone = 0;
     for (const config of scanGrid) {
       const run = runOneConfig(rows, config, indexRows, regimeOpts);
       const result = run?.validation ?? null;
-      const score = scoreResult(result);
+      if (!result) { diag.nullRun += 1; }
+      const score = scoreResult(result, diag);
 
       scanDone += 1;
       if (scanDone % 10 === 0 || scanDone === scanGrid.length) {
@@ -350,6 +364,16 @@ export async function optimize(stockCode, startDate, endDate) {
         bestModel: run.bestModel,
         buyCount: run.buyCount,
       });
+    }
+    // 输出诊断信息
+    const rejectParts = [];
+    if (diag.nullRun) rejectParts.push(`无结果=${diag.nullRun}`);
+    if (diag.tradeCountReject) rejectParts.push(`交易不足=${diag.tradeCountReject}`);
+    if (diag.winRateReject) rejectParts.push(`胜率不足=${diag.winRateReject}`);
+    if (diag.stopLossReject) rejectParts.push(`止损过高=${diag.stopLossReject}`);
+    if (diag.pfReject) rejectParts.push(`PF不足=${diag.pfReject}`);
+    if (rejectParts.length) {
+      console.log(`\n      拒绝原因分布: ${rejectParts.join(', ')}`);
     }
     return results;
   };
