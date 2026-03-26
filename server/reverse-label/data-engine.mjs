@@ -88,6 +88,31 @@ export class DataEngine {
       const obv20 = source[Math.max(0, index - 20)]?.obv ?? 0;
       const obvChg20 = obv20 !== 0 ? Number(((item.obv - obv20) / Math.abs(obv20)).toFixed(4)) : 0;
 
+      // ── 事件特征（方向2）──
+      // 距60日高点/低点的距离（归一化百分比）
+      const lookback60 = source.slice(Math.max(0, index - 59), index + 1);
+      const high60 = Math.max(...lookback60.map((e) => e.high));
+      const low60 = Math.min(...lookback60.map((e) => e.low));
+      const distFromHigh = high60 > 0 ? Number(((high60 - item.close) / high60).toFixed(4)) : 0;
+      const distFromLow = low60 > 0 ? Number(((item.close - low60) / low60).toFixed(4)) : 0;
+
+      // ATR变化率：当前ATR / 60日ATR均值（波动扩张/收缩）
+      const atr60Avg = average(atr14.slice(Math.max(0, index - 59), index + 1));
+      const atrRatio = atr60Avg > 0 ? Number((atr14[index] / atr60Avg).toFixed(4)) : 1;
+
+      // 连续下跌天数（反弹信号）
+      let consecutiveDown = 0;
+      for (let d = index; d >= Math.max(0, index - 10); d -= 1) {
+        if (source[d].close < source[d].open) consecutiveDown += 1;
+        else break;
+      }
+
+      // ── 交叉特征（方向4）── 非线性组合，塞进线性模型
+      // RSI超卖 + 放量 = 强反弹信号
+      const rsiVolCross = Number(((item.rsi6 ?? 50) < 35 && (item.volume / Math.max(average(recent5), 1)) > 1.3) ? 1 : 0);
+      // Boll收窄 + ADX低 = 突破前夕
+      const bollAdxCross = Number((bollWidth < 4 && (item.adx ?? 20) < 20) ? 1 : 0);
+
       return {
         ...item,
         maBull,
@@ -109,6 +134,14 @@ export class DataEngine {
         j: jVal,
         wr14,
         obv: obvChg20,
+        // 事件特征
+        distFromHigh,
+        distFromLow,
+        atrRatio,
+        consecutiveDown,
+        // 交叉特征
+        rsiVolCross,
+        bollAdxCross,
       };
     });
 

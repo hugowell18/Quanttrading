@@ -7,6 +7,7 @@ import { WalkForwardValidator } from './validator.mjs';
 import { RegimeDetector } from './regime-detector.mjs';
 import { buildRegimeGrid, getExitParams, getFeaturePool, getModelPref, REGIME_CONFIGS } from './regime-config.mjs';
 import { ModelStore, checkParameterPlateau } from './model-store.mjs';
+import { checkFundamental } from './fundamental-filter.mjs';
 
 const ENV_LOCAL_PATH = resolve(process.cwd(), '.env.local');
 const TUSHARE_API = 'http://api.tushare.pro';
@@ -153,6 +154,7 @@ function runOneConfig(rows, config, indexRows, regimeOptions = {}) {
       trailingStopMultiplier: exitParams.trailingStopMultiplier,
       featurePool: regimeOptions.featurePool,
       modelPref: regimeOptions.modelPref,
+      regime: regimeOptions.regime,
     });
     const result = validator.validate(best);
 
@@ -282,6 +284,19 @@ export async function optimize(stockCode, startDate, endDate) {
     indexRows = null;
   }
 
+  // ──── 方向6：基本面过滤 ────
+  let fundamental = { qualified: true, scores: {}, warnings: [] };
+  try {
+    fundamental = await checkFundamental(token, stock.ts_code);
+    if (fundamental.qualified) {
+      console.log(`      基本面：合格`);
+    } else {
+      console.log(`      基本面：警告 — ${fundamental.warnings.join('; ')}`);
+    }
+  } catch (error) {
+    console.warn(`      基本面检查失败：${error.message}`);
+  }
+
   // ──── [2/5] 第一层：Regime Detection ────
   const detector = new RegimeDetector();
   const regimeResult = detector.detect(rows);
@@ -329,7 +344,7 @@ export async function optimize(stockCode, startDate, endDate) {
     return results;
   };
 
-  let scanResults = runScan(grid, { featurePool, modelPref, exitParams }, 'regime');
+  let scanResults = runScan(grid, { featurePool, modelPref, exitParams, regime }, 'regime');
   console.log(`\n      Regime 扫描完成，有效配置：${scanResults.length}/${grid.length}`);
 
   // Fallback：regime 网格无有效结果 → 回退到全量网格（不限特征池，不限模型偏好）
@@ -469,7 +484,15 @@ export async function optimize(stockCode, startDate, endDate) {
     console.log(`[5/5] 模型存储：跳过（无有效配置）`);
   }
 
+  summary.fundamental = fundamental;
   summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult, { featurePool, modelPref });
+
+  // 方向6：基本面不合格时，降级 buy 信号为 hold
+  if (!fundamental.qualified && summary.currentSignal.signal === 'buy') {
+    summary.currentSignal.signal = 'hold';
+    summary.currentSignal.reason += '；基本面不合格，信号降级为hold';
+  }
+
   return summary;
 }
 

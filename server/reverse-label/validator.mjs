@@ -25,6 +25,13 @@ export class WalkForwardValidator {
     this.trailingStopMultiplier = options.trailingStopMultiplier ?? 1.5;
     this.featurePool = options.featurePool ?? null;
     this.modelPref = options.modelPref ?? null;
+    this.regime = options.regime ?? null;
+    // 方向3：指标阈值门槛（可通过 regime-config 传入，也可用默认值）
+    this.indicatorGate = options.indicatorGate ?? {
+      rsiOverbought: 80,   // RSI6 超买线：高于此值拒绝入场
+      rsiOversold: 15,     // RSI6 极端超卖：低于此值也谨慎（可能是趋势崩溃）
+      jOverbought: 95,     // KDJ J 超买线
+    };
   }
 
   _isMa60Rising(rows, currentIndex) {
@@ -122,7 +129,11 @@ export class WalkForwardValidator {
         const delta = score - threshold;
         const normalizedDelta = scoreStd > 0 ? delta / scoreStd : 0;
         const confidence = clamp(0.5 + normalizedDelta * 0.25, 0, 1);
-        if (!isRawSignal || confidence < this.minConfidence) {
+        // 方向1：弱势 regime 下提高置信度门槛，减少低质量入场
+        const regimeMinConf = (this.regime === 'downtrend' || this.regime === 'high_vol')
+          ? Math.max(this.minConfidence, 0.6)  // 弱势环境要求更高置信度
+          : this.minConfidence;
+        if (!isRawSignal || confidence < regimeMinConf) {
           if (isRawSignal) {
             skippedSignals += 1;
           }
@@ -135,6 +146,19 @@ export class WalkForwardValidator {
           break;
         }
         const buyRow = testRows[buyIndex];
+
+        // 方向3：技术指标门槛过滤 — 超买区拒绝入场，降低 stopLossRate
+        const gate = this.indicatorGate;
+        if (gate) {
+          const rsi6 = buyRow.rsi6 ?? 50;
+          const jVal = buyRow.j ?? 50;
+          if (rsi6 > gate.rsiOverbought || jVal > gate.jOverbought) {
+            skippedByEnvironment += 1;
+            index += 1;
+            continue;
+          }
+        }
+
         if (!this._isMarketEnvironmentOk(buyRow, testRows, buyIndex)) {
           skippedByEnvironment += 1;
           index += 1;
@@ -168,10 +192,21 @@ export class WalkForwardValidator {
             stopLossHits += 1;
             break;
           }
-          // 追踪止损：盈利超2%后激活，从高点回撤超trailingStopPct则锁利退出
+          // 分级追踪止盈：利润越大，锁利越紧
+          // 级别1：盈利 >3%  → 从高点回撤 trailingStopPct 止盈
+          // 级别2：盈利 >8%  → 从高点回撤 trailingStopPct×0.7 止盈（收紧30%）
+          // 级别3：盈利 >15% → 从高点回撤 trailingStopPct×0.5 止盈（收紧50%）
+          const currentProfit = (highWatermark - buyRow.close) / buyRow.close;
           const retraceFromHigh = (highWatermark - candidateRow.close) / highWatermark;
-          const profitProtectActive = highWatermark > buyRow.close * 1.02;
-          if (profitProtectActive && retraceFromHigh >= trailingStopPct) {
+          let activeTrailingPct = 0;
+          if (currentProfit >= 0.15) {
+            activeTrailingPct = trailingStopPct * 0.5;
+          } else if (currentProfit >= 0.08) {
+            activeTrailingPct = trailingStopPct * 0.7;
+          } else if (currentProfit >= 0.03) {
+            activeTrailingPct = trailingStopPct;
+          }
+          if (activeTrailingPct > 0 && retraceFromHigh >= activeTrailingPct) {
             exitIndex = cursor;
             exitReason = 'trailingStop';
             break;
