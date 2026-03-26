@@ -103,7 +103,7 @@ const loadIndexCandles = async (token, tsCode, startDate, endDate) => {
 function scoreResult(result) {
   if (!result) return null;
   if (result.stopLossRate >= 0.25) return null;
-  if (result.totalTrades < 8) return null;
+  if (result.totalTrades < 15) return null;
   if (!Number.isFinite(result.avgReturn)) return null;
   if ((result.winRate ?? 0) < 0.50) return null;
 
@@ -439,6 +439,9 @@ export async function optimize(stockCode, startDate, endDate) {
       skippedByEnvironment: effectiveBest.result.skippedByEnvironment,
       skippedByMarket: effectiveBest.result.skippedByMarket,
       avgStopLossPct: effectiveBest.result.avgStopLossPct,
+      avgWin: effectiveBest.result.avgWin,
+      avgLoss: effectiveBest.result.avgLoss,
+      profitFactor: effectiveBest.result.profitFactor,
       buyCount: effectiveBest.buyCount,
       trades: effectiveBest.result.trades,
     } : null,
@@ -496,6 +499,22 @@ export async function optimize(stockCode, startDate, endDate) {
 
   summary.fundamental = fundamental;
   summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult, { featurePool, modelPref });
+
+  // 建议3：Kelly Criterion 仓位管理
+  if (summary.bestResult && summary.currentSignal.signal === 'buy') {
+    const wr = summary.bestResult.winRate ?? 0;
+    const avgW = summary.bestResult.avgWin ?? 0;
+    const avgL = summary.bestResult.avgLoss ?? 0.01;
+    // Kelly fraction = W - (1-W)/R, R = avgWin/avgLoss
+    const R = avgL > 0 ? avgW / avgL : 1;
+    const kelly = wr - (1 - wr) / R;
+    // 半Kelly保守策略 + regime修正
+    const regimeMultiplier = { uptrend: 1.0, breakout: 0.8, range: 0.6, high_vol: 0.4, downtrend: 0.3 }[regime] ?? 0.5;
+    const halfKelly = Math.max(0, Math.min(0.25, kelly * 0.5 * regimeMultiplier));
+    summary.currentSignal.positionSize = Number(halfKelly.toFixed(4));
+    summary.currentSignal.kellyRaw = Number(kelly.toFixed(4));
+    summary.currentSignal.regimeMultiplier = regimeMultiplier;
+  }
 
   // 建议4：基本面过滤与 regime 联动
   // downtrend 抄底：严格执行基本面过滤（垃圾股无底）
