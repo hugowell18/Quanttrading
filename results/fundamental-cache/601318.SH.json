@@ -1,0 +1,48 @@
+{
+  "tsCode": "601318.SH",
+  "timestamp": 1774522553622,
+  "records": [
+    {
+      "ts_code": "601318.SH",
+      "end_date": "20250930",
+      "roe": 13.8753,
+      "grossprofit_margin": null,
+      "current_ratio": null
+    },
+    {
+      "ts_code": "601318.SH",
+      "end_date": "20250630",
+      "roe": 7.2678,
+      "grossprofit_margin": null,
+      "current_ratio": null
+    },
+    {
+      "ts_code": "601318.SH",
+      "end_date": "20250331",
+      "roe": 2.892,
+      "grossprofit_margin": null,
+      "current_ratio": null
+    },
+    {
+      "ts_code": "601318.SH",
+      "end_date": "20241231",
+      "roe": 13.8549,
+      "grossprofit_margin": null,
+      "current_ratio": null
+    }
+  ],
+  "result": {
+    "qualified": true,
+    "scores": {
+      "roe": 13.88,
+      "grossProfitMargin": 0,
+      "revenueGrowth": 0,
+      "currentRatio": 0,
+      "reportDate": "20250930"
+    },
+    "warnings": [
+      "毛利率 0.0% < 20%"
+    ],
+    "failCount": 1
+  }
+}

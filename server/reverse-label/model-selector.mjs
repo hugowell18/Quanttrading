@@ -58,6 +58,12 @@ const FEATURE_SETS = {
   oversold_bounce: ['rsi6', 'rsi2', 'k', 'j', 'wr14', 'bollPos', 'volRatio5'],
   // 新增：全要素综合（胜率最大化）
   full_composite: ['rsi6', 'rsi12', 'macd_dif', 'macd_bar', 'macd_dea', 'maBull', 'adx14', 'bollPos', 'bollWidth', 'volRatio5', 'volRatio20', 'roc5', 'roc20', 'k', 'j'],
+  // 事件+交叉特征组合（方向2+4）
+  event_cross: ['distFromHigh', 'distFromLow', 'atrRatio', 'consecutiveDown', 'rsiVolCross', 'bollAdxCross', 'rsi6', 'volRatio5'],
+  // 反弹猎手：超卖事件特征 + 量价交叉
+  bounce_hunter: ['distFromHigh', 'consecutiveDown', 'rsiVolCross', 'rsi6', 'rsi2', 'bollPos', 'volRatio5'],
+  // 突破猎手：压缩事件特征 + 突破交叉
+  breakout_hunter: ['distFromLow', 'atrRatio', 'bollAdxCross', 'bollWidth', 'adx14', 'volRatio20'],
 };
 
 const buildFeatureStats = (featureNames, rows, labels) => {
@@ -127,6 +133,32 @@ const createRankPredictor = ({ modelName, featureNames, stats, scoreRow }) => {
       },
     };
   };
+};
+
+// 方向4：简单逻辑回归（梯度下降），学习最优特征权重替代手工 separation
+const trainLogisticWeights = (X, y, lr = 0.1, epochs = 200, l2 = 0.01) => {
+  const n = X.length;
+  const d = X[0].length;
+  const w = new Array(d).fill(0);
+  let bias = 0;
+  const sigmoid = (z) => 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, z))));
+
+  for (let ep = 0; ep < epochs; ep += 1) {
+    const gradW = new Array(d).fill(0);
+    let gradB = 0;
+    for (let i = 0; i < n; i += 1) {
+      const z = X[i].reduce((s, x, j) => s + x * w[j], bias);
+      const p = sigmoid(z);
+      const err = p - y[i];
+      for (let j = 0; j < d; j += 1) gradW[j] += err * X[i][j];
+      gradB += err;
+    }
+    for (let j = 0; j < d; j += 1) {
+      w[j] -= lr * (gradW[j] / n + l2 * w[j]);
+    }
+    bias -= lr * (gradB / n);
+  }
+  return { w, bias, sigmoid };
 };
 
 const MODEL_BUILDERS = {
@@ -200,6 +232,23 @@ const MODEL_BUILDERS = {
       biasNorm(biasScoreRow(row)) * 0.2;
 
     return createRankPredictor({ modelName: 'EnsembleVote', featureNames, stats, scoreRow: ensembleScoreRow })({ rows, labels });
+  },
+  // 方向4：逻辑回归模型 — 用梯度下降学习特征权重，替代手工 separation 加权
+  LogisticRank: ({ featureNames, rows, labels }) => {
+    const stats = buildFeatureStats(featureNames, rows, labels);
+    // 标准化特征矩阵
+    const X = rows.map((row) =>
+      stats.map((stat) => (Number(row[stat.name] ?? 0) - stat.mean) / stat.std)
+    );
+    const { w, bias, sigmoid } = trainLogisticWeights(X, labels);
+    const scoreRow = (row) => {
+      const z = stats.reduce((sum, stat, j) => {
+        const x = (Number(row[stat.name] ?? 0) - stat.mean) / stat.std;
+        return sum + x * w[j];
+      }, bias);
+      return sigmoid(z);
+    };
+    return createRankPredictor({ modelName: 'LogisticRank', featureNames, stats, scoreRow })({ rows, labels });
   },
 };
 

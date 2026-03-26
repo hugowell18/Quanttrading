@@ -11,7 +11,7 @@
 export const REGIME_CONFIGS = {
   uptrend: {
     label: '上升趋势',
-    featurePool: ['maBull', 'adx14', 'macd_dif', 'macd_bar', 'roc5', 'roc20', 'volRatio5'],
+    featurePool: ['maBull', 'adx14', 'macd_dif', 'macd_bar', 'roc5', 'roc20', 'volRatio5', 'distFromLow', 'atrRatio'],
     scanRange: {
       minZoneCapture: [0.6, 0.7, 0.8],
       zoneForward: [5, 10, 15],
@@ -28,7 +28,7 @@ export const REGIME_CONFIGS = {
 
   downtrend: {
     label: '下降趋势',
-    featurePool: ['rsi6', 'rsi2', 'bollPos', 'wr14', 'volRatio5', 'atr14'],
+    featurePool: ['rsi6', 'rsi2', 'bollPos', 'wr14', 'volRatio5', 'atr14', 'distFromHigh', 'consecutiveDown', 'rsiVolCross'],
     scanRange: {
       minZoneCapture: [0.6, 0.7, 0.8],
       zoneForward: [3, 5, 10],
@@ -45,7 +45,7 @@ export const REGIME_CONFIGS = {
 
   range: {
     label: '震荡区间',
-    featurePool: ['rsi6', 'rsi12', 'bollPos', 'bollWidth', 'wr14', 'k', 'j', 'atr14'],
+    featurePool: ['rsi6', 'rsi12', 'bollPos', 'bollWidth', 'wr14', 'k', 'j', 'atr14', 'distFromHigh', 'distFromLow', 'rsiVolCross'],
     scanRange: {
       minZoneCapture: [0.5, 0.6, 0.7],
       zoneForward: [3, 5, 10],
@@ -62,7 +62,7 @@ export const REGIME_CONFIGS = {
 
   breakout: {
     label: '突破前夕',
-    featurePool: ['bollWidth', 'bollPos', 'adx14', 'volRatio5', 'volRatio20', 'roc5', 'macd_dif'],
+    featurePool: ['bollWidth', 'bollPos', 'adx14', 'volRatio5', 'volRatio20', 'roc5', 'macd_dif', 'atrRatio', 'bollAdxCross', 'distFromLow'],
     scanRange: {
       minZoneCapture: [0.5, 0.6],
       zoneForward: [3, 5],
@@ -79,7 +79,7 @@ export const REGIME_CONFIGS = {
 
   high_vol: {
     label: '高波动',
-    featurePool: ['atr14', 'rsi6', 'adx14', 'volRatio20', 'bollPos', 'roc20', 'macd_bar'],
+    featurePool: ['atr14', 'rsi6', 'adx14', 'volRatio20', 'bollPos', 'roc20', 'macd_bar', 'atrRatio', 'distFromHigh', 'consecutiveDown', 'rsiVolCross'],
     scanRange: {
       minZoneCapture: [0.5, 0.6, 0.7, 0.8],
       zoneForward: [3, 5, 10],

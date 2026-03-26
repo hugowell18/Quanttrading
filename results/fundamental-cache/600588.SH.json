@@ -1,0 +1,50 @@
+{
+  "tsCode": "600588.SH",
+  "timestamp": 1774522527175,
+  "records": [
+    {
+      "ts_code": "600588.SH",
+      "end_date": "20250930",
+      "roe": -17.8621,
+      "grossprofit_margin": 46.7329,
+      "current_ratio": 0.7709
+    },
+    {
+      "ts_code": "600588.SH",
+      "end_date": "20250630",
+      "roe": -11.9598,
+      "grossprofit_margin": 48.3295,
+      "current_ratio": 0.7919
+    },
+    {
+      "ts_code": "600588.SH",
+      "end_date": "20250331",
+      "roe": -9.3468,
+      "grossprofit_margin": 39.0614,
+      "current_ratio": 0.7927
+    },
+    {
+      "ts_code": "600588.SH",
+      "end_date": "20241231",
+      "roe": -22.4067,
+      "grossprofit_margin": 47.5367,
+      "current_ratio": 0.8921
+    }
+  ],
+  "result": {
+    "qualified": false,
+    "scores": {
+      "roe": -17.86,
+      "grossProfitMargin": 46.73,
+      "revenueGrowth": 0,
+      "currentRatio": 0.77,
+      "reportDate": "20250930"
+    },
+    "warnings": [
+      "ROE -17.9% < 5%",
+      "流动比率 0.77 < 1",
+      "ROE 连续3期下滑：-9.3→-12.0→-17.9"
+    ],
+    "failCount": 3
+  }
+}
