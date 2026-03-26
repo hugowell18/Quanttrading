@@ -1,21 +1,34 @@
 ﻿export class SignalLabeler {
   constructor(rows, options = {}) {
     this.rows = rows.map((row) => ({ ...row }));
-    this.forwardDays = options.forwardDays ?? 20;
-    this.minReturn = options.minReturn ?? 0.08;
-    this.maxDrawdown = options.maxDrawdown ?? 0.04;
+    this.forwardDays = options.forwardDays ?? 10;       // 缩短持仓周期，增加交易频率
+    this.minReturn = options.minReturn ?? 0.04;          // T+1 open 买入后的最低收益要求（从8%降到4%）
+    this.maxDrawdown = options.maxDrawdown ?? 0.05;      // 稍放宽回撤容忍（从4%→5%，因为open买入天然劣势）
     this.zoneForward = options.zoneForward ?? 10;
     this.zoneBackward = options.zoneBackward ?? 3;
     this.minZoneCapture = options.minZoneCapture ?? 0.7;
     this.sellZoneForward = options.sellZoneForward ?? 3;
     this.sellZoneBackward = options.sellZoneBackward ?? 5;
+    this.useT1Open = options.useT1Open ?? true;          // 核心修复：用T+1 open作为买入基准
   }
 
   buildWaveCandidates() {
     const candidates = [];
-    for (let buyIndex = 0; buyIndex < this.rows.length - this.forwardDays; buyIndex += 1) {
-      const buyRow = this.rows[buyIndex];
-      const futureSlice = this.rows.slice(buyIndex + 1, buyIndex + this.forwardDays + 1);
+    for (let buyIndex = 0; buyIndex < this.rows.length - this.forwardDays - 1; buyIndex += 1) {
+      const signalRow = this.rows[buyIndex]; // T日：信号产生日
+      // 核心修复：买入价 = T+1 日开盘价（模拟实盘 T+1 执行）
+      const executionRow = this.rows[buyIndex + 1];
+      if (!executionRow) continue;
+      const buyPrice = this.useT1Open ? executionRow.open : signalRow.close;
+      if (!buyPrice || buyPrice <= 0) continue;
+
+      // 涨停检测：如果T+1开盘价 >= 信号日收盘×1.098，一字涨停买不进
+      if (this.useT1Open && signalRow.close > 0 && executionRow.open >= signalRow.close * 1.098) continue;
+
+      // 从 T+1 之后开始寻找卖出点
+      const searchStart = buyIndex + 2; // T+2 起才可能卖出（T+1买入当天不能卖）
+      const searchEnd = Math.min(buyIndex + 1 + this.forwardDays, this.rows.length);
+      const futureSlice = this.rows.slice(searchStart, searchEnd);
       if (!futureSlice.length) continue;
 
       let bestSellOffset = -1;
@@ -23,12 +36,13 @@
       let drawdownBeforePeak = 0;
 
       futureSlice.forEach((futureRow, offset) => {
-        const candidateReturn = (futureRow.high - buyRow.close) / buyRow.close;
+        // 用 T+1 open 计算收益（对齐实盘执行价）
+        const candidateReturn = (futureRow.high - buyPrice) / buyPrice;
         if (candidateReturn <= bestReturn) return;
 
         const sliceToPeak = futureSlice.slice(0, offset + 1);
-        const localMin = Math.min(...sliceToPeak.map((row) => row.low), buyRow.low);
-        const localDrawdown = (buyRow.close - localMin) / buyRow.close;
+        const localMin = Math.min(...sliceToPeak.map((row) => row.low), executionRow.low);
+        const localDrawdown = (buyPrice - localMin) / buyPrice;
         bestReturn = candidateReturn;
         bestSellOffset = offset;
         drawdownBeforePeak = localDrawdown;
@@ -36,19 +50,23 @@
 
       if (bestSellOffset === -1) continue;
 
-      const sellIndex = buyIndex + 1 + bestSellOffset;
+      const sellIndex = searchStart + bestSellOffset;
       const sellRow = this.rows[sellIndex];
-      const realizedReturn = (sellRow.close - buyRow.close) / buyRow.close;
+      // 卖出也用 open 模拟（次日开盘卖出）
+      const sellPrice = (sellIndex + 1 < this.rows.length)
+        ? this.rows[sellIndex + 1].open
+        : sellRow.close;
+      const realizedReturn = (sellPrice - buyPrice) / buyPrice;
 
       if (bestReturn < this.minReturn || drawdownBeforePeak > this.maxDrawdown) continue;
 
       candidates.push({
-        buyIndex,
+        buyIndex,      // 信号日 index（标记为 isBuyPoint 的日期）
         sellIndex,
-        buyDate: buyRow.date,
+        buyDate: signalRow.date,
         sellDate: sellRow.date,
-        buyPrice: buyRow.close,
-        sellPrice: sellRow.close,
+        buyPrice: Number(buyPrice.toFixed(4)),
+        sellPrice: Number(sellPrice.toFixed(4)),
         labelSellPriceHigh: sellRow.high,
         maxReturn: Number(bestReturn.toFixed(4)),
         return: Number(realizedReturn.toFixed(4)),
@@ -122,9 +140,15 @@
     const sellZone = new Set();
 
     const buyStart = Math.max(0, buyIndex - this.zoneForward);
-    const buyEnd = Math.min(this.rows.length - 1, buyIndex + this.zoneBackward);
+    const buyEnd = Math.min(this.rows.length - 2, buyIndex + this.zoneBackward);
     for (let index = buyStart; index <= buyEnd; index += 1) {
-      const entryPrice = this.rows[index].close;
+      // 核心：zone 内每个候选点也以 T+1 open 为买入价
+      const nextRow = this.rows[index + 1];
+      if (!nextRow) continue;
+      const entryPrice = this.useT1Open ? nextRow.open : this.rows[index].close;
+      if (!entryPrice || entryPrice <= 0) continue;
+      // 涨停检测
+      if (this.useT1Open && this.rows[index].close > 0 && nextRow.open >= this.rows[index].close * 1.098) continue;
       const captureReturn = (waveHigh - entryPrice) / entryPrice;
       if (captureReturn < maxReturn * this.minZoneCapture) continue;
       if (!this._isLearnable(index)) continue;
@@ -135,7 +159,7 @@
     const sellEnd = Math.min(this.rows.length - 1, sellIndex + this.sellZoneBackward);
     for (let index = sellStart; index <= sellEnd; index += 1) {
       const exitPrice = this.rows[index].close;
-      if (exitPrice < buyPrice * (1 + this.minReturn * 0.8)) continue;
+      if (exitPrice < buyPrice * (1 + this.minReturn * 0.6)) continue;
       sellZone.add(index);
     }
 

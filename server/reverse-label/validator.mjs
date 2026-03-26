@@ -12,12 +12,12 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export class WalkForwardValidator {
   constructor(rows, options = {}) {
     this.rows = rows;
-    this.trainSize = options.trainSize ?? 180;
-    this.testSize = options.testSize ?? 60;
-    this.forwardDays = options.forwardDays ?? 20;
+    this.trainSize = options.trainSize ?? 120;     // 缩短训练窗口，适应更频繁的信号
+    this.testSize = options.testSize ?? 40;        // 缩短测试窗口
+    this.forwardDays = options.forwardDays ?? 10;
     this.purgeGap = options.purgeGap ?? this.forwardDays;
-    this.stopLoss = options.stopLoss ?? 0.04;
-    this.maxHoldingDays = options.maxHoldingDays ?? 40;
+    this.stopLoss = options.stopLoss ?? 0.05;
+    this.maxHoldingDays = options.maxHoldingDays ?? 15; // 缩短默认持仓，配合 forwardDays=10
     this.minConfidence = options.minConfidence ?? 0.5;
     this.envFilter = options.envFilter ?? 'ma20';
     this.indexRows = options.indexRows ?? null;
