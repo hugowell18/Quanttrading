@@ -21,7 +21,9 @@ export class WalkForwardValidator {
     this.minConfidence = options.minConfidence ?? 0.5;
     this.envFilter = options.envFilter ?? 'ma20';
     this.indexRows = options.indexRows ?? null;
-    this.tradingCost = options.tradingCost ?? 0.0013;
+    // T+1 实盘模拟：双边手续费 + 滑点
+    this.tradingCost = options.tradingCost ?? 0.003; // 双边千分之三（佣金+印花税+滑点）
+    this.slippage = options.slippage ?? 0.002;       // 单边滑点千分之二
     this.trailingStopMultiplier = options.trailingStopMultiplier ?? 1.5;
     this.featurePool = options.featurePool ?? null;
     this.modelPref = options.modelPref ?? null;
@@ -145,11 +147,22 @@ export class WalkForwardValidator {
           continue;
         }
 
-        const buyIndex = index + 1;
+        // T+1 实盘模拟：信号日是 index，买入日是 index+1，实际成交在 index+2 的 open
+        const signalIndex = index;
+        const buyIndex = index + 2; // T+1: 次日开盘买入 → 实际是 signal+2（signal日收盘出信号，+1日开盘挂单）
         if (buyIndex >= testRows.length) {
           break;
         }
         const buyRow = testRows[buyIndex];
+
+        // 涨停检测：如果买入日开盘价 = 涨停价（前日收盘×1.1），无法买入
+        const prevClose = testRows[buyIndex - 1]?.close ?? 0;
+        const limitUpPrice = prevClose * 1.098; // A股涨停板（留0.2%容差）
+        if (prevClose > 0 && buyRow.open >= limitUpPrice) {
+          skippedByEnvironment += 1;
+          index += 1;
+          continue;
+        }
 
         // 方向3：技术指标门槛过滤 — 超买区拒绝入场，降低 stopLossRate
         const gate = this.indicatorGate;
@@ -173,13 +186,15 @@ export class WalkForwardValidator {
           index += 1;
           continue;
         }
+        // T+1 实盘：买入价 = 当日开盘价 + 滑点
+        const actualBuyPrice = buyRow.open * (1 + this.slippage);
         const atr14 = buyRow.atr14 ?? null;
-        const dynamicStopLossPct = Number.isFinite(atr14) && buyRow.close > 0
-          ? Math.max(0.02, Math.min(0.06, (1.5 * atr14) / buyRow.close))
+        const dynamicStopLossPct = Number.isFinite(atr14) && actualBuyPrice > 0
+          ? Math.max(0.02, Math.min(0.06, (1.5 * atr14) / actualBuyPrice))
           : (this.stopLoss ?? 0.04);
         let exitIndex = Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays);
         let exitReason = 'timeout';
-        let highWatermark = buyRow.close;
+        let highWatermark = actualBuyPrice;
         const trailingStopPct = dynamicStopLossPct * this.trailingStopMultiplier;
         const style = this.takeProfitStyle;
 
@@ -188,7 +203,7 @@ export class WalkForwardValidator {
           if (candidateRow.high > highWatermark) {
             highWatermark = candidateRow.high;
           }
-          const grossReturn = (candidateRow.close - buyRow.close) / buyRow.close;
+          const grossReturn = (candidateRow.close - actualBuyPrice) / actualBuyPrice;
           const netReturn = grossReturn - this.tradingCost;
 
           // ── 止损（所有风格共享）──
@@ -199,7 +214,7 @@ export class WalkForwardValidator {
             break;
           }
 
-          const currentProfit = (highWatermark - buyRow.close) / buyRow.close;
+          const currentProfit = (highWatermark - actualBuyPrice) / actualBuyPrice;
           const retraceFromHigh = (highWatermark - candidateRow.close) / highWatermark;
 
           // ── 建议1：按 regime 解耦止盈逻辑 ──
@@ -260,12 +275,14 @@ export class WalkForwardValidator {
         }
 
         const sellRow = testRows[exitIndex];
-        const netReturn = ((sellRow.close - buyRow.close) / buyRow.close) - this.tradingCost;
+        // T+1 卖出：以卖出日收盘价 - 滑点 模拟实际成交
+        const actualSellPrice = sellRow.close * (1 - this.slippage);
+        const netReturn = ((actualSellPrice - actualBuyPrice) / actualBuyPrice) - this.tradingCost;
         const trade = {
           buyDate: buyRow.date,
           sellDate: sellRow.date,
-          buyPrice: buyRow.close,
-          sellPrice: sellRow.close,
+          buyPrice: Number(actualBuyPrice.toFixed(4)),
+          sellPrice: Number(actualSellPrice.toFixed(4)),
           return: Number(netReturn.toFixed(4)),
           holdingDays: exitIndex - buyIndex,
           confidence: Number(confidence.toFixed(4)),

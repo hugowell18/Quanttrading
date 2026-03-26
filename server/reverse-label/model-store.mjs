@@ -64,7 +64,7 @@ export function checkParameterPlateau(bestConfig, allResults, plateauThreshold =
 
   if (!neighbors.length) {
     // 没有邻域配置（边界情况），宽松通过
-    return { passed: true, bestScore, neighborAvg: bestScore, neighbors: [] };
+    return { passed: true, bestScore, neighborAvg: bestScore, neighborCount: 0, ratio: 1, hasDisaster: false, neighbors: [] };
   }
 
   const neighborScores = neighbors.map((r) => r.score.primary);
