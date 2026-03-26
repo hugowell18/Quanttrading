@@ -102,15 +102,16 @@ export class RegimeDetector {
       return { regime: 'range', confidence: 0, raw: [] };
     }
 
-    // 在最近 confirmDays 个位置分别判定 regime
+    // 建议2：非对称确认 — 活跃状态快确认，衰退状态慢确认
+    // 采样最近 maxDays 个位置
+    const maxDays = this.confirmDays;
     const rawSequence = [];
-    for (let offset = 0; offset < this.confirmDays; offset += 1) {
+    for (let offset = 0; offset < maxDays; offset += 1) {
       const endIdx = rows.length - offset;
       const window = rows.slice(Math.max(0, endIdx - this.lookback), endIdx);
       rawSequence.unshift(classifyWindow(window));
     }
 
-    // 防闪烁：如果 confirmDays 内全部一致 → 高置信度
     const latest = rawSequence[rawSequence.length - 1];
     const allSame = rawSequence.every((r) => r === latest);
 
@@ -118,7 +119,24 @@ export class RegimeDetector {
       return { regime: latest, confidence: 1.0, raw: rawSequence };
     }
 
-    // 部分一致：取众数，置信度 = 众数频率
+    // 非对称确认逻辑：
+    // 进入活跃期（breakout/uptrend）：只需最近2天一致即可
+    // 进入衰退期（downtrend）：需要最近3天一致
+    // 其他：需要众数
+    const FAST_CONFIRM = ['breakout', 'uptrend'];
+    const SLOW_CONFIRM = ['downtrend'];
+
+    const recent2 = rawSequence.slice(-2);
+    const recent3 = rawSequence.slice(-3);
+
+    if (FAST_CONFIRM.includes(latest) && recent2.every((r) => r === latest)) {
+      return { regime: latest, confidence: 0.8, raw: rawSequence };
+    }
+    if (SLOW_CONFIRM.includes(latest) && recent3.every((r) => r === latest)) {
+      return { regime: latest, confidence: 0.9, raw: rawSequence };
+    }
+
+    // 默认：取众数
     const counts = {};
     rawSequence.forEach((r) => { counts[r] = (counts[r] ?? 0) + 1; });
     const majority = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];

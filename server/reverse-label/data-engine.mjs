@@ -44,8 +44,18 @@ export class DataEngine {
       .sort((left, right) => left.date.localeCompare(right.date));
   }
 
-  computeAllFeatures() {
+  /**
+   * @param {Object[]} [indexRows] - 大盘指数数据（可选），用于计算相对强弱RS
+   */
+  computeAllFeatures(indexRows) {
     const enriched = computeIndicators(this.rows);
+    // 建议3：构建日期→指数涨跌幅映射表
+    const indexMap = new Map();
+    if (indexRows?.length) {
+      for (const row of indexRows) {
+        indexMap.set(row.date, row);
+      }
+    }
     const atr14 = computeAtrSeries(enriched, 14);
 
     const featured = enriched.map((item, index, source) => {
@@ -113,6 +123,18 @@ export class DataEngine {
       // Boll收窄 + ADX低 = 突破前夕
       const bollAdxCross = Number((bollWidth < 4 && (item.adx ?? 20) < 20) ? 1 : 0);
 
+      // ── 建议3：相对强弱 RS（Relative Strength vs Index）──
+      let rs20 = 0;
+      if (index >= 20 && indexMap.size > 0) {
+        const stockReturn20 = (item.close - source[index - 20].close) / source[index - 20].close;
+        const idxRow = indexMap.get(item.date);
+        const idxRow20 = indexMap.get(source[index - 20]?.date);
+        if (idxRow && idxRow20 && idxRow20.close > 0) {
+          const indexReturn20 = (idxRow.close - idxRow20.close) / idxRow20.close;
+          rs20 = Number((stockReturn20 - indexReturn20).toFixed(4));
+        }
+      }
+
       return {
         ...item,
         maBull,
@@ -142,6 +164,8 @@ export class DataEngine {
         // 交叉特征
         rsiVolCross,
         bollAdxCross,
+        // 相对强弱
+        rs20,
       };
     });
 
