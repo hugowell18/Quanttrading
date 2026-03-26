@@ -386,10 +386,10 @@ export async function optimize(stockCode, startDate, endDate) {
   if (scanResults.length === 0) {
     console.log(`      Regime 扫描无有效结果，启动 Fallback 全量扫描...`);
     const FALLBACK_GRID = [];
-    for (const minZoneCapture of [0.5, 0.6, 0.7, 0.8])
-      for (const zoneForward of [3, 5, 10, 15])
-        for (const zoneBackward of [2, 3, 5])
-          for (const envFilter of ['none', 'ma20', 'ma20_0.98', 'ma60_rising'])
+    for (const minZoneCapture of [0.4, 0.5, 0.6, 0.7])
+      for (const zoneForward of [2, 3, 5, 8])
+        for (const zoneBackward of [1, 2, 3])
+          for (const envFilter of ['none', 'ma20', 'ma20_0.98', 'ma20_or_ma60_rising'])
             FALLBACK_GRID.push({ minZoneCapture, zoneForward, zoneBackward, envFilter });
 
     scanResults = runScan(FALLBACK_GRID, { exitParams }, 'fallback');
