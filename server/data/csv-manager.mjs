@@ -254,14 +254,15 @@ const fetchTushare = async (token, apiName, params, fields = '') => {
 const normalizeStockRows = (rows) =>
   rows
     .map((row) => {
-      const qfqClose = toNumber(row.close);
+      const rawClose = toNumber(row.close);
+      const adjClose = toNumber(row.close_adj ?? row.close);
       return {
         trade_date: normalizeDate(row.trade_date),
         open: toNumber(row.open),
         high: toNumber(row.high),
         low: toNumber(row.low),
-        close: qfqClose,
-        close_adj: qfqClose,
+        close: rawClose,
+        close_adj: adjClose,
         volume: toNumber(row.vol),
         amount: toNumber(row.amount),
         turnover_rate: toNumber(row.turnover_rate ?? 0),
@@ -288,18 +289,19 @@ const normalizeIndexRows = (rows) =>
     .sort((left, right) => left.trade_date.localeCompare(right.trade_date));
 
 const fetchStockKlineQfq = async (token, tsCode, startDate, endDate) => {
-  const rows = await fetchTushare(
-    token,
-    'pro_bar',
-    {
-      ts_code: tsCode,
-      start_date: startDate,
-      end_date: endDate,
-      adj: 'qfq',
-    },
-    'trade_date,open,high,low,close,vol,amount,turnover_rate',
-  );
-  return normalizeStockRows(rows);
+  const [rawRows, adjRows] = await Promise.all([
+    fetchTushare(token, 'daily', { ts_code: tsCode, start_date: startDate, end_date: endDate },
+      'trade_date,open,high,low,close,vol,amount,turnover_rate'),
+    fetchTushare(token, 'adj_factor', { ts_code: tsCode, start_date: startDate, end_date: endDate },
+      'trade_date,adj_factor'),
+  ]);
+  const adjMap = new Map(adjRows.map((row) => [String(row.trade_date), Number(row.adj_factor)]));
+  const latestAdj = adjRows.reduce((max, row) => Math.max(max, Number(row.adj_factor)), 0) || 1;
+  // close 保留原始价（显示用），close_adj 为前复权价（计算用），open/high/low 保留原始（optimizer 会用 close_adj/close 比值再调整）
+  return normalizeStockRows(rawRows.map((row) => {
+    const factor = (adjMap.get(String(row.trade_date)) ?? latestAdj) / latestAdj;
+    return { ...row, close_adj: Number(row.close) * factor };
+  }));
 };
 
 const fetchIndexKline = async (token, tsCode, startDate, endDate) => {
@@ -415,9 +417,24 @@ export const warmupDefaultSymbols = async () => {
 
 if (process.argv[1]?.endsWith('csv-manager.mjs')) {
   const main = async () => {
-    const results = await warmupDefaultSymbols();
-    for (const result of results) {
-      console.log(`${result.tsCode} rows=${result.rows} latest=${result.latestTradeDate}`);
+    // 支持命令行传入股票代码：node csv-manager.mjs 000858 601318
+    // 格式可以是 000858、000858.SZ、000858.SH 均可
+    const cliCodes = process.argv.slice(2);
+    const toTsCode = (code) => {
+      if (code.includes('.')) return code.toUpperCase();
+      return /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
+    };
+    const symbols = cliCodes.length > 0
+      ? cliCodes.map((code) => ({ tsCode: toTsCode(code), securityType: /^(000300|399|0[0-9]{5})/.test(code) ? 'index' : 'stock' }))
+      : DEFAULT_SYMBOLS;
+
+    for (const item of symbols) {
+      try {
+        const result = await ensureSymbolCsv(item.tsCode, item.securityType);
+        console.log(`${result.tsCode} rows=${result.rows} latest=${result.latestTradeDate}`);
+      } catch (err) {
+        console.error(`[csv-manager] ${item.tsCode} 失败: ${err.message}`);
+      }
     }
   };
 

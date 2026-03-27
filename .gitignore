@@ -94,3 +94,4 @@ dist-ssr
 results/data-cache/
 .claude/
 .kiro/
+cache/

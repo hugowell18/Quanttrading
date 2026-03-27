@@ -106,19 +106,24 @@ export class WalkForwardValidator {
         start += this.testSize;
         continue;
       }
-      const yTrain = trainRows.map((row) => Number(row.isBuyPoint ?? 0));
-      if (yTrain.reduce((sum, value) => sum + value, 0) < 3) {
-        start += this.testSize;
-        continue;
-      }
-      const matched = buildSingleModel(bestModel.model, bestModel.features ?? [], trainRows, yTrain);
-      if (!matched) {
-        start += this.testSize;
-        continue;
+      // 优先用全局预训练模型打分（信号稀疏时窗口重训练无效）
+      // 仅在没有全局predictor时才回退到窗口重训练
+      let scorer = bestModel.predictor ?? null;
+      if (!scorer) {
+        const yTrain = trainRows.map((row) => Number(row.isBuyPoint ?? 0));
+        if (yTrain.reduce((sum, value) => sum + value, 0) < 3) {
+          start += this.testSize;
+          continue;
+        }
+        scorer = buildSingleModel(bestModel.model, bestModel.features ?? [], trainRows, yTrain);
+        if (!scorer) {
+          start += this.testSize;
+          continue;
+        }
       }
 
-      const scores = matched.scoreRows(testRows);
-      const threshold = matched.threshold ?? 0;
+      const scores = scorer.scoreRows(testRows);
+      const threshold = scorer.threshold ?? 0;
       const scoreStd = standardDeviation(scores) || 1;
       const scoreMean = average(scores);
       const windowTrades = [];
