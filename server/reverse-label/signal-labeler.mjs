@@ -1,193 +1,232 @@
-﻿export class SignalLabeler {
-  constructor(rows, options = {}) {
-    this.rows = rows.map((row) => ({ ...row }));
-    this.forwardDays = options.forwardDays ?? 10;       // 缩短持仓周期，增加交易频率
-    this.minReturn = options.minReturn ?? 0.04;          // T+1 open 买入后的最低收益要求（从8%降到4%）
-    this.maxDrawdown = options.maxDrawdown ?? 0.05;      // 稍放宽回撤容忍（从4%→5%，因为open买入天然劣势）
-    this.zoneForward = options.zoneForward ?? 10;
-    this.zoneBackward = options.zoneBackward ?? 3;
-    this.minZoneCapture = options.minZoneCapture ?? 0.7;
-    this.sellZoneForward = options.sellZoneForward ?? 3;
-    this.sellZoneBackward = options.sellZoneBackward ?? 5;
-    this.useT1Open = options.useT1Open ?? true;          // 核心修复：用T+1 open作为买入基准
+﻿import { readDaily } from '../data/csv-manager.mjs';
+import { DataEngine } from './data-engine.mjs';
+
+const INDEX_TS_CODE = '000300.SH';
+const INDEX_START_DATE = '20050101';
+const INDEX_END_DATE = '20991231';
+const COST_RATE = 0.007;
+
+const priceValue = (row) => Number(row?.close_adj ?? row?.close ?? 0);
+
+const normalizeDate = (value) => {
+  if (typeof value === 'string' && /^\d{8}$/.test(value)) {
+    return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
   }
 
-  buildWaveCandidates() {
-    const candidates = [];
-    for (let buyIndex = 0; buyIndex < this.rows.length - this.forwardDays - 1; buyIndex += 1) {
-      const signalRow = this.rows[buyIndex]; // T日：信号产生日
-      // 核心修复：买入价 = T+1 日开盘价（模拟实盘 T+1 执行）
-      const executionRow = this.rows[buyIndex + 1];
-      if (!executionRow) continue;
-      const buyPrice = this.useT1Open ? executionRow.open : signalRow.close;
-      if (!buyPrice || buyPrice <= 0) continue;
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
 
-      // 涨停检测：如果T+1开盘价 >= 信号日收盘×1.098，一字涨停买不进
-      if (this.useT1Open && signalRow.close > 0 && executionRow.open >= signalRow.close * 1.098) continue;
+  return String(value ?? '').slice(0, 10);
+};
 
-      // 从 T+1 之后开始寻找卖出点
-      const searchStart = buyIndex + 2; // T+2 起才可能卖出（T+1买入当天不能卖）
-      const searchEnd = Math.min(buyIndex + 1 + this.forwardDays, this.rows.length);
-      const futureSlice = this.rows.slice(searchStart, searchEnd);
-      if (!futureSlice.length) continue;
+const buildIndexMap = () => {
+  const candles = readDaily(INDEX_TS_CODE, INDEX_START_DATE, INDEX_END_DATE).map((row) => ({
+    date: normalizeDate(row.trade_date),
+    open: Number(row.open),
+    high: Number(row.high),
+    low: Number(row.low),
+    close: Number(row.close_adj ?? row.close),
+    close_adj: Number(row.close_adj ?? row.close),
+    volume: Number(row.volume ?? 0),
+    turnover_rate: Number(row.turnover_rate ?? 0),
+  }));
 
-      let bestSellOffset = -1;
-      let bestReturn = -Infinity;
-      let drawdownBeforePeak = 0;
+  if (!candles.length) {
+    return new Map();
+  }
 
-      futureSlice.forEach((futureRow, offset) => {
-        // 用 T+1 open 计算收益（对齐实盘执行价）
-        const candidateReturn = (futureRow.high - buyPrice) / buyPrice;
-        if (candidateReturn <= bestReturn) return;
+  const featured = new DataEngine(candles).computeAllFeatures();
+  return new Map(featured.map((row) => [row.date, row]));
+};
 
-        const sliceToPeak = futureSlice.slice(0, offset + 1);
-        const localMin = Math.min(...sliceToPeak.map((row) => row.low), executionRow.low);
-        const localDrawdown = (buyPrice - localMin) / buyPrice;
-        bestReturn = candidateReturn;
-        bestSellOffset = offset;
-        drawdownBeforePeak = localDrawdown;
-      });
+export class SignalLabeler {
+  constructor(rows, options = {}) {
+    this.rows = rows
+      .map((row) => ({
+        ...row,
+        date: normalizeDate(row.date ?? row.trade_date),
+      }))
+      .sort((left, right) => left.date.localeCompare(right.date));
+    this.forwardDays = options.forwardDays ?? 5;
+    this.minReturn = options.minReturn ?? 0.045;
+    this.maxDrawdown = options.maxDrawdown ?? 0.025;
+    this.indexMap = options.indexMap ?? buildIndexMap();
+    this._pairs = null;
+    this._labeledRows = null;
+    this._diagnostics = null;
+  }
 
-      if (bestSellOffset === -1) continue;
-
-      const sellIndex = searchStart + bestSellOffset;
-      const sellRow = this.rows[sellIndex];
-      // 卖出也用 open 模拟（次日开盘卖出）
-      const sellPrice = (sellIndex + 1 < this.rows.length)
-        ? this.rows[sellIndex + 1].open
-        : sellRow.close;
-      const realizedReturn = (sellPrice - buyPrice) / buyPrice;
-
-      if (bestReturn < this.minReturn || drawdownBeforePeak > this.maxDrawdown) continue;
-
-      candidates.push({
-        buyIndex,      // 信号日 index（标记为 isBuyPoint 的日期）
-        sellIndex,
-        buyDate: signalRow.date,
-        sellDate: sellRow.date,
-        buyPrice: Number(buyPrice.toFixed(4)),
-        sellPrice: Number(sellPrice.toFixed(4)),
-        labelSellPriceHigh: sellRow.high,
-        maxReturn: Number(bestReturn.toFixed(4)),
-        return: Number(realizedReturn.toFixed(4)),
-        drawdownBeforePeak: Number(drawdownBeforePeak.toFixed(4)),
-        holdingDays: sellIndex - buyIndex,
-      });
+  _passesTrendFilter(index) {
+    const row = this.rows[index];
+    const currentPrice = priceValue(row);
+    const stockTrendOk = Number.isFinite(row.ma60) && row.ma60 > 0 && currentPrice > row.ma60;
+    if (!stockTrendOk) {
+      return false;
     }
 
-    return candidates;
+    const indexRow = this.indexMap.get(row.date);
+    if (!indexRow) {
+      return false;
+    }
+
+    return Number.isFinite(indexRow.ma20) && indexRow.ma20 > 0 && priceValue(indexRow) > indexRow.ma20;
   }
 
-  selectNonOverlappingPairs() {
-    const candidates = this.buildWaveCandidates().sort((a, b) => {
-      if (b.maxReturn !== a.maxReturn) return b.maxReturn - a.maxReturn;
-      if (a.buyIndex !== b.buyIndex) return a.buyIndex - b.buyIndex;
-      return a.sellIndex - b.sellIndex;
+  _countDownDays(index) {
+    const start = Math.max(0, index - 3);
+    const slice = this.rows.slice(start, index + 1);
+    return slice.filter((row) => priceValue(row) < Number(row.open ?? 0)).length;
+  }
+
+  _fourDayDrop(index) {
+    if (index < 3) {
+      return 0;
+    }
+
+    const base = priceValue(this.rows[index - 3]);
+    const current = priceValue(this.rows[index]);
+    if (base <= 0) {
+      return 0;
+    }
+
+    return (current - base) / base;
+  }
+
+  _volumeShrinking(index) {
+    if (index < 2) {
+      return false;
+    }
+
+    const v1 = Number(this.rows[index - 2].volume ?? 0);
+    const v2 = Number(this.rows[index - 1].volume ?? 0);
+    const v3 = Number(this.rows[index].volume ?? 0);
+    return v1 > v2 && v2 > v3;
+  }
+
+  _oversoldSignals(index) {
+    const row = this.rows[index];
+    const signals = [
+      this._countDownDays(index) >= 3,
+      this._fourDayDrop(index) <= -0.02,
+      Number(row.rsi6 ?? 100) < 42,
+      Number(row.j ?? 100) < 25,
+      Number(row.bollPos ?? 1) < 0.25,
+      this._volumeShrinking(index),
+    ];
+
+    return {
+      metCount: signals.filter(Boolean).length,
+      signals,
+    };
+  }
+
+  _validateOutcome(index) {
+    const row = this.rows[index];
+    const buyPrice = priceValue(row) * (1 + COST_RATE);
+    if (!Number.isFinite(buyPrice) || buyPrice <= 0) {
+      return null;
+    }
+
+    const futureSlice = this.rows.slice(index + 1, index + 1 + this.forwardDays);
+    if (!futureSlice.length) {
+      return null;
+    }
+
+    let bestReturn = -Infinity;
+    let maxDrawdown = 0;
+    let sellIndex = null;
+
+    futureSlice.forEach((futureRow, offset) => {
+      const highReturn = (Number(futureRow.high ?? priceValue(futureRow)) - buyPrice) / buyPrice;
+      const lowDrawdown = (buyPrice - Number(futureRow.low ?? buyPrice)) / buyPrice;
+
+      bestReturn = Math.max(bestReturn, highReturn);
+      maxDrawdown = Math.max(maxDrawdown, lowDrawdown);
+
+      if (sellIndex === null && highReturn >= this.minReturn) {
+        sellIndex = index + 1 + offset;
+      }
     });
 
-    const chosen = [];
-    for (const candidate of candidates) {
-      const overlaps = chosen.some((item) => !(candidate.sellIndex < item.buyIndex || candidate.buyIndex > item.sellIndex));
-      if (!overlaps) chosen.push(candidate);
+    if (bestReturn < this.minReturn || maxDrawdown > this.maxDrawdown || sellIndex === null) {
+      return null;
     }
 
-    return chosen.sort((a, b) => a.buyIndex - b.buyIndex).map((item, index) => ({
-      ...item,
-      tradeGroupId: `wave-${String(index + 1).padStart(3, '0')}`,
-      success: item.return > 0,
-    }));
+    const sellRow = this.rows[sellIndex];
+    const sellPrice = priceValue(sellRow);
+
+    return {
+      buyIndex: index,
+      sellIndex,
+      buyDate: row.date,
+      sellDate: sellRow.date,
+      buyPrice: Number(buyPrice.toFixed(4)),
+      sellPrice: Number(sellPrice.toFixed(4)),
+      maxReturn: Number(bestReturn.toFixed(4)),
+      drawdownBeforePeak: Number(maxDrawdown.toFixed(4)),
+      holdingDays: sellIndex - index,
+      return: Number(((sellPrice - buyPrice) / buyPrice).toFixed(4)),
+    };
   }
 
-  _avgVolume(idx, days = 10) {
-    const start = Math.max(0, idx - days);
-    const slice = this.rows.slice(start, idx);
-    if (!slice.length) return 0;
-    return slice.reduce((sum, row) => sum + (row.volume ?? 0), 0) / slice.length;
-  }
+  buildMeanReversionPairs() {
+    const pairs = [];
+    let trendQualifiedCount = 0;
+    let oversoldCandidateCount = 0;
 
-  _isLearnable(idx) {
-    const row = this.rows[idx];
-    const pctChg = row.pct_chg ?? row.pctChg ?? null;
-    if (pctChg !== null && pctChg >= 9.5) return false;
+    for (let index = 0; index < this.rows.length; index += 1) {
+      if (!this._passesTrendFilter(index)) {
+        continue;
+      }
 
-    const avgVol = this._avgVolume(idx);
-    if (avgVol > 0 && (row.volume ?? 0) < avgVol * 0.3) return false;
+      trendQualifiedCount += 1;
 
-    if (pctChg !== null && pctChg <= -3.0) return false;
+      const oversold = this._oversoldSignals(index);
+      if (oversold.metCount < 3) {
+        continue;
+      }
 
-    if (idx >= 5) {
-      const recentDays = this.rows.slice(idx - 5, idx);
-      const allDown = recentDays.every((item) => {
-        const dayChange = item.pct_chg ?? item.pctChg ?? ((item.open ?? 0) === 0 ? 0 : ((item.close - item.open) / item.open) * 100);
-        return dayChange < 0;
+      oversoldCandidateCount += 1;
+
+      const validated = this._validateOutcome(index);
+      if (!validated) {
+        continue;
+      }
+
+      pairs.push({
+        ...validated,
+        tradeGroupId: `mr-${String(pairs.length + 1).padStart(4, '0')}`,
+        success: validated.return > 0,
       });
-      if (allDown) return false;
     }
 
-    if (idx >= 3) {
-      const vol3 = this.rows.slice(idx - 3, idx).map((item) => item.volume ?? 0);
-      const isDecreasing = vol3.length === 3 && vol3[0] > vol3[1] && vol3[1] > vol3[2];
-      if (isDecreasing && (row.volume ?? 0) < vol3[2]) return false;
-    }
+    this._diagnostics = {
+      totalRows: this.rows.length,
+      trendQualifiedCount,
+      oversoldCandidateCount,
+    };
 
-    return true;
-  }
-
-  _expandWaveToZone(pair) {
-    const { buyIndex, sellIndex, buyPrice, maxReturn } = pair;
-    const waveHigh = this.rows[sellIndex].high;
-    const buyZone = new Set();
-    const sellZone = new Set();
-
-    const buyStart = Math.max(0, buyIndex - this.zoneForward);
-    const buyEnd = Math.min(this.rows.length - 2, buyIndex + this.zoneBackward);
-    for (let index = buyStart; index <= buyEnd; index += 1) {
-      // 核心：zone 内每个候选点也以 T+1 open 为买入价
-      const nextRow = this.rows[index + 1];
-      if (!nextRow) continue;
-      const entryPrice = this.useT1Open ? nextRow.open : this.rows[index].close;
-      if (!entryPrice || entryPrice <= 0) continue;
-      // 涨停检测
-      if (this.useT1Open && this.rows[index].close > 0 && nextRow.open >= this.rows[index].close * 1.098) continue;
-      const captureReturn = (waveHigh - entryPrice) / entryPrice;
-      if (captureReturn < maxReturn * this.minZoneCapture) continue;
-      if (!this._isLearnable(index)) continue;
-      buyZone.add(index);
-    }
-
-    const sellStart = Math.max(0, sellIndex - this.sellZoneForward);
-    const sellEnd = Math.min(this.rows.length - 1, sellIndex + this.sellZoneBackward);
-    for (let index = sellStart; index <= sellEnd; index += 1) {
-      const exitPrice = this.rows[index].close;
-      if (exitPrice < buyPrice * (1 + this.minReturn * 0.6)) continue;
-      sellZone.add(index);
-    }
-
-    return { buyZone, sellZone };
+    return pairs;
   }
 
   getLabeledRows() {
-    const pairs = this.selectNonOverlappingPairs();
-    const buyPointMap = new Map();
+    if (this._labeledRows) {
+      return this._labeledRows;
+    }
+
+    const pairs = this.buildMeanReversionPairs();
+    this._pairs = pairs;
+
+    const buyPointMap = new Map(pairs.map((pair) => [pair.buyIndex, pair]));
     const sellPointMap = new Map();
-
     for (const pair of pairs) {
-      const { buyZone, sellZone } = this._expandWaveToZone(pair);
-
-      for (const index of buyZone) {
-        if (!buyPointMap.has(index) || buyPointMap.get(index).maxReturn < pair.maxReturn) {
-          buyPointMap.set(index, pair);
-        }
-      }
-
-      for (const index of sellZone) {
-        if (!sellPointMap.has(index) || sellPointMap.get(index).maxReturn < pair.maxReturn) {
-          sellPointMap.set(index, pair);
-        }
+      if (!sellPointMap.has(pair.sellIndex)) {
+        sellPointMap.set(pair.sellIndex, pair);
       }
     }
 
-    this.rows = this.rows.map((row, index) => {
+    this._labeledRows = this.rows.map((row, index) => {
       const buyPair = buyPointMap.get(index);
       const sellPair = sellPointMap.get(index);
       return {
@@ -204,29 +243,40 @@
       };
     });
 
-    return this.rows;
-  }
-
-  getLabeledPairs() {
-    this.getLabeledRows();
-    return this.selectNonOverlappingPairs();
-  }
-
-  getDiagnostics() {
-    const rows = this.getLabeledRows();
-    const totalRows = rows.length;
-    const buyPointCount = rows.filter((row) => row.isBuyPoint === 1).length;
-    const sellPointCount = rows.filter((row) => row.isSellPoint === 1).length;
+    const totalRows = this._labeledRows.length;
+    const buyPointCount = this._labeledRows.filter((row) => row.isBuyPoint === 1).length;
+    const sellPointCount = this._labeledRows.filter((row) => row.isSellPoint === 1).length;
     const buyPointRate = totalRows ? buyPointCount / totalRows : 0;
     const sellPointRate = totalRows ? sellPointCount / totalRows : 0;
 
-    return {
+    this._diagnostics = {
+      ...this._diagnostics,
       totalRows,
       buyPointCount,
       sellPointCount,
       buyPointRate: Number(buyPointRate.toFixed(4)),
       sellPointRate: Number(sellPointRate.toFixed(4)),
-      targetMet: buyPointRate >= 0.08 && buyPointRate <= 0.15,
+      targetMet: buyPointCount >= 150 && buyPointCount <= 400,
     };
+
+    console.log(
+      `[Labeler] total=${totalRows} trendQualified=${this._diagnostics.trendQualifiedCount} oversoldCandidates=${this._diagnostics.oversoldCandidateCount} buyPoints=${buyPointCount} (${(buyPointRate * 100).toFixed(2)}%) sellPoints=${sellPointCount} (${(sellPointRate * 100).toFixed(2)}%)`,
+    );
+
+    return this._labeledRows;
+  }
+
+  getLabeledPairs() {
+    if (!this._pairs) {
+      this.getLabeledRows();
+    }
+    return this._pairs ?? [];
+  }
+
+  getDiagnostics() {
+    if (!this._diagnostics) {
+      this.getLabeledRows();
+    }
+    return this._diagnostics;
   }
 }
