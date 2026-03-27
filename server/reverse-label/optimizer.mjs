@@ -567,10 +567,15 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
   const grid = buildParamGrid();
   const results = [];
 
-  for (const config of grid) {
-    const result = runOneConfig(partitions, indexPartitions, config, unlockTest);
+  const total = grid.length;
+  for (let gridIndex = 0; gridIndex < total; gridIndex += 1) {
+    const result = runOneConfig(partitions, indexPartitions, grid[gridIndex], unlockTest);
     if (result) {
       results.push(result);
+    }
+    if ((gridIndex + 1) % 100 === 0 || gridIndex + 1 === total) {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      console.log(`[optimizer] ${gridIndex + 1}/${total} 组扫描完成，已通过 ${results.length} 组，耗时 ${elapsed}s`);
     }
   }
 

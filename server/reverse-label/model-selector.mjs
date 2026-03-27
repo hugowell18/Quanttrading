@@ -173,7 +173,7 @@ const createRankPredictor = ({ modelName, featureNames, stats, scoreRow }) => {
 };
 
 // 方向4：简单逻辑回归（梯度下降），学习最优特征权重替代手工 separation
-const trainLogisticWeights = (X, y, lr = 0.1, epochs = 200, l2 = 0.01) => {
+const trainLogisticWeights = (X, y, lr = 0.1, epochs = 30, l2 = 0.01) => {
   const n = X.length;
   const d = X[0].length;
   const w = new Array(d).fill(0);
@@ -315,6 +315,14 @@ function buildDynamicFeatureSets(pool) {
   }
   return sets;
 }
+
+export const buildSingleModel = (modelName, featureNames, rows, labels) => {
+  const builder = MODEL_BUILDERS[modelName];
+  if (!builder) return null;
+  const available = featureNames.filter((name) => rows.every((row) => row[name] !== undefined));
+  if (!available.length) return null;
+  return builder({ featureNames: available, rows, labels });
+};
 
 export class ModelSelector {
   constructor(rows) {

@@ -1,4 +1,4 @@
-﻿import { ModelSelector } from './model-selector.mjs';
+﻿import { buildSingleModel } from './model-selector.mjs';
 
 const average = (values) => (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0);
 const standardDeviation = (values) => {
@@ -106,19 +106,19 @@ export class WalkForwardValidator {
         start += this.testSize;
         continue;
       }
-      const selector = new ModelSelector(trainRows);
-      const ranked = selector.run({
-        featurePool: this.featurePool,
-        modelPref: this.modelPref,
-      });
-      const matched = ranked.find((item) => item.featureSet === bestModel.featureSet && item.model === bestModel.model) ?? ranked[0];
-      if (!matched?.predictor) {
+      const yTrain = trainRows.map((row) => Number(row.isBuyPoint ?? 0));
+      if (yTrain.reduce((sum, value) => sum + value, 0) < 3) {
+        start += this.testSize;
+        continue;
+      }
+      const matched = buildSingleModel(bestModel.model, bestModel.features ?? [], trainRows, yTrain);
+      if (!matched) {
         start += this.testSize;
         continue;
       }
 
-      const scores = matched.predictor.scoreRows(testRows);
-      const threshold = matched.predictor.threshold ?? 0;
+      const scores = matched.scoreRows(testRows);
+      const threshold = matched.threshold ?? 0;
       const scoreStd = standardDeviation(scores) || 1;
       const scoreMean = average(scores);
       const windowTrades = [];
