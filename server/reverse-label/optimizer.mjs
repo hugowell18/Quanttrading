@@ -109,6 +109,9 @@ const buildParamGrid = () => {
 };
 
 const createIndexMap = (indexRows) => new Map(indexRows.map((row) => [row.date, row]));
+const percent = (value) => `${(Number(value ?? 0) * 100).toFixed(2)}%`;
+const fixed = (value, digits = 4) => (Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : '--');
+const displayBoll = (value) => (value === NO_BOLL_LIMIT ? '不限制' : String(value));
 
 const injectTrendProfile = (rows, indexMap, trendProfile) =>
   rows.map((row) => {
@@ -214,6 +217,7 @@ const buildLabeledRows = (baseRows, config, indexMap) => {
     targetReturn: null,
     maxDrawdown: null,
   }));
+  let trendPassedCount = 0;
 
   for (let index = 0; index < labeledRows.length - LABEL_FORWARD_DAYS; index += 1) {
     const row = labeledRows[index];
@@ -221,6 +225,7 @@ const buildLabeledRows = (baseRows, config, indexMap) => {
     if (!stockTrendOk || row.indexTrendOk === false) {
       continue;
     }
+    trendPassedCount += 1;
 
     const oversoldCount = countOversoldConditions(labeledRows, index, config);
     if (oversoldCount < config.oversoldMinCount) {
@@ -244,7 +249,14 @@ const buildLabeledRows = (baseRows, config, indexMap) => {
     }
   }
 
-  return labeledRows;
+  return {
+    rows: labeledRows,
+    diagnostics: {
+      totalRows: labeledRows.length,
+      trendPassedCount,
+      buyPointCount: labeledRows.filter((row) => row.isBuyPoint === 1).length,
+    },
+  };
 };
 
 const createValidator = (rows, indexRows, config) =>
@@ -313,10 +325,14 @@ const scoreConfig = (validationResult) => {
 };
 
 const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) => {
-  const trainRows = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
-  const validationRows = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
-  const stressRows = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
-  const finalRows = buildLabeledRows(partitions.final, config, indexPartitions.finalMap);
+  const trainPack = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
+  const validationPack = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
+  const stressPack = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
+  const finalPack = buildLabeledRows(partitions.final, config, indexPartitions.finalMap);
+  const trainRows = trainPack.rows;
+  const validationRows = validationPack.rows;
+  const stressRows = stressPack.rows;
+  const finalRows = finalPack.rows;
 
   const trainBuyCount = trainRows.filter((row) => row.isBuyPoint === 1).length;
   if (trainBuyCount < 8) {
@@ -352,6 +368,12 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) =
       f1: bestModel.f1,
     },
     trainBuyCount,
+    diagnostics: {
+      train: trainPack.diagnostics,
+      validation: validationPack.diagnostics,
+      stress: stressPack.diagnostics,
+      final: finalPack.diagnostics,
+    },
     trainValidation,
     validation,
     stress,
@@ -393,8 +415,8 @@ const generateCurrentSignal = (rows, config, bestModel, indexMap) => {
     return { signal: 'hold', confidence: 0, reason: 'missing-config-or-model' };
   }
 
-  const labeledRows = buildLabeledRows(rows, config, indexMap);
-  const latest = labeledRows[labeledRows.length - 1];
+  const labeledPack = buildLabeledRows(rows, config, indexMap);
+  const latest = labeledPack.rows[labeledPack.rows.length - 1];
   if (!latest) {
     return { signal: 'hold', confidence: 0, reason: 'missing-latest-row' };
   }
@@ -409,6 +431,131 @@ const generateCurrentSignal = (rows, config, bestModel, indexMap) => {
     return { signal: 'sell', confidence: 0.7, score: Number(score.toFixed(4)), threshold: Number(threshold.toFixed(4)), date: latest.date };
   }
   return { signal: 'hold', confidence: 0.3, score: Number(score.toFixed(4)), threshold: Number(threshold.toFixed(4)), date: latest.date };
+};
+
+const summarizeExitReasons = (trades) => {
+  const total = trades.length || 1;
+  const reasons = ['takeProfit', 'stopLoss', 'trailingStop', 'sellSignal', 'timeout'];
+  return reasons.map((reason) => {
+    const matched = trades.filter((trade) => trade.exitReason === reason);
+    const avgReturn = matched.length ? average(matched.map((trade) => Number(trade.return ?? 0))) : 0;
+    return {
+      reason,
+      count: matched.length,
+      ratio: matched.length / total,
+      avgReturn,
+    };
+  });
+};
+
+const buildReport = ({ stockRows, results, best, unlockTest }) => {
+  const earliestDate = stockRows[0]?.date ?? '--';
+  const latestDate = stockRows[stockRows.length - 1]?.date ?? '--';
+  const bestDiagnostics = best?.diagnostics?.train ?? { totalRows: 0, trendPassedCount: 0, buyPointCount: 0 };
+  const combinedTrades = [
+    ...(best?.trainValidation?.trades ?? []),
+    ...(best?.validation?.trades ?? []),
+  ];
+
+  return {
+    dataOverview: {
+      dateRange: `${earliestDate} ~ ${latestDate}`,
+      totalRows: bestDiagnostics.totalRows,
+      trendPassedCount: bestDiagnostics.trendPassedCount,
+      trendPassedRatio: bestDiagnostics.totalRows ? bestDiagnostics.trendPassedCount / bestDiagnostics.totalRows : 0,
+      buyPointCount: bestDiagnostics.buyPointCount,
+      passedConfigs: results.length,
+    },
+    topConfigs: results.slice(0, 5).map((item, index) => ({
+      rank: index + 1,
+      config: item.config,
+      train: item.trainValidation,
+      validation: item.validation,
+    })),
+    bestValidation: best ? {
+      train: best.trainValidation,
+      validation: best.validation,
+      stress: best.stress,
+      final: unlockTest ? best.final : '封存中',
+    } : null,
+    exitReasons: summarizeExitReasons(combinedTrades),
+  };
+};
+
+const printDataOverview = (summary) => {
+  const overview = summary.report.dataOverview;
+  console.log('\n[第一部分] 数据概况');
+  console.log(`本地CSV数据时间跨度: ${overview.dateRange}`);
+  console.log(`总K线数量: ${overview.totalRows}`);
+  console.log(`满足大趋势过滤的K线数量: ${overview.trendPassedCount} (${percent(overview.trendPassedRatio)})`);
+  console.log(`最终买点标注数量: ${overview.buyPointCount}`);
+  console.log(`864组参数中通过所有硬性过滤的数量: ${overview.passedConfigs}`);
+};
+
+const printTopConfigs = (summary) => {
+  console.log('\n[第二部分] 前5名参数配置');
+  const rows = summary.report.topConfigs;
+  if (!rows.length) {
+    console.log('无通过筛选的配置');
+    return;
+  }
+  for (const item of rows) {
+    console.log(
+      `${item.rank}. 趋势=${item.config.trendProfile}, RSI=${item.config.rsiThreshold}, J=${item.config.jThreshold}, 超卖条件=${item.config.oversoldMinCount}, 布林=${displayBoll(item.config.bollPosThreshold)}, 出场=${item.config.exitPlan.name}`,
+    );
+    console.log(
+      `   训练集: trades=${item.train.totalTrades}, winRate=${percent(item.train.winRate)}, exp=${fixed(expectedReturn(item.train))}, maxDD=${percent(Math.abs(item.train.maxDrawdown ?? 0))}`,
+    );
+    console.log(
+      `   验证集: trades=${item.validation.totalTrades}, winRate=${percent(item.validation.winRate)}, exp=${fixed(expectedReturn(item.validation))}, maxDD=${percent(Math.abs(item.validation.maxDrawdown ?? 0))}`,
+    );
+  }
+};
+
+const printBestValidationTable = (summary, unlockTest) => {
+  console.log('\n[第三部分] 最优配置的详细验证结果');
+  const best = summary.report.bestValidation;
+  if (!best) {
+    console.log('无最优配置');
+    return;
+  }
+
+  const finalValue = (selector) => {
+    if (!unlockTest || typeof best.final === 'string') {
+      return '封存中';
+    }
+    return selector(best.final);
+  };
+
+  const rows = [
+    ['交易次数', best.train.totalTrades, best.validation.totalTrades, best.stress.totalTrades, finalValue((x) => x.totalTrades)],
+    ['胜率', percent(best.train.winRate), percent(best.validation.winRate), percent(best.stress.winRate), finalValue((x) => percent(x.winRate))],
+    ['平均盈利', fixed(best.train.avgWin), fixed(best.validation.avgWin), fixed(best.stress.avgWin), finalValue((x) => fixed(x.avgWin))],
+    ['平均亏损', fixed(best.train.avgLoss), fixed(best.validation.avgLoss), fixed(best.stress.avgLoss), finalValue((x) => fixed(x.avgLoss))],
+    ['盈亏比', fixed(normalizedProfitFactor(best.train)), fixed(normalizedProfitFactor(best.validation)), fixed(normalizedProfitFactor(best.stress)), finalValue((x) => fixed(normalizedProfitFactor(x)))],
+    ['期望收益', fixed(expectedReturn(best.train)), fixed(expectedReturn(best.validation)), fixed(expectedReturn(best.stress)), finalValue((x) => fixed(expectedReturn(x)))],
+    ['最大回撤', percent(Math.abs(best.train.maxDrawdown ?? 0)), percent(Math.abs(best.validation.maxDrawdown ?? 0)), percent(Math.abs(best.stress.maxDrawdown ?? 0)), finalValue((x) => percent(Math.abs(x.maxDrawdown ?? 0)))],
+    ['平均持仓天数', fixed(best.train.avgHoldingDays, 2), fixed(best.validation.avgHoldingDays, 2), fixed(best.stress.avgHoldingDays, 2), finalValue((x) => fixed(x.avgHoldingDays, 2))],
+  ];
+
+  console.log('指标             训练集        验证集        压力测试      最终测试');
+  for (const row of rows) {
+    console.log(`${String(row[0]).padEnd(16)} ${String(row[1]).padEnd(12)} ${String(row[2]).padEnd(12)} ${String(row[3]).padEnd(12)} ${String(row[4]).padEnd(12)}`);
+  }
+};
+
+const printExitReasonAnalysis = (summary) => {
+  console.log('\n[第四部分] 出场原因分析（训练集+验证集合并）');
+  for (const item of summary.report.exitReasons) {
+    const labelMap = {
+      takeProfit: '止盈出场',
+      stopLoss: '止损出场',
+      trailingStop: '追踪止盈',
+      sellSignal: '卖点信号',
+      timeout: '超时出场',
+    };
+    console.log(`${labelMap[item.reason]}: 次数=${item.count}, 占比=${percent(item.ratio)}, 平均收益=${fixed(item.avgReturn)}`);
+  }
 };
 
 export async function optimize(stockCode, _startDate, endDate = todayCompact(), options = {}) {
@@ -462,6 +609,7 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
     } : null,
     leaderboard,
     currentSignal: best ? generateCurrentSignal(optimizerRows, best.config, best.bestModel, indexMap) : { signal: 'hold', confidence: 0, reason: 'no-valid-config' },
+    report: buildReport({ stockRows: optimizerRows, results, best, unlockTest }),
     stats: {
       totalCombinations: grid.length,
       validCombinations: results.length,
@@ -496,6 +644,10 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || proce
       } else {
         console.log('未找到有效配置');
       }
+      printDataOverview(summary);
+      printTopConfigs(summary);
+      printBestValidationTable(summary, unlockTest);
+      printExitReasonAnalysis(summary);
     })
     .catch((error) => {
       console.error(error);
