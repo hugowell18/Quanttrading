@@ -21,15 +21,15 @@ export class WalkForwardValidator {
     this.minConfidence = options.minConfidence ?? 0.5;
     this.envFilter = options.envFilter ?? 'ma20';
     this.indexRows = options.indexRows ?? null;
-    // T+1 实盘模拟：双边手续费 + 滑点
-    this.tradingCost = options.tradingCost ?? 0.003; // 双边千分之三（佣金+印花税+滑点）
-    this.slippage = options.slippage ?? 0.002;       // 单边滑点千分之二
+    // 短线策略统一按双边 0.7% 成本计，默认不再叠加额外滑点
+    this.tradingCost = options.tradingCost ?? 0.007;
+    this.slippage = options.slippage ?? 0;
     this.trailingStopMultiplier = options.trailingStopMultiplier ?? 1.5;
     this.featurePool = options.featurePool ?? null;
     this.modelPref = options.modelPref ?? null;
     this.regime = options.regime ?? null;
-    // 建议1：退出风格
-    this.takeProfitStyle = options.takeProfitStyle ?? 'tiered';
+    // 方案 A/B/C 传 'target'；方案 D 当前由 optimizer 传 'tiered' 作为追踪止盈开关
+    this.takeProfitStyle = options.takeProfitStyle ?? 'target';
     this.targetProfitPct = options.targetProfitPct ?? 0.06;
     this.bollUpperExit = options.bollUpperExit ?? false;
     // 方向3：指标阈值门槛
@@ -93,6 +93,7 @@ export class WalkForwardValidator {
     let skippedByEnvironment = 0;
     let skippedByMarket = 0;
     let stopLossHits = 0;
+    let skippedByGapUp = 0;
     let start = this.trainSize;
 
     while (start + this.testSize <= rows.length) {
@@ -155,13 +156,9 @@ export class WalkForwardValidator {
         }
         const buyRow = testRows[buyIndex];
 
-        // 涨停检测：如果买入日开盘价 >= 前日收盘×1.098，一字涨停无法买入
         const prevClose = testRows[signalIndex]?.close ?? 0; // 信号日收盘 = 买入日前一天
-        const limitUpPrice = prevClose * 1.098; // A股涨停板（留0.2%容差）
-        if (prevClose > 0 && buyRow.open >= limitUpPrice) {
-          skippedByEnvironment += 1;
-          index += 1;
-          continue;
+        if (prevClose > 0 && buyRow.open >= prevClose * 1.01) {
+          skippedByGapUp += 1;
         }
 
         // 方向3：技术指标门槛过滤 — 超买区拒绝入场，降低 stopLossRate
@@ -188,85 +185,41 @@ export class WalkForwardValidator {
         }
         // T+1 实盘：买入价 = 当日开盘价 + 滑点
         const actualBuyPrice = buyRow.open * (1 + this.slippage);
-        const atr14 = buyRow.atr14 ?? null;
-        const dynamicStopLossPct = Number.isFinite(atr14) && actualBuyPrice > 0
-          ? Math.max(0.03, Math.min(0.08, (2.0 * atr14) / actualBuyPrice))
-          : (this.stopLoss ?? 0.05);
+        const stopLossPct = this.stopLoss ?? 0.025;
         let exitIndex = Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays);
         let exitReason = 'timeout';
-        let highWatermark = actualBuyPrice;
-        const trailingStopPct = dynamicStopLossPct * this.trailingStopMultiplier;
-        const style = this.takeProfitStyle;
+        let bestNetReturn = -Infinity;
+        const trailingEnabled = this.takeProfitStyle === 'tiered';
 
         for (let cursor = buyIndex + 1; cursor <= Math.min(testRows.length - 1, buyIndex + this.maxHoldingDays); cursor += 1) {
           const candidateRow = testRows[cursor];
-          if (candidateRow.high > highWatermark) {
-            highWatermark = candidateRow.high;
-          }
           const grossReturn = (candidateRow.close - actualBuyPrice) / actualBuyPrice;
           const netReturn = grossReturn - this.tradingCost;
+          bestNetReturn = Math.max(bestNetReturn, netReturn);
 
-          // ── 止损（所有风格共享）──
-          if (netReturn <= -dynamicStopLossPct) {
+          // 1. 止损出场
+          if (netReturn <= -stopLossPct) {
             exitIndex = cursor;
             exitReason = 'stopLoss';
             stopLossHits += 1;
             break;
           }
 
-          const currentProfit = (highWatermark - actualBuyPrice) / actualBuyPrice;
-          const retraceFromHigh = (highWatermark - candidateRow.close) / highWatermark;
-
-          // ── 建议1：按 regime 解耦止盈逻辑 ──
-          if (style === 'trend_follow') {
-            // 趋势跟随：不破MA20不走，允许大幅回撤吃满波段
-            const ma20 = candidateRow.ma20 ?? 0;
-            if (currentProfit >= 0.03 && Number.isFinite(ma20) && ma20 > 0 && candidateRow.close < ma20) {
-              exitIndex = cursor;
-              exitReason = 'trendBreak';
-              break;
-            }
-            // 极端保护：盈利超30%后从高点回撤超1.5×ATR才走
-            if (currentProfit >= 0.30 && retraceFromHigh >= trailingStopPct) {
-              exitIndex = cursor;
-              exitReason = 'trailingStop';
-              break;
-            }
-          } else if (style === 'target') {
-            // 目标止盈：摸到目标或布林上轨直接走
-            if (netReturn >= this.targetProfitPct) {
-              exitIndex = cursor;
-              exitReason = 'targetProfit';
-              break;
-            }
-            if (this.bollUpperExit && Number.isFinite(candidateRow.bollUpper) && candidateRow.close >= candidateRow.bollUpper) {
-              exitIndex = cursor;
-              exitReason = 'bollUpperExit';
-              break;
-            }
-            // 轻度追踪：盈利超3%后从高点回撤就锁利
-            if (currentProfit >= 0.03 && retraceFromHigh >= trailingStopPct) {
-              exitIndex = cursor;
-              exitReason = 'trailingStop';
-              break;
-            }
-          } else {
-            // tiered（默认）：分级追踪止盈
-            let activeTrailingPct = 0;
-            if (currentProfit >= 0.15) {
-              activeTrailingPct = trailingStopPct * 0.5;
-            } else if (currentProfit >= 0.08) {
-              activeTrailingPct = trailingStopPct * 0.7;
-            } else if (currentProfit >= 0.03) {
-              activeTrailingPct = trailingStopPct;
-            }
-            if (activeTrailingPct > 0 && retraceFromHigh >= activeTrailingPct) {
-              exitIndex = cursor;
-              exitReason = 'trailingStop';
-              break;
-            }
+          // 2. 止盈出场
+          if (netReturn >= this.targetProfitPct) {
+            exitIndex = cursor;
+            exitReason = 'takeProfit';
+            break;
           }
 
+          // 3. 追踪止盈出场：仅方案 D 启用
+          if (trailingEnabled && bestNetReturn >= 0.03 && (bestNetReturn - netReturn) >= 0.015) {
+            exitIndex = cursor;
+            exitReason = 'trailingStop';
+            break;
+          }
+
+          // 4. 卖点信号出场
           if (candidateRow.isSellPoint === 1) {
             exitIndex = cursor;
             exitReason = 'sellSignal';
@@ -296,7 +249,7 @@ export class WalkForwardValidator {
           return: Number(netReturn.toFixed(4)),
           holdingDays: actualSellDayIndex - buyIndex,
           confidence: Number(confidence.toFixed(4)),
-          stopLossPct: Number(dynamicStopLossPct.toFixed(4)),
+          stopLossPct: Number(stopLossPct.toFixed(4)),
           exitReason,
         };
         allTrades.push(trade);
@@ -321,6 +274,19 @@ export class WalkForwardValidator {
     const returns = allTrades.map((trade) => trade.return);
     const holdingDays = allTrades.map((trade) => trade.holdingDays);
     const trailingStopHits = allTrades.filter((trade) => trade.exitReason === 'trailingStop').length;
+    const exitReasonBreakdown = (() => {
+      const total = allTrades.length || 1;
+      const counts = allTrades.reduce((acc, trade) => {
+        acc[trade.exitReason] = (acc[trade.exitReason] ?? 0) + 1;
+        return acc;
+      }, {});
+      return Object.fromEntries(
+        Object.entries(counts).map(([reason, count]) => [
+          reason,
+          { count, ratio: Number((count / total).toFixed(4)) },
+        ]),
+      );
+    })();
 
     // 建议5：计算 avgWin / avgLoss / profitFactor
     const wins = returns.filter((v) => v > 0);
@@ -361,6 +327,7 @@ export class WalkForwardValidator {
       avgStopLossPct: allTrades.length ? Number(average(allTrades.map((trade) => trade.stopLossPct ?? (this.stopLoss ?? 0.04))).toFixed(4)) : 0,
       stopLossRate: allTrades.length ? Number((stopLossHits / allTrades.length).toFixed(4)) : 0,
       signalSkipRate: totalRawSignals ? Number((skippedSignals / totalRawSignals).toFixed(4)) : 0,
+      skippedByGapUp,
       skippedByEnvironment,
       skippedByMarket,
       trailingStopRate: allTrades.length ? Number((trailingStopHits / allTrades.length).toFixed(4)) : 0,
@@ -369,6 +336,7 @@ export class WalkForwardValidator {
       profitFactor: Number(profitFactor.toFixed(4)),
       bestWindowReturn: windowStats.length ? Number(Math.max(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
       worstWindowReturn: windowStats.length ? Number(Math.min(...windowStats.map((item) => item.avgReturn)).toFixed(4)) : 0,
+      exitReasonBreakdown,
       diagnosis: diagnostics,
       windowStats,
       trades: allTrades,
