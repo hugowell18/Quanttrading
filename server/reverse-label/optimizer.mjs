@@ -269,31 +269,50 @@ const expectedReturn = (result) => {
   return winRate * avgProfit - (1 - winRate) * avgLoss;
 };
 
-const scoreConfig = (validationResult, stressResult) => {
-  if (!validationResult || !stressResult) {
-    return null;
+const normalizedProfitFactor = (result) => {
+  if (!result) return 0;
+  const avgProfit = Number(result.avgWin ?? 0);
+  const avgLoss = Number(result.avgLoss ?? 0);
+  return avgLoss > 0 ? avgProfit / avgLoss : (avgProfit > 0 ? 99 : 0);
+};
+
+const passesHardFilters = (trainResult, validationResult) => {
+  if (!trainResult || !validationResult) {
+    return false;
   }
 
-  if ((validationResult.totalTrades ?? 0) < 10 || (stressResult.totalTrades ?? 0) < 10) {
+  const trainWinRate = Number(trainResult.winRate ?? 0);
+  const validationWinRate = Number(validationResult.winRate ?? 0);
+  const trainTrades = Number(trainResult.totalTrades ?? 0);
+  const validationTrades = Number(validationResult.totalTrades ?? 0);
+
+  return (
+    trainWinRate > 0.6 &&
+    validationWinRate > 0.55 &&
+    Math.abs(trainWinRate - validationWinRate) <= 0.15 &&
+    trainTrades > 50 &&
+    validationTrades > 15
+  );
+};
+
+const scoreConfig = (validationResult) => {
+  if (!validationResult) {
     return null;
   }
 
   const validationExpected = expectedReturn(validationResult);
-  const stressExpected = expectedReturn(stressResult);
-  const primary = validationExpected * 0.7 + stressExpected * 0.3;
-  const secondary = ((validationResult.profitFactor ?? 0) + (stressResult.profitFactor ?? 0)) / 2;
-  const tertiary = (validationResult.totalTrades ?? 0) + (stressResult.totalTrades ?? 0);
+  const validationProfitFactor = normalizedProfitFactor(validationResult);
 
   return {
-    primary,
-    secondary,
-    tertiary,
+    primary: validationExpected,
+    secondary: Number(validationResult.maxDrawdown ?? 0),
+    tertiary: validationProfitFactor,
     validationExpected,
-    stressExpected,
+    validationProfitFactor,
   };
 };
 
-const runOneConfig = (partitions, indexPartitions, config) => {
+const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) => {
   const trainRows = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
   const validationRows = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
   const stressRows = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
@@ -311,10 +330,14 @@ const runOneConfig = (partitions, indexPartitions, config) => {
     return null;
   }
 
+  const trainValidation = createValidator(trainRows, indexPartitions.train, config).validate(bestModel);
   const validation = createValidator(validationRows, indexPartitions.validation, config).validate(bestModel);
   const stress = createValidator(stressRows, indexPartitions.stress, config).validate(bestModel);
-  const final = createValidator(finalRows, indexPartitions.final, config).validate(bestModel);
-  const score = scoreConfig(validation, stress);
+  if (!passesHardFilters(trainValidation, validation)) {
+    return null;
+  }
+  const final = unlockTest ? createValidator(finalRows, indexPartitions.final, config).validate(bestModel) : null;
+  const score = scoreConfig(validation);
   if (!score) {
     return null;
   }
@@ -329,6 +352,7 @@ const runOneConfig = (partitions, indexPartitions, config) => {
       f1: bestModel.f1,
     },
     trainBuyCount,
+    trainValidation,
     validation,
     stress,
     final,
@@ -387,7 +411,8 @@ const generateCurrentSignal = (rows, config, bestModel, indexMap) => {
   return { signal: 'hold', confidence: 0.3, score: Number(score.toFixed(4)), threshold: Number(threshold.toFixed(4)), date: latest.date };
 };
 
-export async function optimize(stockCode, _startDate, endDate = todayCompact()) {
+export async function optimize(stockCode, _startDate, endDate = todayCompact(), options = {}) {
+  const unlockTest = options.unlockTest ?? false;
   const startTime = Date.now();
   const { optimizerRows, indexFeatures, indexMap } = loadInMemoryDataset(stockCode, endDate);
   const partitions = splitByDateWindows(optimizerRows);
@@ -396,7 +421,7 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact()) 
   const results = [];
 
   for (const config of grid) {
-    const result = runOneConfig(partitions, indexPartitions, config);
+    const result = runOneConfig(partitions, indexPartitions, config, unlockTest);
     if (result) {
       results.push(result);
     }
@@ -404,7 +429,7 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact()) 
 
   results.sort((left, right) => {
     if (right.score.primary !== left.score.primary) return right.score.primary - left.score.primary;
-    if (right.score.secondary !== left.score.secondary) return right.score.secondary - left.score.secondary;
+    if (left.score.secondary !== right.score.secondary) return left.score.secondary - right.score.secondary;
     return right.score.tertiary - left.score.tertiary;
   });
 
@@ -413,9 +438,10 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact()) 
     rank: index + 1,
     config: item.config,
     trainBuyCount: item.trainBuyCount,
+    trainValidation: item.trainValidation,
     validation: item.validation,
     stress: item.stress,
-    final: item.final,
+    final: unlockTest ? item.final : '封存中，输入 --unlock-test 参数才解锁',
     score: item.score,
     bestModel: item.bestModel,
   }));
@@ -426,18 +452,20 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact()) 
     bestConfig: best?.config ?? null,
     bestModel: best?.bestModel ?? null,
     bestResult: best ? {
+      trainValidation: best.trainValidation,
       validation: best.validation,
       stress: best.stress,
-      final: best.final,
+      final: unlockTest ? best.final : '封存中，输入 --unlock-test 参数才解锁',
       trainBuyCount: best.trainBuyCount,
       expectedValidation: Number(best.score.validationExpected.toFixed(6)),
-      expectedStress: Number(best.score.stressExpected.toFixed(6)),
+      validationProfitFactor: Number(best.score.validationProfitFactor.toFixed(6)),
     } : null,
     leaderboard,
     currentSignal: best ? generateCurrentSignal(optimizerRows, best.config, best.bestModel, indexMap) : { signal: 'hold', confidence: 0, reason: 'no-valid-config' },
     stats: {
       totalCombinations: grid.length,
       validCombinations: results.length,
+      unlockTest,
       scanDurationMs: Date.now() - startTime,
       partitions: {
         train: { start: '2005-01-01', end: WINDOW_TRAIN_END, rows: partitions.train.length },
@@ -449,16 +477,19 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact()) 
   };
 }
 
-const [, , stockCode = '600519', startDate = '20050101', endDate = todayCompact()] = process.argv;
+const cliArgs = process.argv.slice(2).filter((arg) => arg !== '--unlock-test');
+const unlockTest = process.argv.includes('--unlock-test');
+const [stockCode = '600519', startDate = '20050101', endDate = todayCompact()] = cliArgs;
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1]?.endsWith('optimizer.mjs')) {
-  optimize(stockCode, startDate, endDate)
+  optimize(stockCode, startDate, endDate, { unlockTest })
     .then((summary) => {
       console.log('\n' + '='.repeat(72));
       console.log(`优化报告 | ${summary.stockCode}`);
       console.log('='.repeat(72));
       console.log(`总组合数: ${summary.stats.totalCombinations}`);
       console.log(`有效组合: ${summary.stats.validCombinations}`);
+      console.log(`最终测试集: ${summary.stats.unlockTest ? '已解锁' : '封存中'}`);
       console.log(`耗时: ${summary.stats.scanDurationMs}ms`);
       if (summary.bestConfig) {
         console.log(`最佳配置: ${JSON.stringify(summary.bestConfig)}`);
