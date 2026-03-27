@@ -8,6 +8,7 @@ const LABEL_FORWARD_DAYS = 5;
 const LABEL_MIN_RETURN = 0.045;
 const LABEL_MAX_DRAWDOWN = 0.025;
 const LABEL_TRADING_COST = 0.007;
+const NO_BOLL_LIMIT = 999;
 
 const WINDOW_TRAIN_END = '2015-12-31';
 const WINDOW_VALID_START = '2016-01-01';
@@ -88,7 +89,7 @@ const buildParamGrid = () => {
     for (const rsiThreshold of [35, 40, 45]) {
       for (const jThreshold of [15, 20, 25, 30]) {
         for (const oversoldMinCount of [2, 3]) {
-          for (const bollPosThreshold of [0.2, 0.3, null]) {
+          for (const bollPosThreshold of [0.2, 0.3, NO_BOLL_LIMIT]) {
             for (const exitPlanName of ['A', 'B', 'C', 'D']) {
               grid.push({
                 trendProfile,
@@ -137,7 +138,9 @@ const countOversoldConditions = (rows, index, config) => {
 
   if (row.rsi6 < config.rsiThreshold) conditionCount += 1;
   if (row.kdj_j < config.jThreshold) conditionCount += 1;
-  if (config.bollPosThreshold != null && row.boll_pos < config.bollPosThreshold) conditionCount += 1;
+  if (config.bollPosThreshold !== NO_BOLL_LIMIT && row.boll_pos != null && row.boll_pos < config.bollPosThreshold) {
+    conditionCount += 1;
+  }
 
   let negativeLines = 0;
   for (let cursor = index - 3; cursor <= index; cursor += 1) {
