@@ -103,6 +103,18 @@
         this.diagnostics.buyPointCount++;
         row.targetReturn = realizedMaxReturn;
         row.maxDrawdown = realizedMaxDrawdown;
+        // 找到第一个触达目标收益的日期作为卖点
+        for (let j = i + 1; j <= i + this.forwardDays; j++) {
+          const futureRow = this.rows[j];
+          const futureReturn = (futureRow.high_adj - effectiveBuyPrice) / effectiveBuyPrice;
+          if (futureReturn >= this.minReturn) {
+            if (!futureRow.isSellPoint) {
+              futureRow.isSellPoint = 1;
+              this.diagnostics.sellPointCount++;
+            }
+            break;
+          }
+        }
       }
     }
 

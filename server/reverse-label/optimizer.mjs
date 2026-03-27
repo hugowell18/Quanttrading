@@ -363,9 +363,11 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) =
     bestModel: {
       featureSet: bestModel.featureSet,
       model: bestModel.model,
+      features: bestModel.features,
       precision: bestModel.precision,
       recall: bestModel.recall,
       f1: bestModel.f1,
+      predictor: bestModel.predictor,
     },
     trainBuyCount,
     diagnostics: {
