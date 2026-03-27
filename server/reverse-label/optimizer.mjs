@@ -1,640 +1,467 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { DataEngine } from './data-engine.mjs';
+﻿import { DataEngine } from './data-engine.mjs';
 import { SignalLabeler } from './signal-labeler.mjs';
 import { ModelSelector } from './model-selector.mjs';
 import { WalkForwardValidator } from './validator.mjs';
-import { RegimeDetector } from './regime-detector.mjs';
-import { buildRegimeGrid, getExitParams, getFeaturePool, getModelPref, REGIME_CONFIGS } from './regime-config.mjs';
-import { ModelStore, checkParameterPlateau } from './model-store.mjs';
-import { checkFundamental } from './fundamental-filter.mjs';
+import { readDaily } from '../data/csv-manager.mjs';
 
-const ENV_LOCAL_PATH = resolve(process.cwd(), '.env.local');
-const TUSHARE_API = 'http://api.tushare.pro';
+const LABEL_FORWARD_DAYS = 5;
+const LABEL_MIN_RETURN = 0.045;
+const LABEL_MAX_DRAWDOWN = 0.025;
+const LABEL_TRADING_COST = 0.007;
+
+const WINDOW_TRAIN_END = '2015-12-31';
+const WINDOW_VALID_START = '2016-01-01';
+const WINDOW_VALID_END = '2019-12-31';
+const WINDOW_STRESS_START = '2020-01-01';
+const WINDOW_STRESS_END = '2021-12-31';
+const WINDOW_FINAL_START = '2022-01-01';
 
 const average = (arr) => (arr.length ? arr.reduce((sum, value) => sum + value, 0) / arr.length : 0);
+const todayCompact = () => {
+  const now = new Date();
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+};
+const formatTradeDate = (value) => `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+const toTsCode = (stockCode) => (/^6/.test(stockCode) ? `${stockCode}.SH` : `${stockCode}.SZ`);
+const priceValue = (row) => Number(row?.close_adj ?? row?.close ?? 0);
 
-async function fetchWithRetry(fetchFn, maxRetries = 3, delayMs = 2000) {
-  let lastError;
-  for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      lastError = error;
-      if (attempt < maxRetries) {
-        process.stdout.write(` [retry ${attempt}/${maxRetries}]`);
-        await new Promise((resolveDelay) => setTimeout(resolveDelay, delayMs * attempt));
+const normalizeCsvCandles = (rows) =>
+  rows.map((row) => {
+    const rawClose = Number(row.close ?? 0);
+    const closeAdj = Number(row.close_adj ?? row.close ?? 0);
+    const adjFactor = rawClose > 0 ? closeAdj / rawClose : 1;
+    return {
+      date: formatTradeDate(row.trade_date),
+      open: Number(row.open) * adjFactor,
+      high: Number(row.high) * adjFactor,
+      low: Number(row.low) * adjFactor,
+      close: closeAdj,
+      close_adj: closeAdj,
+      open_adj: Number(row.open) * adjFactor,
+      high_adj: Number(row.high) * adjFactor,
+      low_adj: Number(row.low) * adjFactor,
+      volume: Math.round(Number(row.volume ?? 0)),
+      amount: Number(row.amount ?? 0),
+      turnover_rate: Number(row.turnover_rate ?? 0),
+    };
+  });
+
+const buildOptimizerRows = (featureRows) =>
+  featureRows.map((row) => ({
+    ...row,
+    close_adj: priceValue(row),
+    open_adj: Number(row.open_adj ?? row.open),
+    high_adj: Number(row.high_adj ?? row.high),
+    low_adj: Number(row.low_adj ?? row.low),
+    ma20: Number(row.ma20 ?? 0),
+    ma60: Number(row.ma60 ?? 0),
+    rsi6: Number(row.rsi6 ?? 0),
+    kdj_j: Number(row.j ?? row.kdj_j ?? 0),
+    boll_pos: Number(row.bollPos ?? row.boll_pos ?? 1),
+    indexTrendOk: true,
+  }));
+
+const splitByDateWindows = (rows) => ({
+  train: rows.filter((row) => row.date <= WINDOW_TRAIN_END),
+  validation: rows.filter((row) => row.date >= WINDOW_VALID_START && row.date <= WINDOW_VALID_END),
+  stress: rows.filter((row) => row.date >= WINDOW_STRESS_START && row.date <= WINDOW_STRESS_END),
+  final: rows.filter((row) => row.date >= WINDOW_FINAL_START),
+});
+
+const buildExitPlan = (name) => {
+  switch (name) {
+    case 'A':
+      return { name, stopLoss: 0.03, maxHoldingDays: 3, takeProfitStyle: 'target', targetProfitPct: 0.04, trailingStopMultiplier: 1.5 };
+    case 'B':
+      return { name, stopLoss: 0.025, maxHoldingDays: 5, takeProfitStyle: 'target', targetProfitPct: 0.045, trailingStopMultiplier: 1.5 };
+    case 'C':
+      return { name, stopLoss: 0.03, maxHoldingDays: 5, takeProfitStyle: 'target', targetProfitPct: 0.05, trailingStopMultiplier: 1.5 };
+    case 'D':
+    default:
+      return { name: 'D', stopLoss: 0.025, maxHoldingDays: 5, takeProfitStyle: 'tiered', targetProfitPct: 0.03, trailingStopMultiplier: 0.6 };
+  }
+};
+
+const buildParamGrid = () => {
+  const grid = [];
+  for (const trendProfile of ['A', 'B', 'C']) {
+    for (const rsiThreshold of [35, 40, 45]) {
+      for (const jThreshold of [15, 20, 25, 30]) {
+        for (const oversoldMinCount of [2, 3]) {
+          for (const bollPosThreshold of [0.2, 0.3, null]) {
+            for (const exitPlanName of ['A', 'B', 'C', 'D']) {
+              grid.push({
+                trendProfile,
+                rsiThreshold,
+                jThreshold,
+                oversoldMinCount,
+                bollPosThreshold,
+                exitPlan: buildExitPlan(exitPlanName),
+              });
+            }
+          }
+        }
       }
     }
   }
-  throw lastError;
-}
-
-const readEnvLocalToken = () => {
-  if (!existsSync(ENV_LOCAL_PATH)) return '';
-  const sourceText = readFileSync(ENV_LOCAL_PATH, 'utf8');
-  for (const rawLine of sourceText.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith('#')) continue;
-    const separatorIndex = line.indexOf('=');
-    if (separatorIndex === -1) continue;
-    const key = line.slice(0, separatorIndex).trim();
-    if (key !== 'TUSHARE_TOKEN') continue;
-    return line.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, '');
-  }
-  return '';
+  return grid;
 };
 
-const fetchTushare = async (token, apiName, params, fields) => {
-  const response = await fetch(TUSHARE_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ api_name: apiName, token, params, fields }),
+const createIndexMap = (indexRows) => new Map(indexRows.map((row) => [row.date, row]));
+
+const injectTrendProfile = (rows, indexMap, trendProfile) =>
+  rows.map((row) => {
+    const indexRow = indexMap.get(row.date);
+    const marketOk = indexRow ? priceValue(indexRow) > Number(indexRow.ma20 ?? Infinity) : false;
+    let indexTrendOk = true;
+    if (trendProfile === 'A') {
+      indexTrendOk = true;
+    } else if (trendProfile === 'B') {
+      indexTrendOk = marketOk;
+    } else {
+      indexTrendOk = marketOk && row.close_adj > Number(row.ma20 ?? Infinity);
+    }
+    return {
+      ...row,
+      indexTrendOk,
+    };
   });
-  if (!response.ok) {
-    throw new Error(`Tushare upstream error: ${response.status}`);
+
+const countOversoldConditions = (rows, index, config) => {
+  if (index < 4) {
+    return 0;
   }
-  const payload = await response.json();
-  if (payload.code !== 0) {
-    throw new Error(payload.msg || 'Tushare returned a non-zero code');
+
+  const row = rows[index];
+  let conditionCount = 0;
+
+  if (row.rsi6 < config.rsiThreshold) conditionCount += 1;
+  if (row.kdj_j < config.jThreshold) conditionCount += 1;
+  if (config.bollPosThreshold != null && row.boll_pos < config.bollPosThreshold) conditionCount += 1;
+
+  let negativeLines = 0;
+  for (let cursor = index - 3; cursor <= index; cursor += 1) {
+    if (rows[cursor].close_adj < rows[cursor].open_adj) negativeLines += 1;
   }
-  return payload.data;
+  if (negativeLines >= 3) conditionCount += 1;
+
+  const price4DaysAgo = rows[index - 3].close_adj;
+  const dropPct = price4DaysAgo > 0 ? (row.close_adj - price4DaysAgo) / price4DaysAgo : 0;
+  if (dropPct < -0.02) conditionCount += 1;
+
+  const vol0 = row.volume ?? 0;
+  const vol1 = rows[index - 1].volume ?? 0;
+  const vol2 = rows[index - 2].volume ?? 0;
+  if (vol0 < vol1 && vol1 < vol2) conditionCount += 1;
+
+  return conditionCount;
 };
 
-const mapRows = ({ fields, items }) => items.map((item) => fields.reduce((record, field, index) => ({ ...record, [field]: item[index] }), {}));
-const formatTradeDate = (value) => `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
-
-const loadStockInfo = async (token, symbol) => {
-  const guesses = /^6/.test(symbol) ? [`${symbol}.SH`, `${symbol}.SZ`] : [`${symbol}.SZ`, `${symbol}.SH`];
-  for (const tsCode of guesses) {
-    const rows = mapRows(await fetchTushare(token, 'stock_basic', { ts_code: tsCode, list_status: 'L' }, 'ts_code,symbol,name,industry'));
-    if (rows[0]) return rows[0];
-  }
-  const fallbackRows = mapRows(await fetchTushare(token, 'stock_basic', { symbol, list_status: 'L' }, 'ts_code,symbol,name,industry'));
-  if (!fallbackRows[0]) throw new Error(`No listed stock found for symbol ${symbol}`);
-  return fallbackRows[0];
-};
-
-const normalizeCandles = (rows) => rows
-  .map((item) => ({
-    date: formatTradeDate(item.trade_date),
-    open: Number(item.open),
-    high: Number(item.high),
-    low: Number(item.low),
-    close: Number(item.close),
-    volume: Math.round(Number(item.vol ?? 0)),
-    pct_chg: Number(item.pct_chg ?? 0),
-  }))
-  .sort((left, right) => left.date.localeCompare(right.date));
-
-const loadDailyCandles = async (token, tsCode, startDate, endDate) => {
-  const rows = mapRows(await fetchTushare(token, 'daily', { ts_code: tsCode, start_date: startDate, end_date: endDate }, 'trade_date,open,high,low,close,vol,pct_chg'));
-  return normalizeCandles(rows);
-};
-
-const loadIndexCandles = async (token, tsCode, startDate, endDate) => {
-  const rows = mapRows(await fetchTushare(token, 'index_daily', { ts_code: tsCode, start_date: startDate, end_date: endDate }, 'trade_date,open,high,low,close,vol,pct_chg'));
-  return normalizeCandles(rows);
-};
-
-
-// ─── 评分函数 ──────────────────────────────────────────────
-
-function scoreResult(result, diagnostics = null) {
-  if (!result) return null;
-  if (result.stopLossRate >= 0.35) {
-    if (diagnostics) diagnostics.stopLossReject = (diagnostics.stopLossReject ?? 0) + 1;
-    return null;
-  }
-  if (result.totalTrades < 10) {
-    if (diagnostics) diagnostics.tradeCountReject = (diagnostics.tradeCountReject ?? 0) + 1;
-    return null;
-  }
-  if (!Number.isFinite(result.avgReturn)) return null;
-  if ((result.winRate ?? 0) < 0.45) {
-    if (diagnostics) diagnostics.winRateReject = (diagnostics.winRateReject ?? 0) + 1;
+const validateLabelOutcome = (rows, index) => {
+  const row = rows[index];
+  const effectiveBuyPrice = row.close_adj * (1 + LABEL_TRADING_COST);
+  if (!Number.isFinite(effectiveBuyPrice) || effectiveBuyPrice <= 0) {
     return null;
   }
 
-  // 建议5：Profit Factor 门槛 — 盈亏比 < 1.0 无意义
-  const pf = result.profitFactor ?? 0;
-  if (pf < 1.0) {
-    if (diagnostics) diagnostics.pfReject = (diagnostics.pfReject ?? 0) + 1;
-    return null;
+  let maxHigh = -Infinity;
+  let minLow = Infinity;
+  let sellIndex = null;
+
+  for (let cursor = index + 1; cursor <= index + LABEL_FORWARD_DAYS && cursor < rows.length; cursor += 1) {
+    const futureRow = rows[cursor];
+    if (futureRow.high_adj > maxHigh) maxHigh = futureRow.high_adj;
+    if (futureRow.low_adj < minLow) minLow = futureRow.low_adj;
+    const futureReturn = (futureRow.high_adj - effectiveBuyPrice) / effectiveBuyPrice;
+    if (sellIndex === null && futureReturn >= LABEL_MIN_RETURN) {
+      sellIndex = cursor;
+    }
   }
 
-  // 建议5：期望值驱动评分
-  // compositeScore = profitFactor × sharpe × log(1+trades)
-  // 兼顾盈亏质量、风险调整收益、统计显著性
-  const sharpe = Math.max(result.sharpe ?? 0, 0.01);
-  const tradeSignificance = Math.log1p(result.totalTrades);
-  const compositeScore = pf * sharpe * tradeSignificance;
+  const realizedMaxReturn = (maxHigh - effectiveBuyPrice) / effectiveBuyPrice;
+  const realizedMaxDrawdown = (effectiveBuyPrice - minLow) / effectiveBuyPrice;
+  if (realizedMaxReturn < LABEL_MIN_RETURN || realizedMaxDrawdown > LABEL_MAX_DRAWDOWN || sellIndex === null) {
+    return null;
+  }
 
   return {
-    primary: compositeScore,
-    secondary: pf,
-    tertiary: result.avgReturn,
-    trades: result.totalTrades,
+    sellIndex,
+    targetReturn: realizedMaxReturn,
+    maxDrawdown: realizedMaxDrawdown,
   };
-}
+};
 
+const buildLabeledRows = (baseRows, config, indexMap) => {
+  const trendRows = injectTrendProfile(baseRows, indexMap, config.trendProfile);
 
-// ─── 单配置运行（接受 regime 参数）────────────────────────
+  // Keep the required flow in place, while optimizer applies config-specific thresholds on top.
+  const baseLabeler = new SignalLabeler(trendRows, {
+    forwardDays: LABEL_FORWARD_DAYS,
+    minReturn: LABEL_MIN_RETURN,
+    maxDrawdown: LABEL_MAX_DRAWDOWN,
+    tradingCost: LABEL_TRADING_COST,
+  });
+  baseLabeler.getLabeledRows();
 
-function runOneConfig(rows, config, indexRows, regimeOptions = {}) {
-  try {
-    const labeler = new SignalLabeler(rows, {
-      minZoneCapture: config.minZoneCapture,
-      zoneForward: config.zoneForward,
-      zoneBackward: config.zoneBackward,
-    });
-    const labeledRows = labeler.getLabeledRows();
-    const buyCount = labeledRows.filter((row) => row.isBuyPoint === 1).length;
-    if (buyCount < 8) return null;
+  const sellPointSet = new Set();
+  const labeledRows = trendRows.map((row) => ({
+    ...row,
+    isBuyPoint: 0,
+    isSellPoint: 0,
+    targetReturn: null,
+    maxDrawdown: null,
+  }));
 
-    // 第二层：传入 regime featurePool 和 modelPref
-    const selector = new ModelSelector(labeledRows);
-    selector.run({
-      featurePool: regimeOptions.featurePool ?? null,
-      modelPref: regimeOptions.modelPref ?? null,
-    });
-    const best = selector.bestModel();
-    if (!best) return null;
+  for (let index = 0; index < labeledRows.length - LABEL_FORWARD_DAYS; index += 1) {
+    const row = labeledRows[index];
+    const stockTrendOk = row.ma60 != null && row.close_adj > row.ma60;
+    if (!stockTrendOk || row.indexTrendOk === false) {
+      continue;
+    }
 
-    // 第二层：传入 regime exitParams
-    const exitParams = regimeOptions.exitParams ?? {};
-    // 传入完整退出参数（建议1：按regime解耦退出风格）
-    const validator = new WalkForwardValidator(labeledRows, {
-      envFilter: config.envFilter,
-      indexRows,
-      maxHoldingDays: exitParams.maxHoldingDays,
-      trailingStopMultiplier: exitParams.trailingStopMultiplier,
-      takeProfitStyle: exitParams.takeProfitStyle,
-      targetProfitPct: exitParams.targetProfitPct,
-      bollUpperExit: exitParams.bollUpperExit,
-      featurePool: regimeOptions.featurePool,
-      modelPref: regimeOptions.modelPref,
-      regime: regimeOptions.regime,
-    });
-    const result = validator.validate(best);
+    const oversoldCount = countOversoldConditions(labeledRows, index, config);
+    if (oversoldCount < config.oversoldMinCount) {
+      continue;
+    }
 
-    return {
-      bestModel: {
-        featureSet: best.featureSet,
-        model: best.model,
-        precision: best.precision,
-        recall: best.recall,
-        f1: best.f1,
-      },
-      validation: result,
-      buyCount,
-    };
-  } catch {
+    const outcome = validateLabelOutcome(labeledRows, index);
+    if (!outcome) {
+      continue;
+    }
+
+    row.isBuyPoint = 1;
+    row.targetReturn = Number(outcome.targetReturn.toFixed(4));
+    row.maxDrawdown = Number(outcome.maxDrawdown.toFixed(4));
+    sellPointSet.add(outcome.sellIndex);
+  }
+
+  for (const sellIndex of sellPointSet) {
+    if (labeledRows[sellIndex]) {
+      labeledRows[sellIndex].isSellPoint = 1;
+    }
+  }
+
+  return labeledRows;
+};
+
+const createValidator = (rows, indexRows, config) =>
+  new WalkForwardValidator(rows, {
+    forwardDays: LABEL_FORWARD_DAYS,
+    stopLoss: config.exitPlan.stopLoss,
+    maxHoldingDays: config.exitPlan.maxHoldingDays,
+    takeProfitStyle: config.exitPlan.takeProfitStyle,
+    targetProfitPct: config.exitPlan.targetProfitPct,
+    trailingStopMultiplier: config.exitPlan.trailingStopMultiplier,
+    envFilter: 'none',
+    indexRows,
+    trainSize: 180,
+    testSize: 60,
+  });
+
+const expectedReturn = (result) => {
+  if (!result) return -Infinity;
+  const winRate = Number(result.winRate ?? 0);
+  const avgProfit = Number(result.avgWin ?? 0);
+  const avgLoss = Number(result.avgLoss ?? 0);
+  return winRate * avgProfit - (1 - winRate) * avgLoss;
+};
+
+const scoreConfig = (validationResult, stressResult) => {
+  if (!validationResult || !stressResult) {
     return null;
   }
-}
 
-
-// ─── 信号生成 ──────────────────────────────────────────────
-
-function generateCurrentSignal(rows, indexRows, bestConfig, bestResult, regimeOptions = {}) {
-  if (!bestConfig || !bestResult) {
-    return { signal: 'hold', confidence: 0, reason: '无有效配置，无法生成信号' };
+  if ((validationResult.totalTrades ?? 0) < 10 || (stressResult.totalTrades ?? 0) < 10) {
+    return null;
   }
 
-  try {
-    const labeler = new SignalLabeler(rows, {
-      minZoneCapture: bestConfig.minZoneCapture,
-      zoneForward: bestConfig.zoneForward,
-      zoneBackward: bestConfig.zoneBackward,
-    });
-    const labeledRows = labeler.getLabeledRows();
+  const validationExpected = expectedReturn(validationResult);
+  const stressExpected = expectedReturn(stressResult);
+  const primary = validationExpected * 0.7 + stressExpected * 0.3;
+  const secondary = ((validationResult.profitFactor ?? 0) + (stressResult.profitFactor ?? 0)) / 2;
+  const tertiary = (validationResult.totalTrades ?? 0) + (stressResult.totalTrades ?? 0);
 
-    const selector = new ModelSelector(labeledRows);
-    selector.run({
-      featurePool: regimeOptions.featurePool ?? null,
-      modelPref: regimeOptions.modelPref ?? null,
-    });
-    const best = selector.bestModel();
-    if (!best?.predictor) {
-      return { signal: 'hold', confidence: 0, reason: '模型训练失败' };
-    }
-
-    const latest = labeledRows[labeledRows.length - 1];
-    if (!latest) {
-      return { signal: 'hold', confidence: 0, reason: '缺少最新K线' };
-    }
-
-    const scores = best.predictor.scoreRows([latest]);
-    const score = scores[0] ?? 0;
-    const threshold = best.predictor.threshold ?? 0;
-    const confidence = threshold > 0 ? Math.min(1, Math.max(0, score / threshold)) : 0;
-
-    const isBuyZone = latest.isBuyPoint === 1;
-    const isSellZone = latest.isSellPoint === 1;
-    const scoreAbove = score >= threshold;
-
-    let signal = 'hold';
-    const reasons = [];
-
-    if (isSellZone) {
-      signal = 'sell';
-      reasons.push('当前K线处于历史卖点区间');
-    } else if (isBuyZone && scoreAbove && confidence >= 0.5) {
-      signal = 'buy';
-      reasons.push(`模型打分 ${score.toFixed(3)} 超过阈值 ${threshold.toFixed(3)}`);
-      reasons.push('处于历史高质量买点区间');
-    } else if (scoreAbove && confidence >= 0.5) {
-      signal = 'buy';
-      reasons.push(`模型打分 ${score.toFixed(3)} 超过阈值 ${threshold.toFixed(3)}`);
-    } else {
-      reasons.push(`模型打分 ${score.toFixed(3)} 未超过阈值 ${threshold.toFixed(3)}`);
-      if (isBuyZone) reasons.push('虽在买点区间，但置信度不足');
-    }
-
-    if (indexRows && indexRows.length) {
-      const latestIdx = indexRows[indexRows.length - 1];
-      const idxMa20 = latestIdx?.ma20 ?? null;
-      if (Number.isFinite(idxMa20) && latestIdx.close < idxMa20) {
-        reasons.push('当前大盘在 MA20 下方，信号仅供参考');
-        if (signal === 'buy') signal = 'hold';
-      }
-    }
-
-    return {
-      signal,
-      confidence: Number(confidence.toFixed(3)),
-      score: Number(score.toFixed(3)),
-      threshold: Number(threshold.toFixed(3)),
-      reason: reasons.join('；'),
-      date: latest.date,
-      close: latest.close,
-      isBuyZone,
-      isSellZone,
-    };
-  } catch (error) {
-    return { signal: 'hold', confidence: 0, reason: `信号生成失败：${error.message}` };
-  }
-}
-
-
-// ─── 核心优化入口（v2.0 三层架构）──────────────────────────
-
-export async function optimize(stockCode, startDate, endDate) {
-  const startTime = Date.now();
-  const token = readEnvLocalToken() || process.env.TUSHARE_TOKEN || '';
-  if (!token) {
-    throw new Error('Missing TUSHARE_TOKEN environment variable');
-  }
-
-  // ──── [1/5] 加载数据 ────
-  console.log(`\n[1/5] 加载数据 ${stockCode} ...`);
-  const stock = await fetchWithRetry(() => loadStockInfo(token, stockCode));
-  const candles = await fetchWithRetry(() => loadDailyCandles(token, stock.ts_code, startDate, endDate));
-
-  // 建议3：先加载指数数据，再传给股票DataEngine计算RS因子
-  let indexRows = null;
-  try {
-    const indexCandles = await fetchWithRetry(() => loadIndexCandles(token, '000300.SH', startDate, endDate));
-    indexRows = new DataEngine(indexCandles).computeAllFeatures();
-    console.log(`      指数数据：${indexRows.length} 行`);
-  } catch (error) {
-    console.warn(`      指数数据拉取失败，大盘过滤将跳过：${error.message}`);
-    indexRows = null;
-  }
-
-  const rows = new DataEngine(candles).computeAllFeatures(indexRows);
-  console.log(`      ${rows.length} 根K线已加载（含RS因子）`);
-
-  // ──── 方向6：基本面过滤 ────
-  let fundamental = { qualified: true, scores: {}, warnings: [] };
-  try {
-    fundamental = await checkFundamental(token, stock.ts_code);
-    if (fundamental.qualified) {
-      console.log(`      基本面：合格`);
-    } else {
-      console.log(`      基本面：警告 — ${fundamental.warnings.join('; ')}`);
-    }
-  } catch (error) {
-    console.warn(`      基本面检查失败：${error.message}`);
-  }
-
-  // ──── [2/5] 第一层：Regime Detection ────
-  const detector = new RegimeDetector();
-  const regimeResult = detector.detect(rows);
-  const regime = regimeResult.regime;
-  const regimeConf = regimeResult.confidence;
-  const regimeHistory = detector.detectHistory(rows);
-  console.log(`[2/5] Regime 识别：${regime}（置信度 ${regimeConf}）`);
-  if (regimeConf < 1) {
-    console.log(`      近期状态序列：${regimeResult.raw.join(' → ')}`);
-  }
-
-  // ──── [3/5] 第二层：Regime 驱动的缩窄扫描 ────
-  const regimeConfig = REGIME_CONFIGS[regime] ?? REGIME_CONFIGS.range;
-  const grid = buildRegimeGrid(regime);
-  const featurePool = getFeaturePool(regime);
-  const modelPref = getModelPref(regime);
-  const exitParams = getExitParams(regime);
-
-  console.log(`[3/5] ${regimeConfig.label} 模式 → 扫描 ${grid.length} 组配置（特征池 ${featurePool.length} 个）`);
-
-  // 扫描函数（可复用于 fallback）
-  const runScan = (scanGrid, regimeOpts, label) => {
-    const results = [];
-    const diag = { stopLossReject: 0, tradeCountReject: 0, winRateReject: 0, pfReject: 0, nullRun: 0 };
-    let scanDone = 0;
-    for (const config of scanGrid) {
-      const run = runOneConfig(rows, config, indexRows, regimeOpts);
-      const result = run?.validation ?? null;
-      if (!result) { diag.nullRun += 1; }
-      const score = scoreResult(result, diag);
-
-      scanDone += 1;
-      if (scanDone % 10 === 0 || scanDone === scanGrid.length) {
-        process.stdout.write(`      ${label} 进度：${scanDone}/${scanGrid.length}\r`);
-      }
-
-      if (score === null) continue;
-
-      results.push({
-        config,
-        result,
-        score,
-        bestModel: run.bestModel,
-        buyCount: run.buyCount,
-      });
-    }
-    // 输出诊断信息
-    const rejectParts = [];
-    if (diag.nullRun) rejectParts.push(`无结果=${diag.nullRun}`);
-    if (diag.tradeCountReject) rejectParts.push(`交易不足=${diag.tradeCountReject}`);
-    if (diag.winRateReject) rejectParts.push(`胜率不足=${diag.winRateReject}`);
-    if (diag.stopLossReject) rejectParts.push(`止损过高=${diag.stopLossReject}`);
-    if (diag.pfReject) rejectParts.push(`PF不足=${diag.pfReject}`);
-    if (rejectParts.length) {
-      console.log(`\n      拒绝原因分布: ${rejectParts.join(', ')}`);
-    }
-    return results;
+  return {
+    primary,
+    secondary,
+    tertiary,
+    validationExpected,
+    stressExpected,
   };
+};
 
-  let scanResults = runScan(grid, { featurePool, modelPref, exitParams, regime }, 'regime');
-  console.log(`\n      Regime 扫描完成，有效配置：${scanResults.length}/${grid.length}`);
+const runOneConfig = (partitions, indexPartitions, config) => {
+  const trainRows = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
+  const validationRows = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
+  const stressRows = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
+  const finalRows = buildLabeledRows(partitions.final, config, indexPartitions.finalMap);
 
-  // Fallback：regime 网格无有效结果 → 回退到全量网格（不限特征池，不限模型偏好）
-  let usedFallback = false;
-  if (scanResults.length === 0) {
-    console.log(`      Regime 扫描无有效结果，启动 Fallback 全量扫描...`);
-    const FALLBACK_GRID = [];
-    for (const minZoneCapture of [0.4, 0.5, 0.6, 0.7])
-      for (const zoneForward of [2, 3, 5, 8])
-        for (const zoneBackward of [1, 2, 3])
-          for (const envFilter of ['none', 'ma20', 'ma20_0.98', 'ma20_or_ma60_rising'])
-            FALLBACK_GRID.push({ minZoneCapture, zoneForward, zoneBackward, envFilter });
-
-    scanResults = runScan(FALLBACK_GRID, { exitParams }, 'fallback');
-    usedFallback = true;
-    console.log(`\n      Fallback 扫描完成，有效配置：${scanResults.length}/${FALLBACK_GRID.length}`);
+  const trainBuyCount = trainRows.filter((row) => row.isBuyPoint === 1).length;
+  if (trainBuyCount < 8) {
+    return null;
   }
 
-  scanResults.sort((left, right) => {
+  const selector = new ModelSelector(trainRows);
+  selector.run();
+  const bestModel = selector.bestModel();
+  if (!bestModel?.predictor) {
+    return null;
+  }
+
+  const validation = createValidator(validationRows, indexPartitions.validation, config).validate(bestModel);
+  const stress = createValidator(stressRows, indexPartitions.stress, config).validate(bestModel);
+  const final = createValidator(finalRows, indexPartitions.final, config).validate(bestModel);
+  const score = scoreConfig(validation, stress);
+  if (!score) {
+    return null;
+  }
+
+  return {
+    config,
+    bestModel: {
+      featureSet: bestModel.featureSet,
+      model: bestModel.model,
+      precision: bestModel.precision,
+      recall: bestModel.recall,
+      f1: bestModel.f1,
+    },
+    trainBuyCount,
+    validation,
+    stress,
+    final,
+    score,
+  };
+};
+
+const loadInMemoryDataset = (stockCode, endDate) => {
+  const effectiveEnd = endDate ?? todayCompact();
+  const stockRows = readDaily(toTsCode(stockCode), '20050101', effectiveEnd);
+  const indexRows = readDaily('000300.SH', '20050101', effectiveEnd);
+  const stockCandles = normalizeCsvCandles(stockRows);
+  const indexCandles = normalizeCsvCandles(indexRows);
+  const indexFeatures = new DataEngine(indexCandles).computeAllFeatures();
+  const indexMap = createIndexMap(indexFeatures);
+  const stockFeatures = new DataEngine(stockCandles).computeAllFeatures(indexFeatures);
+  const optimizerRows = buildOptimizerRows(stockFeatures);
+  return {
+    optimizerRows,
+    indexFeatures,
+    indexMap,
+  };
+};
+
+const buildPartitionMaps = (indexRows) => ({
+  train: indexRows.filter((row) => row.date <= WINDOW_TRAIN_END),
+  validation: indexRows.filter((row) => row.date >= WINDOW_VALID_START && row.date <= WINDOW_VALID_END),
+  stress: indexRows.filter((row) => row.date >= WINDOW_STRESS_START && row.date <= WINDOW_STRESS_END),
+  final: indexRows.filter((row) => row.date >= WINDOW_FINAL_START),
+  trainMap: createIndexMap(indexRows.filter((row) => row.date <= WINDOW_TRAIN_END)),
+  validationMap: createIndexMap(indexRows.filter((row) => row.date >= WINDOW_VALID_START && row.date <= WINDOW_VALID_END)),
+  stressMap: createIndexMap(indexRows.filter((row) => row.date >= WINDOW_STRESS_START && row.date <= WINDOW_STRESS_END)),
+  finalMap: createIndexMap(indexRows.filter((row) => row.date >= WINDOW_FINAL_START)),
+});
+
+const generateCurrentSignal = (rows, config, bestModel, indexMap) => {
+  if (!config || !bestModel?.predictor || !rows.length) {
+    return { signal: 'hold', confidence: 0, reason: 'missing-config-or-model' };
+  }
+
+  const labeledRows = buildLabeledRows(rows, config, indexMap);
+  const latest = labeledRows[labeledRows.length - 1];
+  if (!latest) {
+    return { signal: 'hold', confidence: 0, reason: 'missing-latest-row' };
+  }
+
+  const scores = bestModel.predictor.scoreRows([latest]);
+  const score = scores[0] ?? 0;
+  const threshold = bestModel.predictor.threshold ?? 0;
+  if (latest.isBuyPoint === 1 && score >= threshold) {
+    return { signal: 'buy', confidence: 1, score: Number(score.toFixed(4)), threshold: Number(threshold.toFixed(4)), date: latest.date };
+  }
+  if (latest.isSellPoint === 1) {
+    return { signal: 'sell', confidence: 0.7, score: Number(score.toFixed(4)), threshold: Number(threshold.toFixed(4)), date: latest.date };
+  }
+  return { signal: 'hold', confidence: 0.3, score: Number(score.toFixed(4)), threshold: Number(threshold.toFixed(4)), date: latest.date };
+};
+
+export async function optimize(stockCode, _startDate, endDate = todayCompact()) {
+  const startTime = Date.now();
+  const { optimizerRows, indexFeatures, indexMap } = loadInMemoryDataset(stockCode, endDate);
+  const partitions = splitByDateWindows(optimizerRows);
+  const indexPartitions = buildPartitionMaps(indexFeatures);
+  const grid = buildParamGrid();
+  const results = [];
+
+  for (const config of grid) {
+    const result = runOneConfig(partitions, indexPartitions, config);
+    if (result) {
+      results.push(result);
+    }
+  }
+
+  results.sort((left, right) => {
     if (right.score.primary !== left.score.primary) return right.score.primary - left.score.primary;
     if (right.score.secondary !== left.score.secondary) return right.score.secondary - left.score.secondary;
     return right.score.tertiary - left.score.tertiary;
   });
 
-  // ──── [4/5] 第三层：参数高原检验 ────
-  const bestEntry = scanResults[0] ?? null;
-  let plateau = { passed: false, bestScore: 0, neighborAvg: 0, neighborCount: 0 };
-  let effectiveBest = bestEntry;
-
-  if (bestEntry) {
-    plateau = checkParameterPlateau(bestEntry.config, scanResults);
-    console.log(`[4/5] 参数高原检验：${plateau.passed ? '通过' : '未通过'}`
-      + ` (邻域比 ${plateau.ratio ?? 0}, 邻域数 ${plateau.neighborCount}${plateau.hasDisaster ? ', 存在邻域灾难' : ''})`);
-
-    if (!plateau.passed && scanResults.length > 1) {
-      // 尖峰作废，尝试第二名
-      for (let idx = 1; idx < scanResults.length; idx += 1) {
-        const fallbackPlateau = checkParameterPlateau(scanResults[idx].config, scanResults);
-        if (fallbackPlateau.passed) {
-          effectiveBest = scanResults[idx];
-          plateau = fallbackPlateau;
-          console.log(`      尖峰作废，回退到第 ${idx + 1} 名配置（高原通过）`);
-          break;
-        }
-      }
-    }
-  }
-
-  const leaderboard = scanResults.slice(0, 10).map((item, index) => ({
+  const best = results[0] ?? null;
+  const leaderboard = results.slice(0, 10).map((item, index) => ({
     rank: index + 1,
     config: item.config,
+    trainBuyCount: item.trainBuyCount,
+    validation: item.validation,
+    stress: item.stress,
+    final: item.final,
+    score: item.score,
     bestModel: item.bestModel,
-    result: {
-      stopLossRate: item.result.stopLossRate,
-      avgReturn: item.result.avgReturn,
-      totalTrades: item.result.totalTrades,
-      winRate: item.result.winRate,
-      maxDrawdown: item.result.maxDrawdown,
-      sharpe: item.result.sharpe,
-      skippedByEnvironment: item.result.skippedByEnvironment,
-      skippedByMarket: item.result.skippedByMarket,
-      avgStopLossPct: item.result.avgStopLossPct,
-      buyCount: item.buyCount,
-      trades: item.result.trades,
-    },
   }));
 
-  const summary = {
+  return {
     stockCode,
-    stockName: stock.name,
-    regime,
-    regimeConfidence: regimeConf,
-    regimeHistory,
-    bestConfig: effectiveBest?.config ?? null,
-    bestResult: effectiveBest ? {
-      stopLossRate: effectiveBest.result.stopLossRate,
-      avgReturn: effectiveBest.result.avgReturn,
-      totalTrades: effectiveBest.result.totalTrades,
-      winRate: effectiveBest.result.winRate,
-      maxDrawdown: effectiveBest.result.maxDrawdown,
-      sharpe: effectiveBest.result.sharpe,
-      skippedByEnvironment: effectiveBest.result.skippedByEnvironment,
-      skippedByMarket: effectiveBest.result.skippedByMarket,
-      avgStopLossPct: effectiveBest.result.avgStopLossPct,
-      avgWin: effectiveBest.result.avgWin,
-      avgLoss: effectiveBest.result.avgLoss,
-      profitFactor: effectiveBest.result.profitFactor,
-      buyCount: effectiveBest.buyCount,
-      trades: effectiveBest.result.trades,
+    stockName: stockCode,
+    bestConfig: best?.config ?? null,
+    bestModel: best?.bestModel ?? null,
+    bestResult: best ? {
+      validation: best.validation,
+      stress: best.stress,
+      final: best.final,
+      trainBuyCount: best.trainBuyCount,
+      expectedValidation: Number(best.score.validationExpected.toFixed(6)),
+      expectedStress: Number(best.score.stressExpected.toFixed(6)),
     } : null,
-    bestModel: effectiveBest?.bestModel ?? null,
-    plateau: {
-      passed: plateau.passed,
-      ratio: plateau.ratio ?? 0,
-      neighborCount: plateau.neighborCount,
-    },
     leaderboard,
-    usedFallback,
+    currentSignal: best ? generateCurrentSignal(optimizerRows, best.config, best.bestModel, indexMap) : { signal: 'hold', confidence: 0, reason: 'no-valid-config' },
     stats: {
-      totalCombinations: usedFallback ? 192 : grid.length,
-      validCombinations: scanResults.length,
+      totalCombinations: grid.length,
+      validCombinations: results.length,
       scanDurationMs: Date.now() - startTime,
+      partitions: {
+        train: { start: '2005-01-01', end: WINDOW_TRAIN_END, rows: partitions.train.length },
+        validation: { start: WINDOW_VALID_START, end: WINDOW_VALID_END, rows: partitions.validation.length },
+        stress: { start: WINDOW_STRESS_START, end: WINDOW_STRESS_END, rows: partitions.stress.length },
+        final: { start: WINDOW_FINAL_START, end: formatTradeDate(endDate), rows: partitions.final.length },
+      },
     },
   };
-
-  // ──── [5/5] 第三层：ModelStore 持久化 + 替换阈值熔断 ────
-  const store = new ModelStore();
-  const newRecord = {
-    regime,
-    config: summary.bestConfig,
-    metrics: summary.bestResult ? {
-      sharpe: summary.bestResult.sharpe ?? 0,
-      avgReturn: summary.bestResult.avgReturn,
-      winRate: summary.bestResult.winRate,
-      stopLossRate: summary.bestResult.stopLossRate,
-      maxDrawdown: summary.bestResult.maxDrawdown,
-    } : null,
-    featureSet: summary.bestModel?.featureSet ?? null,
-    model: summary.bestModel?.model ?? null,
-    plateau: summary.plateau,
-  };
-
-  if (summary.bestConfig) {
-    const storeResult = store.saveWithCheck(stockCode, newRecord);
-    summary.modelStore = {
-      action: storeResult.action,
-      reason: storeResult.reason,
-      version: storeResult.record?.version ?? 0,
-    };
-    console.log(`[5/5] 模型存储：${storeResult.action} — ${storeResult.reason}`);
-
-    // 如果被熔断拒绝，用旧模型的配置覆盖
-    if (!storeResult.saved && storeResult.record?.config) {
-      console.log(`      熔断生效：沿用旧模型 v${storeResult.record.version}`);
-      summary.bestConfig = storeResult.record.config;
-      summary.modelStore.fallbackToVersion = storeResult.record.version;
-    }
-  } else {
-    summary.modelStore = { action: 'skip', reason: '无有效配置', version: 0 };
-    console.log(`[5/5] 模型存储：跳过（无有效配置）`);
-  }
-
-  summary.fundamental = fundamental;
-  summary.currentSignal = generateCurrentSignal(rows, indexRows, summary.bestConfig, summary.bestResult, { featurePool, modelPref });
-
-  // 建议3：Kelly Criterion 仓位管理
-  if (summary.bestResult && summary.currentSignal.signal === 'buy') {
-    const wr = summary.bestResult.winRate ?? 0;
-    const avgW = summary.bestResult.avgWin ?? 0;
-    const avgL = summary.bestResult.avgLoss ?? 0.01;
-    // Kelly fraction = W - (1-W)/R, R = avgWin/avgLoss
-    const R = avgL > 0 ? avgW / avgL : 1;
-    const kelly = wr - (1 - wr) / R;
-    // 半Kelly保守策略 + regime修正
-    const regimeMultiplier = { uptrend: 1.0, breakout: 0.8, range: 0.6, high_vol: 0.4, downtrend: 0.3 }[regime] ?? 0.5;
-    const halfKelly = Math.max(0, Math.min(0.25, kelly * 0.5 * regimeMultiplier));
-    summary.currentSignal.positionSize = Number(halfKelly.toFixed(4));
-    summary.currentSignal.kellyRaw = Number(kelly.toFixed(4));
-    summary.currentSignal.regimeMultiplier = regimeMultiplier;
-  }
-
-  // 建议4：基本面过滤与 regime 联动
-  // downtrend 抄底：严格执行基本面过滤（垃圾股无底）
-  // breakout 突破：放宽基本面（资金已用脚投票）
-  // 其他：正常执行
-  if (!fundamental.qualified && summary.currentSignal.signal === 'buy') {
-    if (regime === 'breakout') {
-      // 突破状态：仅警告，不降级
-      summary.currentSignal.reason += '；基本面弱势但处于突破状态，保留信号';
-    } else {
-      summary.currentSignal.signal = 'hold';
-      summary.currentSignal.reason += '；基本面不合格，信号降级为hold';
-    }
-  }
-
-  return summary;
 }
 
-
-// ─── CLI 入口 ──────────────────────────────────────────────
-
-const [, , stockCode = '600519', startDate = '20220101', endDate = '20260322'] = process.argv;
+const [, , stockCode = '600519', startDate = '20050101', endDate = todayCompact()] = process.argv;
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1]?.endsWith('optimizer.mjs')) {
   optimize(stockCode, startDate, endDate)
     .then((summary) => {
-      console.log('\n' + '='.repeat(70));
-      console.log(`  扫描报告 · ${summary.stockCode} · ${summary.regime}（置信度 ${summary.regimeConfidence}）`);
-      console.log('='.repeat(70));
-
-      if (!summary.bestConfig) {
-        console.log('\n  没有找到任何满足条件的配置');
-        console.log('  建议：放宽 stopLossRate 或 totalTrades 下限');
-        return;
+      console.log('\n' + '='.repeat(72));
+      console.log(`优化报告 | ${summary.stockCode}`);
+      console.log('='.repeat(72));
+      console.log(`总组合数: ${summary.stats.totalCombinations}`);
+      console.log(`有效组合: ${summary.stats.validCombinations}`);
+      console.log(`耗时: ${summary.stats.scanDurationMs}ms`);
+      if (summary.bestConfig) {
+        console.log(`最佳配置: ${JSON.stringify(summary.bestConfig)}`);
+      } else {
+        console.log('未找到有效配置');
       }
-
-      console.log('\n  最优配置');
-      console.log(`    minZoneCapture : ${summary.bestConfig.minZoneCapture}`);
-      console.log(`    zoneForward    : ${summary.bestConfig.zoneForward}`);
-      console.log(`    zoneBackward   : ${summary.bestConfig.zoneBackward}`);
-      console.log(`    envFilter      : ${summary.bestConfig.envFilter}`);
-
-      console.log('\n  最优结果');
-      console.log(`    avgReturn      : ${(summary.bestResult.avgReturn * 100).toFixed(2)}%`);
-      console.log(`    stopLossRate   : ${(summary.bestResult.stopLossRate * 100).toFixed(1)}%`);
-      console.log(`    winRate        : ${(summary.bestResult.winRate * 100).toFixed(1)}%`);
-      console.log(`    totalTrades    : ${summary.bestResult.totalTrades}`);
-      console.log(`    maxDrawdown    : ${(summary.bestResult.maxDrawdown * 100).toFixed(2)}%`);
-      console.log(`    sharpe         : ${summary.bestResult.sharpe ?? 'N/A'}`);
-
-      console.log('\n  参数高原');
-      console.log(`    通过           : ${summary.plateau.passed}`);
-      console.log(`    邻域比         : ${summary.plateau.ratio}`);
-      console.log(`    邻域数         : ${summary.plateau.neighborCount}`);
-
-      console.log('\n  模型存储');
-      console.log(`    操作           : ${summary.modelStore.action}`);
-      console.log(`    原因           : ${summary.modelStore.reason}`);
-      console.log(`    版本           : v${summary.modelStore.version}`);
-
-      console.log('\n  Current Signal');
-      console.log(`    signal         : ${summary.currentSignal.signal}`);
-      console.log(`    confidence     : ${summary.currentSignal.confidence}`);
-      console.log(`    score          : ${summary.currentSignal.score ?? 0}`);
-      console.log(`    threshold      : ${summary.currentSignal.threshold ?? 0}`);
-      console.log(`    date           : ${summary.currentSignal.date ?? '-'}`);
-      console.log(`    reason         : ${summary.currentSignal.reason}`);
-
-      console.log('\n  前 5 名排行');
-      console.log('  rank  capture  fwd  bwd  envFilter                 return   stopLoss  trades');
-      console.log('  ' + '-'.repeat(82));
-      summary.leaderboard.slice(0, 5).forEach((item) => {
-        const c = item.config;
-        const r = item.result;
-        console.log(
-          `  #${String(item.rank).padEnd(4)}`
-          + `${String(c.minZoneCapture).padEnd(9)}`
-          + `${String(c.zoneForward).padEnd(5)}`
-          + `${String(c.zoneBackward).padEnd(5)}`
-          + `${c.envFilter.padEnd(26)}`
-          + `${(r.avgReturn * 100).toFixed(2).padStart(7)}%  `
-          + `${(r.stopLossRate * 100).toFixed(1).padStart(7)}%  `
-          + `${String(r.totalTrades).padStart(6)}`
-        );
-      });
-
-      console.log('\n  Regime 历史');
-      const hist = summary.regimeHistory ?? [];
-      const histStr = hist.slice(-6).map((h) => `${h.date.slice(5)}:${h.regime}`).join(' → ');
-      console.log(`    ${histStr || '无'}`);
-
-      console.log('\n  扫描统计');
-      console.log(`    总组合数  : ${summary.stats.totalCombinations}`);
-      console.log(`    有效组合  : ${summary.stats.validCombinations}`);
-      console.log(`    耗时      : ${summary.stats.scanDurationMs}ms`);
-      console.log();
     })
     .catch((error) => {
       console.error(error);
