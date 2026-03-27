@@ -1,6 +1,7 @@
 ﻿import { createServer } from 'node:http';
 import { existsSync, readFileSync as readTextFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { ensureSymbolCsv, readDaily } from './data/csv-manager.mjs';
 import {
   buildSignalMarkers,
   buildTradeRecordsFromRaw,
@@ -141,24 +142,21 @@ const loadStockInfo = async (symbol) => {
 
 const loadDailyCandles = async (tsCode, period) => {
   const { startDate, endDate } = resolveDateRange(period);
-  const data = await fetchTushare(
-    'daily',
-    {
-      ts_code: tsCode,
-      start_date: startDate,
-      end_date: endDate,
-    },
-    'trade_date,open,high,low,close,vol',
-  );
+  const securityType = tsCode === '000300.SH' ? 'index' : 'stock';
+  await ensureSymbolCsv(tsCode, securityType);
 
-  return mapRows(data)
+  return readDaily(tsCode, startDate, endDate)
     .map((item) => ({
       date: formatTradeDate(item.trade_date),
       open: Number(item.open),
       high: Number(item.high),
       low: Number(item.low),
-      close: Number(item.close),
-      volume: Math.round(Number(item.vol)),
+      close: Number(item.close_adj ?? item.close),
+      close_adj: Number(item.close_adj ?? item.close),
+      close_raw: Number(item.close),
+      volume: Math.round(Number(item.volume)),
+      amount: Number(item.amount ?? 0),
+      turnover_rate: Number(item.turnover_rate ?? 0),
     }))
     .sort((left, right) => left.date.localeCompare(right.date));
 };

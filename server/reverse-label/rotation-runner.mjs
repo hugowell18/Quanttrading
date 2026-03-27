@@ -40,7 +40,7 @@ export async function runRotation(options = {}) {
   const { stockDataMap, indexRows, tradeDates, stockMeta } = buildAlignedUniverse(stockCodes);
 
   if (stockDataMap.size < 5) {
-    console.error('有效股票不足 5 只，请先运行 stock-data-cache.mjs 下载数据');
+    console.error('有效股票不足 5 只，请先运行 server/data/csv-manager.mjs 下载或更新本地CSV数据');
     return null;
   }
 

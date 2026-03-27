@@ -1,6 +1,7 @@
 import { strategyRegistry } from './strategy-registry.mjs';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const priceValue = (item) => item?.close_adj ?? item?.close ?? 0;
 
 const average = (values) => {
   if (!values.length) {
@@ -124,7 +125,7 @@ const simulateTrades = (candles, shouldEnter, shouldExit, capitalWan, stopLossPe
     if (!openTrade && shouldEnter(item, previous, index, candles)) {
       openTrade = {
         buyDate: item.date,
-        buyPrice: item.close,
+        buyPrice: priceValue(item),
       };
       return;
     }
@@ -133,7 +134,8 @@ const simulateTrades = (candles, shouldEnter, shouldExit, capitalWan, stopLossPe
       return;
     }
 
-    const returnPct = ((item.close - openTrade.buyPrice) / openTrade.buyPrice) * 100;
+    const currentPrice = priceValue(item);
+    const returnPct = ((currentPrice - openTrade.buyPrice) / openTrade.buyPrice) * 100;
     const hitStopLoss = returnPct <= -stopLossPercent;
     const hitTakeProfit = returnPct >= takeProfitPercent;
 
@@ -143,9 +145,9 @@ const simulateTrades = (candles, shouldEnter, shouldExit, capitalWan, stopLossPe
         buyDate: openTrade.buyDate,
         sellDate: item.date,
         buyPrice: openTrade.buyPrice,
-        sellPrice: item.close,
+        sellPrice: currentPrice,
         returnPct: Number(returnPct.toFixed(2)),
-        returnAmount: Number((shares * (item.close - openTrade.buyPrice)).toFixed(2)),
+        returnAmount: Number((shares * (currentPrice - openTrade.buyPrice)).toFixed(2)),
       });
       openTrade = null;
     }
@@ -173,7 +175,7 @@ const runWalkForward = (candles, evaluator) => {
   return trades;
 };
 
-const maValue = (item, period) => item[`ma${period}`] ?? item.close;
+const maValue = (item, period) => item[`ma${period}`] ?? priceValue(item);
 const recentSlice = (candles, index, lookback, includeCurrent = false) =>
   candles.slice(Math.max(0, index - lookback + (includeCurrent ? 1 : 0)), includeCurrent ? index + 1 : index);
 
@@ -190,7 +192,7 @@ const rollingLow = (candles, index, lookback, field = 'low') => {
 const rollingAverage = (candles, index, lookback, field) => average(recentSlice(candles, index, lookback, true).map((item) => item[field] ?? 0));
 
 const rollingZScore = (candles, index, lookback) => {
-  const values = recentSlice(candles, index, lookback, true).map((item) => item.close);
+  const values = recentSlice(candles, index, lookback, true).map((item) => priceValue(item));
   if (values.length < 2) {
     return 0;
   }
@@ -205,8 +207,9 @@ const rollingZScore = (candles, index, lookback) => {
 };
 
 const closeMomentum = (candles, index, lookback) => {
-  const base = candles[Math.max(0, index - lookback)]?.close ?? candles[index].close;
-  return base === 0 ? 0 : (candles[index].close - base) / base;
+  const base = priceValue(candles[Math.max(0, index - lookback)]) || priceValue(candles[index]);
+  const current = priceValue(candles[index]);
+  return base === 0 ? 0 : (current - base) / base;
 };
 
 const realizedVolatility = (candles, index, lookback = 20) => {
@@ -216,19 +219,20 @@ const realizedVolatility = (candles, index, lookback = 20) => {
   }
 
   const returns = slice.slice(1).map((item, offset) => {
-    const base = slice[offset].close || 1;
-    return (item.close - base) / base;
+    const base = priceValue(slice[offset]) || 1;
+    return (priceValue(item) - base) / base;
   });
 
   return standardDeviation(returns) * Math.sqrt(252);
 };
 
 const buildFactorScore = (item, previous, index, candles, mode) => {
-  const bullishTrend = item.close >= item.ma20 && item.ma20 >= item.ma60;
+  const currentPrice = priceValue(item);
+  const bullishTrend = currentPrice >= item.ma20 && item.ma20 >= item.ma60;
   const macdBullish = item.dif >= item.dea;
   const balancedRsi = item.rsi12 >= 45 && item.rsi12 <= 65;
-  const breakout = item.close > rollingHigh(candles, index, 20, 'high');
-  const lowerBandTouch = item.close <= item.bollLower || rollingZScore(candles, index, 20) <= -1.5;
+  const breakout = currentPrice > rollingHigh(candles, index, 20, 'high');
+  const lowerBandTouch = currentPrice <= item.bollLower || rollingZScore(candles, index, 20) <= -1.5;
   const lowTrendStrength = item.adx < 20;
   const lowVol = realizedVolatility(candles, index) <= 0.24;
   const liquid = rollingAverage(candles, index, 20, 'volume') >= 300000;
@@ -239,16 +243,16 @@ const buildFactorScore = (item, previous, index, candles, mode) => {
     case 'trend':
       return [bullishTrend, macdBullish, item.adx >= 25, strongVolume, item.roc12 > 0, obvUp].filter(Boolean).length;
     case 'range':
-      return [lowerBandTouch, item.rsi6 <= 30, item.wr14 <= -80, lowTrendStrength, item.close <= item.ma20, item.volumeRatio <= 1.2].filter(Boolean).length;
+      return [lowerBandTouch, item.rsi6 <= 30, item.wr14 <= -80, lowTrendStrength, currentPrice <= item.ma20, item.volumeRatio <= 1.2].filter(Boolean).length;
     case 'lowVolTrend':
       return [bullishTrend, macdBullish, item.adx >= 22, lowVol, strongVolume, obvUp].filter(Boolean).length;
     case 'highLiquidityBreakout':
       return [liquid, breakout, strongVolume, item.plusDi >= item.minusDi, item.adx >= 20, obvUp].filter(Boolean).length;
     case 'qualityStack':
-      return [bullishTrend, macdBullish, balancedRsi, strongVolume, obvUp, item.close >= item.bollMid].filter(Boolean).length;
+      return [bullishTrend, macdBullish, balancedRsi, strongVolume, obvUp, currentPrice >= item.bollMid].filter(Boolean).length;
     case 'balanced':
     default:
-      return [item.close >= item.ma20, macdBullish, balancedRsi, strongVolume, item.roc12 >= 0, obvUp].filter(Boolean).length;
+      return [currentPrice >= item.ma20, macdBullish, balancedRsi, strongVolume, item.roc12 >= 0, obvUp].filter(Boolean).length;
   }
 };
 

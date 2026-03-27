@@ -32,13 +32,17 @@ export class DataEngine {
   constructor(klineJson) {
     this.rows = [...klineJson]
       .map((item) => ({
-        date: String(item.date).slice(0, 10),
+        date: String(item.date ?? item.trade_date ?? '').slice(0, 10),
         open: Number(item.open),
         high: Number(item.high),
         low: Number(item.low),
-        close: Number(item.close),
+        close: Number(item.close_adj ?? item.close),
         volume: Number(item.volume ?? item.vol ?? 0),
-        turnover: item.turnover !== undefined ? Number(item.turnover) : undefined,
+        turnover: item.turnover !== undefined
+          ? Number(item.turnover)
+          : item.turnover_rate !== undefined
+            ? Number(item.turnover_rate)
+            : undefined,
       }))
       .filter((item) => item.date && Number.isFinite(item.close))
       .sort((left, right) => left.date.localeCompare(right.date));

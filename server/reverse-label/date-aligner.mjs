@@ -12,8 +12,25 @@ import { DataEngine } from './data-engine.mjs';
 import { SignalLabeler } from './signal-labeler.mjs';
 import { ModelSelector } from './model-selector.mjs';
 import { RegimeDetector } from './regime-detector.mjs';
-import { loadCachedStock, loadCachedIndex } from './stock-data-cache.mjs';
+import { readDaily } from '../data/csv-manager.mjs';
 import { STOCK_UNIVERSE } from './stock-universe.mjs';
+
+const START_DATE = '20050101';
+const END_DATE = '20991231';
+
+const toTsCode = (code) => (/^6/.test(code) ? `${code}.SH` : `${code}.SZ`);
+
+const toEngineCandles = (rows) =>
+  rows.map((row) => ({
+    date: row.trade_date,
+    open: Number(row.open),
+    high: Number(row.high),
+    low: Number(row.low),
+    close: Number(row.close),
+    close_adj: Number(row.close_adj ?? row.close),
+    volume: Number(row.volume ?? 0),
+    turnover_rate: Number(row.turnover_rate ?? 0),
+  }));
 
 /**
  * 加载所有股票并计算特征 + 标签
@@ -23,7 +40,7 @@ export function buildAlignedUniverse(stockCodes = null) {
   const codes = stockCodes ?? STOCK_UNIVERSE.map((s) => s.code);
 
   // 1. 加载指数
-  const indexCandles = loadCachedIndex('000300.SH');
+  const indexCandles = toEngineCandles(readDaily('000300.SH', START_DATE, END_DATE));
   let indexRows = null;
   if (indexCandles && indexCandles.length) {
     indexRows = new DataEngine(indexCandles).computeAllFeatures();
@@ -35,7 +52,7 @@ export function buildAlignedUniverse(stockCodes = null) {
   const stockMeta = new Map();
 
   for (const code of codes) {
-    const candles = loadCachedStock(code);
+    const candles = toEngineCandles(readDaily(toTsCode(code), START_DATE, END_DATE));
     if (!candles || candles.length < 200) {
       console.log(`  [Align] ${code}: 数据不足 (${candles?.length ?? 0} 行), 跳过`);
       continue;
