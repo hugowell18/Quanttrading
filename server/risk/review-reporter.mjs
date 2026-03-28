@@ -237,3 +237,6 @@ export function formatReportText(report) {
 
   return lines.join('\n');
 }
+
+// 4.7 因子有效性监控（re-export from factor-analyzer，符合设计文档接口约定）
+export { computeWeeklyFactor, computeRollingIC as computeFactorIC } from './factor-analyzer.mjs';
