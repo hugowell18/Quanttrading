@@ -61,6 +61,9 @@ export function calcMetrics(date, prevDate = null) {
   const zbCount = zbRows.length;
   const dtCount = dtRows.length;
 
+  // Tushare-daily 数据缺少 ZB 池和 failed_seals，标记后跳过相关指标
+  const isTushareDaily = today.ztpool?.source === 'tushare-daily';
+
   // ── 指标1：涨停家数 ──────────────────────────
   const yiziCount    = ztRows.filter(isYiziBoard).length;
   const nonYiziCount = ztCount - yiziCount;
@@ -71,9 +74,11 @@ export function calcMetrics(date, prevDate = null) {
     : 0;
 
   // ── 指标3：炸板率 ────────────────────────────
-  const zbRate = (ztCount + zbCount) > 0
-    ? round4(zbCount / (ztCount + zbCount))
-    : null;
+  // Tushare-daily 无 ZB 池数据，置 null
+  const zbRate = isTushareDaily ? null
+    : (ztCount + zbCount) > 0
+      ? round4(zbCount / (ztCount + zbCount))
+      : null;
 
   // ── 指标4：涨跌停比 ──────────────────────────
   const ztDtRatio = dtCount > 0
@@ -81,11 +86,10 @@ export function calcMetrics(date, prevDate = null) {
     : null;
 
   // ── 指标5：封板率 ────────────────────────────
-  // 近似：failed_seals==0 的涨停股视为"收盘仍封板"
+  // Tushare-daily 的 failed_seals 全部默认为 0，不能反映真实封板情况，置 null
   const sealedCount = ztRows.filter((r) => (r.failed_seals ?? 0) === 0).length;
-  const sealRate = ztCount > 0
-    ? round4(sealedCount / ztCount)
-    : null;
+  const sealRate = (isTushareDaily || ztCount === 0) ? null
+    : round4(sealedCount / ztCount);
 
   // ── 指标6：昨日涨停溢价 ───────────────────────
   // 昨日 ZT_Pool 个股 → 今日涨跌幅均值
