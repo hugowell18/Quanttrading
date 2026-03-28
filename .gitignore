@@ -92,6 +92,8 @@ dist-ssr
 # Quanttrading data & tools
 # ============================================
 results/data-cache/
+results/batch/
 .claude/
 .kiro/
 cache/
+__pycache__/
