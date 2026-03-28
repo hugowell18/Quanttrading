@@ -1,0 +1,184 @@
+{
+  "workspaceId": "",
+  "collectionId": "",
+  "environmentId": "",
+  "collection": {
+    "info": {
+      "name": "QuantPulse API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      { "key": "api_base", "value": "http://localhost:3001" },
+      { "key": "proxy_base", "value": "http://localhost:3030" }
+    ],
+    "item": [
+      {
+        "name": "API Server (port 3001)",
+        "item": [
+          {
+            "name": "GET /api/status",
+            "request": {
+              "method": "GET",
+              "url": "{{api_base}}/api/status"
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('status 200', () => pm.response.to.have.status(200));",
+                    "pm.test('ok is true', () => {",
+                    "  const body = pm.response.json();",
+                    "  pm.expect(body.ok).to.be.true;",
+                    "  pm.expect(body.time).to.be.a('string');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET /api/batch/summary",
+            "request": {
+              "method": "GET",
+              "url": "{{api_base}}/api/batch/summary"
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('status 200 or 404', () => {",
+                    "  pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                    "});",
+                    "pm.test('response is JSON', () => pm.response.to.be.json);"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET /api/analyze/:code",
+            "request": {
+              "method": "GET",
+              "url": {
+                "raw": "{{api_base}}/api/analyze/600519?start=20240101&end=20260101",
+                "host": ["{{api_base}}"],
+                "path": ["api", "analyze", "600519"],
+                "query": [
+                  { "key": "start", "value": "20240101" },
+                  { "key": "end", "value": "20260101" }
+                ]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('status 200 or 500', () => {",
+                    "  pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+                    "});",
+                    "pm.test('response is JSON', () => pm.response.to.be.json);"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Tushare Proxy (port 3030)",
+        "item": [
+          {
+            "name": "GET /api/tushare/batch/summary",
+            "request": {
+              "method": "GET",
+              "url": "{{proxy_base}}/api/tushare/batch/summary"
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('status 200 or 404', () => {",
+                    "  pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                    "});",
+                    "pm.test('response is JSON', () => pm.response.to.be.json);"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET /api/tushare/stock/:symbol",
+            "request": {
+              "method": "GET",
+              "url": {
+                "raw": "{{proxy_base}}/api/tushare/stock/600519?period=1y&capital=100&stopLoss=8&takeProfit=20&strategyMode=adaptive_composite_e",
+                "host": ["{{proxy_base}}"],
+                "path": ["api", "tushare", "stock", "600519"],
+                "query": [
+                  { "key": "period", "value": "1y" },
+                  { "key": "capital", "value": "100" },
+                  { "key": "stopLoss", "value": "8" },
+                  { "key": "takeProfit", "value": "20" },
+                  { "key": "strategyMode", "value": "adaptive_composite_e" }
+                ]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('status 200 or 502', () => {",
+                    "  pm.expect(pm.response.code).to.be.oneOf([200, 502]);",
+                    "});",
+                    "pm.test('response is JSON', () => pm.response.to.be.json);",
+                    "if (pm.response.code === 200) {",
+                    "  pm.test('has stock info', () => {",
+                    "    const body = pm.response.json();",
+                    "    pm.expect(body.stock).to.have.property('code');",
+                    "    pm.expect(body.stock).to.have.property('name');",
+                    "    pm.expect(body.candles).to.be.an('array');",
+                    "    pm.expect(body.trades).to.be.an('array');",
+                    "  });",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET /api/tushare/optimizer/:symbol",
+            "request": {
+              "method": "GET",
+              "url": {
+                "raw": "{{proxy_base}}/api/tushare/optimizer/600519?period=1y",
+                "host": ["{{proxy_base}}"],
+                "path": ["api", "tushare", "optimizer", "600519"],
+                "query": [
+                  { "key": "period", "value": "1y" }
+                ]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('status 200 or 502', () => {",
+                    "  pm.expect(pm.response.code).to.be.oneOf([200, 502]);",
+                    "});",
+                    "pm.test('response is JSON', () => pm.response.to.be.json);"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

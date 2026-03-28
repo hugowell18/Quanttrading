@@ -2,8 +2,12 @@
 import argparse
 import json
 import sys
+import io
 import urllib.parse
 import urllib.request
+
+# 强制 stdout 使用 UTF-8，避免 Windows 默认 GBK 导致中文乱码
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def fail(message: str, code: int = 1):

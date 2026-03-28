@@ -8,6 +8,10 @@
   python ztpool_collector.py --type dtpool
 输出：JSON to stdout，格式见 normalize_*() 函数
 """
+import sys
+import io
+# 强制 stdout 使用 UTF-8，避免 Windows 默认 GBK 导致中文乱码
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 import argparse
 import json
 import sys
