@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { optimize } from './reverse-label/optimizer.mjs';
 import { ensureSymbolCsv } from './data/csv-manager.mjs';
@@ -81,77 +81,50 @@ app.get('/api/batch/summary', (_req, res) => {
 
 app.get('/api/analyze/:code', async (req, res) => {
   const { code } = req.params;
+  const forceRefresh = req.query.refresh === '1';
+  const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const tsCode = /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
 
-  try {
-    // ── Step 1: Try to serve from batch summary (fast path) ──────────────
-    const forceRefresh = req.query.refresh === '1';
-    if (!forceRefresh && existsSync(SUMMARY_PATH)) {
-      const raw = JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'));
-      const allItems = [
-        ...(Array.isArray(raw) ? raw : []),
-        ...(raw.strictPassed || []),
-        ...(raw.weakPassed || []),
-        ...(raw.failed || []),
-      ];
-      const item = allItems.find(x => x.code === code);
-      if (item && item.valid !== false) {
-        console.log(`[analyze] ${code} served from batch summary`);
-        const tsCode = /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
-        const klineFilePath = resolve(KLINE_DIR, `${tsCode}.csv`);
-        const result = {
-          stockCode: code,
-          stockName: item.name ?? code,
-          bestConfig: item.bestConfig ?? null,
-          bestResult: item.bestResult ?? null,
-          currentSignal: item.currentSignal ?? null,
-          strictPass: item.strictPass,
-          kline: [],
-        };
-        if (existsSync(klineFilePath)) {
-          const allCandles = parseKlineCsv(klineFilePath);
-          // Find earliest trade date to cover all B/S markers
-          const trades = item.bestResult?.trades ?? [];
-          const earliest = trades.map(t => t.buyDate).sort()[0];
-          let cutoff;
-          if (earliest) {
-            const d = new Date(earliest);
-            d.setDate(d.getDate() - 30);
-            cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
-          } else {
-            const d = new Date(); d.setFullYear(d.getFullYear() - 2);
-            cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
-          }
-          result.kline = allCandles
-            .filter(c => c.date >= cutoff)
-            .map(c => ({ ...c, date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}` }));
-        }
-        return res.json(result);
-      }
+  // ── Helper: build kline from CSV covering all trade dates ──────────────
+  const buildKline = (trades) => {
+    const fp = resolve(KLINE_DIR, `${tsCode}.csv`);
+    if (!existsSync(fp)) return [];
+    const candles = parseKlineCsv(fp);
+    const earliest = [...trades].map(t => t.buyDate).sort()[0];
+    let cutoff;
+    if (earliest) {
+      const d = new Date(earliest); d.setDate(d.getDate() - 30);
+      cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+    } else {
+      const d = new Date(); d.setFullYear(d.getFullYear() - 2);
+      cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+    }
+    return candles
+      .filter(c => c.date >= cutoff)
+      .map(c => ({ ...c, date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}` }));
+  };
+
+  // ── Helper: run optimizer + flatten + write back to summary ────────────
+  const runFull = async () => {
+    // 1. Incremental CSV update
+    try {
+      const r = await ensureSymbolCsv(tsCode, 'stock');
+      console.log(`[analyze] ${code} CSV rows=${r.rows} appended=${r.appended ?? 0}`);
+    } catch (e) {
+      console.warn(`[analyze] ${code} CSV update failed: ${e.message}`);
     }
 
-    // ── Step 2: Fallback — run optimizer (slow path for unknown stocks) ──
-    const { start, end } = req.query;
-    const endDate = typeof end === 'string' && end ? end : new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    // Always use full history for optimizer to get meaningful validation/stress partitions
-    const startDate = typeof start === 'string' && start ? start : '20050101';
-
-    const tsCode = /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
-    const csvPath = resolve(KLINE_DIR, `${tsCode}.csv`);
-    if (!existsSync(csvPath)) {
-      console.log(`[analyze] ${code} CSV不存在，正在拉取...`);
-      await ensureSymbolCsv(tsCode, 'stock');
-    }
-
-    console.log(`[analyze] ${code} running optimizer ${startDate}~${endDate}`);
-    const raw = await optimize(code, startDate, endDate);
-
-    // Flatten optimizer result to match batch summary format
+    // 2. Full optimizer run — unlock final partition to get 2022-today trades
+    console.log(`[analyze] ${code} running optimizer...`);
+    const raw = await optimize(code, '20050101', todayStr, { unlockTest: true });
     const br = raw.bestResult;
+    // Combine all partitions for complete trade history
     const allTrades = [
+      ...(br?.trainValidation?.trades ?? []),
       ...(br?.validation?.trades ?? []),
       ...(br?.stress?.trades ?? []),
       ...(Array.isArray(br?.final?.trades) ? br.final.trades : []),
-    ];
+    ].sort((a, b) => b.buyDate.localeCompare(a.buyDate));
     const wins = allTrades.filter(t => t.return > 0);
     const flatBestResult = br ? {
       stopLossRate: br.validation?.stopLossRate ?? 0,
@@ -166,33 +139,73 @@ app.get('/api/analyze/:code', async (req, res) => {
       trades: allTrades,
     } : null;
 
-    const result = {
-      stockCode: raw.stockCode,
-      stockName: raw.stockName,
+    const newItem = {
+      code,
+      name: raw.stockName ?? code,
       bestConfig: raw.bestConfig,
       currentSignal: raw.currentSignal,
-      strictPass: false,
+      strictPass: (raw.stats?.validCombinations ?? 0) > 0,
       bestResult: flatBestResult,
-      kline: [],
+      valid: true,
+      lastUpdated: todayStr,
     };
 
-    const klineFilePath = resolve(KLINE_DIR, `${tsCode}.csv`);
-    if (existsSync(klineFilePath)) {
-      const allCandles = parseKlineCsv(klineFilePath);
-      const earliest = allTrades.map(t => t.buyDate).sort()[0];
-      let cutoff;
-      if (earliest) {
-        const d = new Date(earliest); d.setDate(d.getDate() - 30);
-        cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
-      } else {
-        const d = new Date(); d.setFullYear(d.getFullYear() - 2);
-        cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+    // 3. Write back to summary.json
+    try {
+      let s = existsSync(SUMMARY_PATH)
+        ? JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'))
+        : { strictPassed: [], weakPassed: [], failed: [], total: 0 };
+      if (!s.strictPassed) s = { strictPassed: [], weakPassed: [], failed: [], total: 0 };
+      for (const k of ['strictPassed', 'weakPassed', 'failed']) {
+        s[k] = (s[k] || []).filter(x => x.code !== code);
       }
-      result.kline = allCandles
-        .filter(c => c.date >= cutoff)
-        .map(c => ({ ...c, date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}` }));
+      if (newItem.strictPass) s.strictPassed.push(newItem);
+      else if ((flatBestResult?.totalTrades ?? 0) > 0) s.weakPassed.push(newItem);
+      else s.failed.push({ code, name: raw.stockName ?? code, valid: false, lastUpdated: todayStr });
+      s.total = s.strictPassed.length + s.weakPassed.length + s.failed.length;
+      writeFileSync(SUMMARY_PATH, JSON.stringify(s, null, 2), 'utf8');
+      console.log(`[analyze] ${code} written to summary.json`);
+    } catch (e) {
+      console.warn(`[analyze] failed to write summary: ${e.message}`);
     }
+
+    return { ...newItem, stockCode: code, stockName: newItem.name, kline: buildKline(allTrades) };
+  };
+
+  try {
+    // ── Check summary for existing entry ──────────────────────────────────
+    if (existsSync(SUMMARY_PATH)) {
+      const s = JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'));
+      const all = [
+        ...(s.strictPassed || []),
+        ...(s.weakPassed || []),
+        ...(s.failed || []),
+        ...(Array.isArray(s) ? s : []),
+      ];
+      const item = all.find(x => x.code === code);
+
+      if (item && item.valid !== false) {
+        const isUpToDate = item.lastUpdated === todayStr;
+
+        if (!forceRefresh && isUpToDate) {
+          // Data is fresh today — serve immediately
+          console.log(`[analyze] ${code} up-to-date, serving from summary`);
+          const trades = item.bestResult?.trades ?? [];
+          return res.json({ ...item, stockCode: code, stockName: item.name, kline: buildKline(trades) });
+        }
+
+        // Data is stale (or force refresh) — update CSV + re-run optimizer
+        console.log(`[analyze] ${code} stale (${item.lastUpdated ?? 'unknown'}), refreshing...`);
+      } else {
+        console.log(`[analyze] ${code} not in summary, running full analysis...`);
+      }
+    } else {
+      console.log(`[analyze] ${code} no summary.json, running full analysis...`);
+    }
+
+    const result = await runFull();
     return res.json(result);
+
   } catch (error) {
     console.error(`[analyze] ${code} failed: ${error.message}`);
     return res.status(500).json({ error: error.message });

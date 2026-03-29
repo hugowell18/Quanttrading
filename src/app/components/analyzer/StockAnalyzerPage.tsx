@@ -53,7 +53,7 @@ interface HistoryEntry {
 
 // ─── Helpers ───────────────────────────────────────────────
 
-const HISTORY_KEY = 'stock_analyzer_history_v2';
+const HISTORY_KEY = 'stock_analyzer_history_v3';
 const MAX_HISTORY = 20;
 
 function loadHistory(): HistoryEntry[] {
@@ -272,10 +272,12 @@ export function StockAnalyzerPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
-      // If user switched to another code while this was running, discard result
       if (analyzingRef.current !== code) return;
 
       const raw = json?.data ?? json;
+
+      // If refresh, backend has already updated summary.json — treat same as normal analyze
+      // (remove the early-return so full result including new trades is shown)
       const trades = extractOosTrades(raw);
       const bestResult = buildBestResult(raw, trades);
       const kline: KLinePoint[] = raw.kline ?? [];
