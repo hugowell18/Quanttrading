@@ -15,7 +15,7 @@ import { readZtpool } from './sentiment/ztpool-collector.mjs';
 import { calcMetrics, saveSentiment, loadMetrics } from './sentiment/sentiment-engine.mjs';
 import { evaluateState, readStateHistory, writeStateRecord } from './sentiment/sentiment-state-machine.mjs';
 import { getAvailablePosition, tryOpenPosition, calcOpenAmount } from './risk/position-manager.mjs';
-import { checkCircuitBreaker, recordTradeResult } from './risk/circuit-breaker.mjs';
+import { checkCircuitBreaker, recordTradeResult, resetCircuitBreaker } from './risk/circuit-breaker.mjs';
 import { paperOrder, lockParams } from './risk/paper-trading.mjs';
 import { calcDynamicTP } from './risk/dynamic-tp.mjs';
 import { generateReviewReport, saveReviewReport, formatReportText } from './risk/review-reporter.mjs';
@@ -48,6 +48,48 @@ const PERIOD_MAP = {
   '2': { label: '2024-02 极端反弹',     dates: ['20240201','20240202','20240205','20240206','20240207','20240208','20240219','20240220','20240221','20240222'] },
   '3': { label: '2025-02 DeepSeek行情', dates: ['20250205','20250206','20250207','20250210','20250211','20250212','20250213','20250214','20250217','20250218'] },
   '4': { label: '2026-03 AKShare完整数据', dates: ['20260309','20260310','20260311','20260312','20260313','20260316','20260317','20260318','20260319','20260320','20260323','20260325','20260326'] },
+
+  // ── 新增时间段 ──
+
+  // 5: 2023-07 AI行情高潮（ChatGPT概念主升浪，涨停家数持续100+）
+  '5': { label: '2023-07 AI行情主升浪', dates: ['20230703','20230704','20230705','20230706','20230707','20230710','20230711','20230712','20230713','20230714'] },
+
+  // 6: 2023-08 退潮压力测试（AI行情退潮，涨停家数骤降，验证退潮清仓机制）
+  '6': { label: '2023-08 AI行情退潮',   dates: ['20230814','20230815','20230816','20230817','20230818','20230821','20230822','20230823','20230824','20230825'] },
+
+  // 7: 2024-05 震荡冰点（大盘弱势，涨停家数低迷，验证冰点空仓）
+  '7': { label: '2024-05 震荡冰点',     dates: ['20240506','20240507','20240508','20240509','20240510','20240513','20240514','20240515','20240516','20240517'] },
+
+  // 8: 2024-09 924行情启动前（情绪从冰点→启动的过渡，验证状态切换）
+  '8': { label: '2024-09 924行情启动',  dates: ['20240918','20240919','20240920','20240923','20240924','20240925','20240926','20240927','20240930','20241008'] },
+
+  // 9: 2024-11 924后高潮→退潮（验证高潮减仓+退潮清仓）
+  '9': { label: '2024-11 高潮退潮',     dates: ['20241101','20241104','20241105','20241106','20241107','20241108','20241111','20241112','20241113','20241114'] },
+
+  // 10: 2025-04 关税冲击暴跌（极端下跌，验证止损+熔断机制）
+  '10': { label: '2025-04 关税冲击暴跌', dates: ['20250407','20250408','20250409','20250410','20250411','20250414','20250415','20250416','20250417','20250418'] },
+
+  // 11: 2025-05 关税缓和反弹（暴跌后快速反弹，验证反弹行情捕捉）
+  '11': { label: '2025-05 关税缓和反弹', dates: ['20250506','20250507','20250508','20250509','20250512','20250513','20250514','20250515','20250516','20250519'] },
+
+  // 12: 2025-10 节后行情（国庆后开盘，验证节后情绪判断）
+  '12': { label: '2025-10 节后行情',    dates: ['20251009','20251010','20251013','20251014','20251015','20251016','20251017','20251020','20251021','20251022'] },
+
+  // 13: 2026-01 年初行情（新年开盘，验证年初情绪）
+  '13': { label: '2026-01 年初行情',    dates: ['20260105','20260106','20260107','20260108','20260109','20260112','20260113','20260114','20260115','20260116'] },
+
+  // 14: 长周期压力测试（跨越多个情绪周期，2024全年抽样）
+  '14': { label: '2024 全年抽样（跨周期）', dates: [
+    '20240205','20240206',  // 极端反弹
+    '20240326','20240327',  // 震荡
+    '20240506','20240507',  // 冰点
+    '20240701','20240702',  // 夏季震荡
+    '20240819','20240820',  // 弱势
+    '20240924','20240925',  // 924启动
+    '20241008','20241009',  // 主升
+    '20241104','20241105',  // 退潮
+    '20241209','20241210',  // 年末
+  ]},
 };
 
 const periodArg = process.argv.includes('--period')
@@ -153,6 +195,9 @@ function trackPositions(date) {
 
 // ── 主流程 ──
 async function runScenario() {
+  // 每次运行重置熔断状态，防止跨 period 残留
+  resetCircuitBreaker();
+
   log('场景', '========== 系统集成测试场景 ==========');
   log('场景', `日期范围：${SCENARIO_DATES[0]} ~ ${SCENARIO_DATES[SCENARIO_DATES.length - 1]}  【${period.label}】`);
   log('场景', `出场参数来源：results/batch/600519.json exitPlan=${exitPlan.name}`);
@@ -285,6 +330,48 @@ async function runScenario() {
     return;
   }
 
+  // 区分有效交易（止盈/止损/超时）和场景结束强平
+  const effectiveTrades = allTrades.filter((t) => t.exitReason !== '场景结束');
+  const scenarioEndTrades = allTrades.filter((t) => t.exitReason === '场景结束');
+
+  const calcStats = (trades) => {
+    if (!trades.length) return null;
+    const wins   = trades.filter((t) => t.returnPct > 0);
+    const losses = trades.filter((t) => t.returnPct <= 0);
+    const winRate   = wins.length / trades.length;
+    const avgReturn = trades.reduce((s, t) => s + t.returnPct, 0) / trades.length;
+    const avgWin    = wins.length   ? wins.reduce((s, t) => s + t.returnPct, 0) / wins.length     : 0;
+    const avgLoss   = losses.length ? losses.reduce((s, t) => s + t.returnPct, 0) / losses.length : 0;
+    const grossWin  = wins.reduce((s, t) => s + t.returnPct, 0);
+    const grossLoss = Math.abs(losses.reduce((s, t) => s + t.returnPct, 0));
+    const profitFactor = grossLoss > 0 ? grossWin / grossLoss : Infinity;
+    const expectancy = winRate * avgWin + (1 - winRate) * avgLoss;
+    return { wins, losses, winRate, avgReturn, avgWin, avgLoss, profitFactor, expectancy };
+  };
+
+  const eff = calcStats(effectiveTrades);
+  const all = calcStats(allTrades);
+
+  if (eff) {
+    log('统计', `── 有效交易（止盈/止损/超时）共 ${effectiveTrades.length} 笔 ──`);
+    log('统计', `胜率：${eff.wins.length}/${effectiveTrades.length} = ${(eff.winRate * 100).toFixed(1)}%`);
+    log('统计', `平均收益：${eff.avgReturn.toFixed(2)}%`);
+    log('统计', `平均盈利：+${eff.avgWin.toFixed(2)}%  平均亏损：${eff.avgLoss.toFixed(2)}%`);
+    log('统计', `盈亏比：${isFinite(eff.profitFactor) ? eff.profitFactor.toFixed(2) : '∞'}`);
+    log('统计', `期望收益：${eff.expectancy.toFixed(2)}%`);
+  }
+
+  if (scenarioEndTrades.length) {
+    log('统计', `── 场景结束强平（不计入胜率）共 ${scenarioEndTrades.length} 笔 ──`);
+    log('统计', `（这些持仓尚未到达出场条件，测试窗口结束被强平，不反映策略真实表现）`);
+  }
+
+  if (all) {
+    log('统计', `── 全部合并统计（含场景结束）共 ${allTrades.length} 笔 ──`);
+    log('统计', `胜率：${all.wins.length}/${allTrades.length} = ${(all.winRate * 100).toFixed(1)}%`);
+    log('统计', `平均收益：${all.avgReturn.toFixed(2)}%`);
+  }
+
   const wins   = allTrades.filter((t) => t.returnPct > 0);
   const losses = allTrades.filter((t) => t.returnPct <= 0);
   const winRate   = wins.length / allTrades.length;
@@ -295,12 +382,6 @@ async function runScenario() {
   const grossLoss = Math.abs(losses.reduce((s, t) => s + t.returnPct, 0));
   const profitFactor = grossLoss > 0 ? grossWin / grossLoss : Infinity;
   const expectancy = winRate * avgWin + (1 - winRate) * avgLoss;
-
-  log('统计', `胜率：${wins.length}/${allTrades.length} = ${(winRate * 100).toFixed(1)}%`);
-  log('统计', `平均收益：${avgReturn.toFixed(2)}%`);
-  log('统计', `平均盈利：+${avgWin.toFixed(2)}%  平均亏损：${avgLoss.toFixed(2)}%`);
-  log('统计', `盈亏比：${isFinite(profitFactor) ? profitFactor.toFixed(2) : '∞'}`);
-  log('统计', `期望收益：${expectancy.toFixed(2)}%`);
 
   // 与 optimizer 验证集对比
   const valResult = batchResult.bestResult?.validation;

@@ -1,20 +1,28 @@
-import { useState } from 'react';
-import { LayoutDashboard, TrendingUp, BarChart3 } from 'lucide-react';
-import { MarketDashboard } from './components/MarketDashboard';
-import { QuantDashboard } from './components/QuantDashboard';
-import { IndustryTrends } from './components/IndustryTrends';
+import { useState, useEffect } from 'react';
+import { LayoutDashboard, TrendingUp, Settings } from 'lucide-react';
+import { AppProvider, useAppContext } from './context/AppContext';
+import { MarketOverview } from './components/market/MarketOverview';
+import { StockAnalyzerPage } from './components/analyzer/StockAnalyzerPage';
+import { DebugAdminPage } from './components/admin/DebugAdminPage';
+import { Toaster } from './components/ui/sonner';
+import type { PageType } from './types/api';
 
-type PageType = 'dashboard' | 'analyzer' | 'trends';
+const navigation: { id: PageType; name: string; icon: React.ElementType }[] = [
+  { id: 'market', name: '大盘全景', icon: LayoutDashboard },
+  { id: 'analyzer', name: '个股复盘', icon: TrendingUp },
+  { id: 'admin', name: '调试控制台', icon: Settings },
+];
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
-  const nowLabel = new Date().toLocaleString('zh-CN');
+function AppShell() {
+  const { currentPage, setCurrentPage } = useAppContext();
+  const [nowLabel, setNowLabel] = useState(() => new Date().toLocaleString('zh-CN'));
 
-  const navigation = [
-    { id: 'dashboard' as PageType, name: '市场总览', icon: LayoutDashboard },
-    { id: 'analyzer' as PageType, name: '信号分析', icon: TrendingUp },
-    { id: 'trends' as PageType, name: '行业趋势', icon: BarChart3 },
-  ];
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowLabel(new Date().toLocaleString('zh-CN'));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -33,7 +41,7 @@ export default function App() {
                 <button
                   key={item.id}
                   onClick={() => setCurrentPage(item.id)}
-                  className={`flex min-w-fit items-center gap-2 rounded-md border px-4 py-1.5 font-mono text-[12px] uppercase tracking-[0.12em] transition-all ${
+                  className={`flex min-w-fit items-center gap-2 rounded-md border px-4 py-1.5 font-mono text-[12px] uppercase tracking-[0.12em] transition-all duration-200 ${
                     currentPage === item.id
                       ? 'border-primary/30 bg-primary/12 text-primary'
                       : 'border-transparent text-muted-foreground hover:border-border hover:bg-white/3 hover:text-foreground'
@@ -57,9 +65,9 @@ export default function App() {
       </header>
 
       <main className="relative z-10 mx-auto max-w-[1600px] px-6 py-6">
-        {currentPage === 'dashboard' && <MarketDashboard />}
-        {currentPage === 'analyzer' && <QuantDashboard />}
-        {currentPage === 'trends' && <IndustryTrends />}
+        {currentPage === 'market' && <MarketOverview />}
+        {currentPage === 'analyzer' && <StockAnalyzerPage />}
+        {currentPage === 'admin' && <DebugAdminPage />}
       </main>
 
       <footer className="relative z-10 mt-8 border-t border-border bg-background/90">
@@ -71,5 +79,14 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <AppShell />
+      <Toaster />
+    </AppProvider>
   );
 }

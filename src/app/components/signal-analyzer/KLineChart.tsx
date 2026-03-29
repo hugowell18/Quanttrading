@@ -8,9 +8,10 @@ interface KLineChartProps {
   signalMarkers: SignalMarker[];
   stockCode: string;
   stockName: string;
+  onCandleClick?: (date: string) => void;
 }
 
-export function KLineChart({ klineData, signalMarkers, stockCode, stockName }: KLineChartProps) {
+export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onCandleClick }: KLineChartProps) {
   const [priceView, setPriceView] = useState<PriceViewPreset>('120');
   const [priceWindowStart, setPriceWindowStart] = useState(0);
   const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(null);
@@ -177,7 +178,8 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName }: K
                   </g>
                 )}
                 <rect x={chartPadding.left + candleSlotWidth * i} y={chartPadding.top} width={Math.max(candleSlotWidth, 8)} height={drawableHeight} fill="transparent"
-                  onMouseEnter={() => setHoveredCandleIndex(i)} onMouseMove={() => setHoveredCandleIndex(i)} />
+                  onMouseEnter={() => setHoveredCandleIndex(i)} onMouseMove={() => setHoveredCandleIndex(i)}
+                  onClick={() => onCandleClick?.(item.date)} style={{ cursor: onCandleClick ? 'pointer' : 'default' }} />
               </g>
             );
           })}

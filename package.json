@@ -7,6 +7,7 @@
     "dev:api": "node server/tushare-proxy.mjs",
     "build": "vite build",
     "dev": "vite",
+    "test": "vitest run",
     "analyze:reverse": "node server/reverse-label/run-pipeline.mjs"
   },
   "dependencies": {
@@ -71,8 +72,10 @@
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
+    "fast-check": "^4.6.0",
     "tailwindcss": "4.1.12",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "vitest": "^4.1.2"
   },
   "peerDependencies": {
     "react": "18.3.1",
