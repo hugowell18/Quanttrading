@@ -25,12 +25,17 @@ function QualityBadge({ entry }: { entry: ZtPoolEntry }) {
 function EntryRow({
   entry,
   isLeader,
+  onDoubleClick,
 }: {
   entry: ZtPoolEntry;
   isLeader: boolean;
+  onDoubleClick?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0 text-[11px] font-mono">
+    <div
+      className="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0 text-[11px] font-mono cursor-pointer hover:bg-white/5 rounded transition-colors"
+      onDoubleClick={onDoubleClick}
+    >
       <span className="w-16 text-primary/80 shrink-0">{entry.code}</span>
       <span className="flex-1 truncate text-foreground">{entry.name}</span>
       {isLeader && (
@@ -50,10 +55,12 @@ function PoolSection({
   title,
   entries,
   maxDays,
+  onDoubleClick,
 }: {
   title: string;
   entries: ZtPoolEntry[];
   maxDays: number;
+  onDoubleClick?: (code: string) => void;
 }) {
   if (entries.length === 0) return null;
   return (
@@ -62,14 +69,19 @@ function PoolSection({
         {title}（{entries.length}）
       </div>
       {entries.map((e) => (
-        <EntryRow key={e.code} entry={e} isLeader={e.continuous_days === maxDays && e.continuous_days > 1} />
+        <EntryRow
+          key={e.code}
+          entry={e}
+          isLeader={e.continuous_days === maxDays && e.continuous_days > 1}
+          onDoubleClick={onDoubleClick ? () => onDoubleClick(e.code) : undefined}
+        />
       ))}
     </div>
   );
 }
 
 export function ZtPoolTracker() {
-  const { selectedDate } = useAppContext();
+  const { selectedDate, navigateToStock } = useAppContext();
   const [data, setData] = useState<ZtPoolResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [empty, setEmpty] = useState(false);
@@ -132,10 +144,10 @@ export function ZtPoolTracker() {
 
         {!loading && !empty && (
           <div className="flex flex-col gap-4 max-h-80 overflow-y-auto pr-1">
-            <PoolSection title="连板" entries={multiBoard} maxDays={maxDays} />
-            <PoolSection title="首板" entries={firstBoard} maxDays={0} />
+            <PoolSection title="连板" entries={multiBoard} maxDays={maxDays} onDoubleClick={navigateToStock} />
+            <PoolSection title="首板" entries={firstBoard} maxDays={0} onDoubleClick={navigateToStock} />
             {zbRows.length > 0 && (
-              <PoolSection title="炸板回封" entries={zbRows} maxDays={0} />
+              <PoolSection title="炸板回封" entries={zbRows} maxDays={0} onDoubleClick={navigateToStock} />
             )}
           </div>
         )}

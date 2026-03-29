@@ -55,6 +55,7 @@ function runPythonCollector(dateStr) {
     encoding: 'utf8',
     timeout: 120_000,   // 2分钟超时
     maxBuffer: 10 * 1024 * 1024,
+    env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
   });
 
   return JSON.parse(stdout.trim());

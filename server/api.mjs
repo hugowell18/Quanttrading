@@ -62,22 +62,136 @@ app.get('/api/status', (_req, res) => {
 
 app.get('/api/batch/summary', (_req, res) => {
   if (!existsSync(SUMMARY_PATH)) {
-    return res.status(404).json({ error: '批量结果不存在，请先运行 batch-runner。' });
+    return res.status(404).json({ ok: false, error: '批量结果不存在，请先运行 batch-runner。' });
   }
 
-  const summary = JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'));
-  return res.json(summary);
+  const raw = JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'));
+  // Support both legacy array format and new { strictPassed, weakPassed, failed, total } format
+  let items;
+  if (Array.isArray(raw)) {
+    items = raw;
+  } else if (Array.isArray(raw.strictPassed)) {
+    // Merge strictPassed + weakPassed, preserving strictPass field
+    items = [...(raw.strictPassed || []), ...(raw.weakPassed || [])];
+  } else {
+    items = [];
+  }
+  return res.json({ ok: true, data: items });
 });
 
 app.get('/api/analyze/:code', async (req, res) => {
   const { code } = req.params;
-  const { start, end } = req.query;
-  const startDate = typeof start === 'string' && start ? start : '20220101';
-  const endDate = typeof end === 'string' && end ? end : new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
   try {
-    console.log(`[analyze] ${code} ${startDate}~${endDate}`);
-    const result = await optimize(code, startDate, endDate);
+    // ── Step 1: Try to serve from batch summary (fast path) ──────────────
+    const forceRefresh = req.query.refresh === '1';
+    if (!forceRefresh && existsSync(SUMMARY_PATH)) {
+      const raw = JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'));
+      const allItems = [
+        ...(Array.isArray(raw) ? raw : []),
+        ...(raw.strictPassed || []),
+        ...(raw.weakPassed || []),
+        ...(raw.failed || []),
+      ];
+      const item = allItems.find(x => x.code === code);
+      if (item && item.valid !== false) {
+        console.log(`[analyze] ${code} served from batch summary`);
+        const tsCode = /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
+        const klineFilePath = resolve(KLINE_DIR, `${tsCode}.csv`);
+        const result = {
+          stockCode: code,
+          stockName: item.name ?? code,
+          bestConfig: item.bestConfig ?? null,
+          bestResult: item.bestResult ?? null,
+          currentSignal: item.currentSignal ?? null,
+          strictPass: item.strictPass,
+          kline: [],
+        };
+        if (existsSync(klineFilePath)) {
+          const allCandles = parseKlineCsv(klineFilePath);
+          // Find earliest trade date to cover all B/S markers
+          const trades = item.bestResult?.trades ?? [];
+          const earliest = trades.map(t => t.buyDate).sort()[0];
+          let cutoff;
+          if (earliest) {
+            const d = new Date(earliest);
+            d.setDate(d.getDate() - 30);
+            cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+          } else {
+            const d = new Date(); d.setFullYear(d.getFullYear() - 2);
+            cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+          }
+          result.kline = allCandles
+            .filter(c => c.date >= cutoff)
+            .map(c => ({ ...c, date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}` }));
+        }
+        return res.json(result);
+      }
+    }
+
+    // ── Step 2: Fallback — run optimizer (slow path for unknown stocks) ──
+    const { start, end } = req.query;
+    const endDate = typeof end === 'string' && end ? end : new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    // Always use full history for optimizer to get meaningful validation/stress partitions
+    const startDate = typeof start === 'string' && start ? start : '20050101';
+
+    const tsCode = /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
+    const csvPath = resolve(KLINE_DIR, `${tsCode}.csv`);
+    if (!existsSync(csvPath)) {
+      console.log(`[analyze] ${code} CSV不存在，正在拉取...`);
+      await ensureSymbolCsv(tsCode, 'stock');
+    }
+
+    console.log(`[analyze] ${code} running optimizer ${startDate}~${endDate}`);
+    const raw = await optimize(code, startDate, endDate);
+
+    // Flatten optimizer result to match batch summary format
+    const br = raw.bestResult;
+    const allTrades = [
+      ...(br?.validation?.trades ?? []),
+      ...(br?.stress?.trades ?? []),
+      ...(Array.isArray(br?.final?.trades) ? br.final.trades : []),
+    ];
+    const wins = allTrades.filter(t => t.return > 0);
+    const flatBestResult = br ? {
+      stopLossRate: br.validation?.stopLossRate ?? 0,
+      avgReturn: allTrades.length ? allTrades.reduce((s, t) => s + t.return, 0) / allTrades.length : (br.validation?.avgReturn ?? 0),
+      totalTrades: allTrades.length,
+      winRate: allTrades.length ? wins.length / allTrades.length : (br.validation?.winRate ?? 0),
+      maxDrawdown: Math.min(br.validation?.maxDrawdown ?? 0, br.stress?.maxDrawdown ?? 0),
+      avgStopLossPct: br.validation?.avgStopLossPct ?? 0,
+      buyCount: br.trainBuyCount ?? 0,
+      skippedByEnvironment: br.validation?.skippedByEnvironment ?? 0,
+      skippedByMarket: br.validation?.skippedByMarket ?? 0,
+      trades: allTrades,
+    } : null;
+
+    const result = {
+      stockCode: raw.stockCode,
+      stockName: raw.stockName,
+      bestConfig: raw.bestConfig,
+      currentSignal: raw.currentSignal,
+      strictPass: false,
+      bestResult: flatBestResult,
+      kline: [],
+    };
+
+    const klineFilePath = resolve(KLINE_DIR, `${tsCode}.csv`);
+    if (existsSync(klineFilePath)) {
+      const allCandles = parseKlineCsv(klineFilePath);
+      const earliest = allTrades.map(t => t.buyDate).sort()[0];
+      let cutoff;
+      if (earliest) {
+        const d = new Date(earliest); d.setDate(d.getDate() - 30);
+        cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+      } else {
+        const d = new Date(); d.setFullYear(d.getFullYear() - 2);
+        cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
+      }
+      result.kline = allCandles
+        .filter(c => c.date >= cutoff)
+        .map(c => ({ ...c, date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}` }));
+    }
     return res.json(result);
   } catch (error) {
     console.error(`[analyze] ${code} failed: ${error.message}`);

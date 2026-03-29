@@ -107,6 +107,9 @@ def parse_continuous_days(zt_stats_raw):
 
 
 def http_get_json(url: str, timeout: int = 30):
+    # Bypass system proxy to connect directly
+    proxy_handler = urllib.request.ProxyHandler({})
+    opener = urllib.request.build_opener(proxy_handler)
     req = urllib.request.Request(
         url,
         headers={
@@ -114,7 +117,7 @@ def http_get_json(url: str, timeout: int = 30):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
         },
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    with opener.open(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 
@@ -123,6 +126,9 @@ def http_get_json(url: str, timeout: int = 30):
 # ──────────────────────────────────────────────
 
 def fetch_ztpool_akshare(trade_date: str = ""):
+    import os
+    os.environ.pop('HTTP_PROXY', None); os.environ.pop('HTTPS_PROXY', None)
+    os.environ.pop('http_proxy', None); os.environ.pop('https_proxy', None)
     import akshare as ak
     df = ak.stock_zt_pool_em(date=trade_date) if trade_date else ak.stock_zt_pool_em()
     rows = []

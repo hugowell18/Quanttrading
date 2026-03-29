@@ -28,12 +28,21 @@ export function StockLeaderboard() {
     fetch('http://localhost:3001/api/batch/summary')
       .then((r) => r.json())
       .then((json) => {
-        const raw: BatchSummaryItem[] = Array.isArray(json)
-          ? json
-          : Array.isArray(json?.data)
+        const raw: BatchSummaryItem[] = Array.isArray(json?.data)
           ? json.data
+          : Array.isArray(json)
+          ? json
           : [];
-        setItems(raw.filter((item) => item.strictPass === true));
+        // winRate/avgReturn live inside bestResult — normalize to top level
+        const normalized = raw
+          .filter((item) => item.strictPass === true)
+          .map((item) => ({
+            ...item,
+            winRate: item.winRate ?? (item as any).bestResult?.winRate ?? 0,
+            avgReturn: item.avgReturn ?? (item as any).bestResult?.avgReturn ?? 0,
+            currentSignal: item.currentSignal ?? (item as any).currentSignal ?? undefined,
+          }));
+        setItems(normalized);
       })
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
