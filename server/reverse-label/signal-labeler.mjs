@@ -19,10 +19,39 @@
     };
   }
 
-  // 检查是否符合短线超卖（6选3）
+  // 检查是否符合短线超卖（6选N），返回满足的条件数量
+  _countOversoldConditions(index) {
+    if (index < 4) return 0;
+
+    let conditionCount = 0;
+    const row = this.rows[index];
+
+    if (row.rsi6 != null && row.rsi6 < 42) conditionCount++;
+    if (row.kdj_j != null && row.kdj_j < 25) conditionCount++;
+    if (row.boll_pos != null && row.boll_pos < 0.25) conditionCount++;
+
+    let negativeLines = 0;
+    for (let i = index - 3; i <= index; i++) {
+      if (this.rows[i].close_adj < this.rows[i].open_adj) negativeLines++;
+    }
+    if (negativeLines >= 3) conditionCount++;
+
+    const price4DaysAgo = this.rows[index - 3].close_adj;
+    const dropPct = (row.close_adj - price4DaysAgo) / price4DaysAgo;
+    if (dropPct < -0.02) conditionCount++;
+
+    const vol0 = row.volume;
+    const vol1 = this.rows[index - 1].volume;
+    const vol2 = this.rows[index - 2].volume;
+    if (vol0 < vol1 && vol1 < vol2) conditionCount++;
+
+    return conditionCount;
+  }
+
+  // 检查是否符合短线超卖（6选3），保持向后兼容
   _checkOversoldConditions(index) {
     if (index < 4) return false; // 数据不足
-    
+
     let conditionCount = 0;
     const row = this.rows[index];
 
@@ -65,17 +94,22 @@
       row.isBuyPoint = 0;
 
       // === 条件组一：大趋势过滤 ===
-      // 个股 MA60 多头 (确保存在 ma60 且 close_adj > ma60)
-      const stockTrendOk = row.ma60 != null && row.close_adj > row.ma60;
-      // 大盘过滤：这需要依赖外部注入 index_ma20_ok 字段，或在此处默认通过让外部验证器处理
-      // 假设 data-engine 已经对齐了数据并注入了 indexTrendOk 标志
-      const indexTrendOk = row.indexTrendOk !== false; 
+      const indexTrendOk = row.indexTrendOk !== false;
+      if (!indexTrendOk) continue;
 
-      if (!stockTrendOk || !indexTrendOk) continue;
-      this.diagnostics.trendFilteredCount++;
+      const stockAboveMa60 = row.ma60 != null && row.close_adj > row.ma60;
 
       // === 条件组二：短期超卖特征 ===
-      if (!this._checkOversoldConditions(i)) continue;
+      // 先统计超卖条件数量，用于熊市例外路径判断
+      const oversoldCount = this._countOversoldConditions(i);
+
+      // 标准路径：个股在 MA60 以上，满足 6选3
+      // 熊市例外路径：个股在 MA60 以下，但极度超卖（6选4），捕捉真实的空头砸盘低点
+      const standardEntry = stockAboveMa60 && oversoldCount >= 3;
+      const extremeBearEntry = !stockAboveMa60 && oversoldCount >= 4;
+
+      if (!standardEntry && !extremeBearEntry) continue;
+      this.diagnostics.trendFilteredCount++;
       this.diagnostics.oversoldCandidateCount++;
 
       // === 条件组三：结果验证 (历史打标) ===

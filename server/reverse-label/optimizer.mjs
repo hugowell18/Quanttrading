@@ -85,12 +85,15 @@ const buildExitPlan = (name) => {
 
 const EXIT_PLAN_NAMES = ['A', 'B', 'C', 'D'];
 
-// 216 种信号配置（不含出场方案）
+// 108 种信号配置（不含出场方案）
+// jThreshold 从 [15,20,25,30] 精简为 [15,25]：model-selector 自动调整特征权重，
+// 中间值 20/25 在统计上与端点重叠，保留端点即可覆盖极端/宽松两种情景。
+// 整体组合数减半：108 × 4 出场方案 = 432，比原 864 快约 50%。
 const buildSignalGrid = () => {
   const grid = [];
   for (const trendProfile of ['A', 'B', 'C']) {
     for (const rsiThreshold of [35, 40, 45]) {
-      for (const jThreshold of [15, 20, 25, 30]) {
+      for (const jThreshold of [15, 25]) {
         for (const oversoldMinCount of [2, 3]) {
           for (const bollPosThreshold of [0.2, 0.3, NO_BOLL_LIMIT]) {
             grid.push({ trendProfile, rsiThreshold, jThreshold, oversoldMinCount, bollPosThreshold });
@@ -215,16 +218,22 @@ const buildLabeledRows = (baseRows, config, indexMap) => {
 
   for (let index = 0; index < labeledRows.length - LABEL_FORWARD_DAYS; index += 1) {
     const row = labeledRows[index];
-    const stockTrendOk = row.ma60 != null && row.close_adj > row.ma60;
-    if (!stockTrendOk || row.indexTrendOk === false) {
-      continue;
-    }
-    trendPassedCount += 1;
+
+    // Market-level filter is always required
+    if (row.indexTrendOk === false) continue;
 
     const oversoldCount = countOversoldConditions(labeledRows, index, config);
-    if (oversoldCount < config.oversoldMinCount) {
-      continue;
-    }
+    const stockAboveMa60 = row.ma60 != null && row.close_adj > row.ma60;
+
+    // Standard path: stock above MA60, meets configured oversold min count
+    // Bear-market path: stock below MA60 but extreme oversold (≥4/6 conditions).
+    //   Catches real capitulation dips in sustained downtrends without lowering the
+    //   bar for ordinary pullbacks.
+    const standardEntry = stockAboveMa60 && oversoldCount >= config.oversoldMinCount;
+    const extremeBearEntry = !stockAboveMa60 && oversoldCount >= Math.max(config.oversoldMinCount + 1, 4);
+
+    if (!standardEntry && !extremeBearEntry) continue;
+    trendPassedCount += 1;
 
     const outcome = validateLabelOutcome(labeledRows, index);
     if (!outcome) {
@@ -477,7 +486,7 @@ const printDataOverview = (summary) => {
   console.log(`总K线数量: ${overview.totalRows}`);
   console.log(`满足大趋势过滤的K线数量: ${overview.trendPassedCount} (${percent(overview.trendPassedRatio)})`);
   console.log(`最终买点标注数量: ${overview.buyPointCount}`);
-  console.log(`864组参数中通过所有硬性过滤的数量: ${overview.passedConfigs}`);
+  console.log(`432组参数中通过所有硬性过滤的数量: ${overview.passedConfigs}`);
 };
 
 const printTopConfigs = (summary) => {

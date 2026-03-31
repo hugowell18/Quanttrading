@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { KLineChart } from '../signal-analyzer/KLineChart';
-import { FactorCheckCard } from './FactorCheckCard';
 import { Badge } from '../ui/badge';
 import type { KLinePoint, SignalMarker } from '../signal-analyzer/types';
 
@@ -82,30 +81,24 @@ function formatTimeAgo(ts: number): string {
   return `${Math.floor(s / 86400)}天前`;
 }
 
-/** Extract and normalize OOS trades from raw API response */
 function extractOosTrades(raw: any): AnalyzeTrade[] {
   const br = raw?.bestResult;
   if (!br) return [];
-  // Flat format (from batch summary fast path): bestResult.trades directly
   if (Array.isArray(br.trades)) {
     return [...br.trades].sort((a, b) => b.buyDate.localeCompare(a.buyDate));
   }
-  // Nested format (from optimizer slow path): validation/stress/final
   const v: AnalyzeTrade[] = br.validation?.trades ?? [];
   const s: AnalyzeTrade[] = br.stress?.trades ?? [];
   const f: AnalyzeTrade[] = Array.isArray(br.final?.trades) ? br.final.trades : [];
   return [...v, ...s, ...f].sort((a, b) => b.buyDate.localeCompare(a.buyDate));
 }
 
-/** Build normalized bestResult for display */
 function buildBestResult(raw: any, trades: AnalyzeTrade[]): AnalyzeResult['bestResult'] {
   const br = raw?.bestResult;
   if (!br) return { avgReturn: 0, winRate: 0, stopLossRate: 0, totalTrades: 0, maxDrawdown: 0, trades };
-  // Flat format — keep all original fields, just replace trades with sorted version
   if (typeof br.winRate === 'number' && typeof br.avgReturn === 'number') {
     return { ...br, totalTrades: trades.length, trades };
   }
-  // Nested format — compute from validation
   const vv = br.validation;
   if (!vv) return { avgReturn: 0, winRate: 0, stopLossRate: 0, totalTrades: 0, maxDrawdown: 0, trades };
   const wins = trades.filter(t => t.return > 0);
@@ -120,39 +113,182 @@ function buildBestResult(raw: any, trades: AnalyzeTrade[]): AnalyzeResult['bestR
   };
 }
 
-// ─── Summary Card ──────────────────────────────────────────
+// ─── Signal Hero Card ──────────────────────────────────────
 
-function SummaryCard({ result }: { result: AnalyzeResult }) {
-  const best = result.bestResult;
-  if (!best) return null;
-  const trades = best.trades ?? [];
-  const wins = trades.filter(t => t.return > 0);
-  const losses = trades.filter(t => t.return <= 0);
-  const avgWin = wins.length ? wins.reduce((s, t) => s + t.return, 0) / wins.length : 0;
-  const avgLoss = losses.length ? Math.abs(losses.reduce((s, t) => s + t.return, 0) / losses.length) : 0;
-  const pf = avgLoss > 0 ? avgWin / avgLoss : avgWin > 0 ? 99 : 0;
+function signalReason(result: AnalyzeResult): string {
+  const sig = result.currentSignal;
+  const cfg = result.bestConfig as any;
+  const tp = cfg?.trendProfile;
+  const profileNote = tp === 'C' ? '双重趋势确认模式，信号精准但稀少' :
+                      tp === 'B' ? '大盘MA20以上才入场' :
+                      '宽松趋势过滤，信号量较多';
 
-  const stat = (label: string, value: string, color = 'text-foreground') => (
-    <div className="rounded-md border border-border bg-secondary/30 px-3 py-2 text-center">
-      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{label}</div>
-      <div className={`mt-1 font-mono text-[15px] font-bold ${color}`}>{value}</div>
-    </div>
-  );
+  if (!sig || sig.signal === 'hold') {
+    return `当前技术指标无法触发买点条件，建议观望 · ${profileNote}`;
+  }
+  if (sig.signal === 'buy') {
+    return `模型判断当前处于技术超卖区，预期5日内出现均值回归机会 · ${profileNote}`;
+  }
+  return `超卖条件已解除或趋势偏弱，减仓或等待新的低点信号 · ${profileNote}`;
+}
+
+function SignalHeroCard({ result }: { result: AnalyzeResult }) {
+  const sig = result.currentSignal;
+  const br = result.bestResult;
+  if (!br) return null;
+
+  const signal = sig?.signal ?? 'hold';
+  const confidence = sig?.confidence ?? 0;
+
+  const signalLabel = signal === 'buy' ? '买入' : signal === 'sell' ? '卖出' : '观望';
+  const signalColor =
+    signal === 'buy'  ? 'text-[#00ff88]' :
+    signal === 'sell' ? 'text-[#ff3366]' :
+                        'text-muted-foreground';
+  const borderColor =
+    signal === 'buy'  ? 'border-[#00ff88]/30' :
+    signal === 'sell' ? 'border-[#ff3366]/30' :
+                        'border-border';
+  const bgColor =
+    signal === 'buy'  ? 'bg-[#00ff88]/5' :
+    signal === 'sell' ? 'bg-[#ff3366]/5' :
+                        'bg-card';
+
+  const winRatePct = (br.winRate * 100).toFixed(1);
+  const avgRetPct  = ((br.avgReturn ?? 0) * 100);
+  const ddPct      = (Math.abs(br.maxDrawdown ?? 0) * 100).toFixed(1);
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        OOS 回测汇总
-        <span className="ml-2 text-[10px] text-muted-foreground/60">验证集 + 压测集</span>
+    <div className={`rounded-lg border ${borderColor} ${bgColor} p-5`}>
+      {/* Top row: signal + confidence */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground mb-1">当前信号</div>
+          <div className={`font-mono text-[36px] font-black leading-none ${signalColor}`}>{signalLabel}</div>
+          {sig?.date && (
+            <div className="mt-1 font-mono text-[10px] text-muted-foreground">{sig.date}</div>
+          )}
+        </div>
+
+        {/* Confidence gauge */}
+        <div className="flex-1 max-w-[160px]">
+          <div className="flex justify-between font-mono text-[10px] text-muted-foreground mb-1">
+            <span>信心度</span>
+            <span>{(confidence * 100).toFixed(0)}%</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${signal === 'buy' ? 'bg-[#00ff88]' : signal === 'sell' ? 'bg-[#ff3366]' : 'bg-muted-foreground/40'}`}
+              style={{ width: `${(confidence * 100).toFixed(0)}%` }}
+            />
+          </div>
+          {result.strictPass != null && (
+            <div className="mt-1.5 flex justify-end">
+              <span className={`rounded border px-1.5 py-0.5 font-mono text-[9px] ${result.strictPass ? 'border-[#00ff88]/30 bg-[#00ff88]/10 text-[#00ff88]' : 'border-amber-500/30 bg-amber-500/10 text-amber-400'}`}>
+                {result.strictPass ? '严格通过' : '弱通过'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Key stats */}
+        <div className="flex gap-3">
+          {[
+            { label: '胜率', value: `${winRatePct}%`, ok: br.winRate >= 0.5 },
+            { label: '均收益', value: `${avgRetPct >= 0 ? '+' : ''}${avgRetPct.toFixed(2)}%`, ok: br.avgReturn >= 0 },
+            { label: '最大回撤', value: `-${ddPct}%`, ok: Math.abs(br.maxDrawdown ?? 0) < 0.2 },
+          ].map(({ label, value, ok }) => (
+            <div key={label} className="rounded-md border border-border bg-secondary/30 px-3 py-2 text-center min-w-[68px]">
+              <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">{label}</div>
+              <div className={`mt-0.5 font-mono text-[14px] font-bold ${ok ? 'text-[#00ff88]' : 'text-[#ff3366]'}`}>{value}</div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-        {stat('交易次数', String(trades.length))}
-        {stat('胜率', `${(best.winRate * 100).toFixed(1)}%`, best.winRate >= 0.5 ? 'text-[#00ff88]' : 'text-[#ff3366]')}
-        {stat('均收益', `${best.avgReturn >= 0 ? '+' : ''}${(best.avgReturn * 100).toFixed(2)}%`, best.avgReturn >= 0 ? 'text-[#00ff88]' : 'text-[#ff3366]')}
-        {stat('盈亏比', pf.toFixed(2), pf >= 1 ? 'text-[#00ff88]' : 'text-[#ff3366]')}
-        {stat('最大回撤', `${(Math.abs(best.maxDrawdown ?? 0) * 100).toFixed(1)}%`, 'text-amber-400')}
-        {stat('止损率', `${((best.stopLossRate ?? 0) * 100).toFixed(1)}%`, 'text-muted-foreground')}
+
+      {/* Reason text */}
+      <div className="mt-3 rounded-md border border-border/50 bg-secondary/20 px-3 py-2 font-mono text-[11px] text-muted-foreground leading-relaxed">
+        {signalReason(result)}
       </div>
+    </div>
+  );
+}
+
+// ─── Indicator Bars ────────────────────────────────────────
+
+interface BarProps {
+  label: string;
+  score: number;        // 0–100
+  description: string;
+  color?: string;
+}
+
+function IndicatorBar({ label, score, description, color }: BarProps) {
+  const s = Math.round(Math.max(0, Math.min(100, score)));
+  const barColor = color ?? (s >= 65 ? '#00ff88' : s >= 40 ? '#f59e0b' : '#ff3366');
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <span className="font-mono text-[11px] font-semibold text-foreground">{label}</span>
+        <span className="font-mono text-[11px] text-muted-foreground">{s}/100</span>
+      </div>
+      <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${s}%`, backgroundColor: barColor }}
+        />
+      </div>
+      <div className="font-mono text-[10px] text-muted-foreground">{description}</div>
+    </div>
+  );
+}
+
+function IndicatorBars({ result }: { result: AnalyzeResult }) {
+  const br = result.bestResult;
+  const sig = result.currentSignal;
+  if (!br) return null;
+
+  const winRate = br.winRate ?? 0;
+  const avgRet  = br.avgReturn ?? 0;
+  const trades  = br.totalTrades ?? 0;
+  const dd      = Math.abs(br.maxDrawdown ?? 0);
+
+  // 模型质量: 胜率(50%) + 收益方向(30%) + 交易次数充足(20%)
+  const modelQuality = Math.round(
+    winRate * 50 +
+    (avgRet > 0 ? Math.min(avgRet * 5 * 30, 30) : 0) +
+    (trades >= 15 ? 20 : trades >= 8 ? 12 : trades >= 4 ? 6 : 0),
+  );
+  const modelDesc =
+    modelQuality >= 65 ? `胜率${(winRate * 100).toFixed(0)}%，历史${trades}笔交易，表现良好` :
+    modelQuality >= 40 ? `胜率${(winRate * 100).toFixed(0)}%，信号数量偏少，参考价值有限` :
+                         `历史表现不稳定，建议降低仓位权重`;
+
+  // 信号强度: 直接来自 currentSignal.confidence
+  const signalStrength = Math.round((sig?.confidence ?? 0) * 100);
+  const signalDesc =
+    signalStrength >= 70 ? '模型高置信度，历史标注与当前特征高度吻合' :
+    signalStrength >= 40 ? '中等置信度，信号有效但建议配合大盘方向确认' :
+                           '低置信度，当前特征与历史买点差异较大，建议观望';
+
+  // 风险系数: 回撤越低越安全 (0回撤=100分, 25%回撤=0分)
+  const riskScore  = Math.round(Math.max(0, (1 - dd / 0.25) * 100));
+  const riskDesc =
+    riskScore >= 70 ? `最大回撤${(dd * 100).toFixed(1)}%，风险控制良好` :
+    riskScore >= 40 ? `最大回撤${(dd * 100).toFixed(1)}%，存在一定回撤风险` :
+                      `最大回撤${(dd * 100).toFixed(1)}%，风险较高，严格控制仓位`;
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-5 flex flex-col gap-4">
+      <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">量化指标</div>
+      <IndicatorBar label="模型质量" score={modelQuality} description={modelDesc} />
+      <IndicatorBar label="信号强度" score={signalStrength} description={signalDesc} />
+      <IndicatorBar
+        label="风险系数"
+        score={riskScore}
+        description={riskDesc}
+        color={riskScore >= 65 ? '#00ff88' : riskScore >= 40 ? '#f59e0b' : '#ff3366'}
+      />
     </div>
   );
 }
@@ -161,64 +297,122 @@ function SummaryCard({ result }: { result: AnalyzeResult }) {
 
 function ExitBadge({ reason }: { reason: string }) {
   const r = reason.trim();
-  if (r.includes('止盈') || r === 'take_profit' || r === 'tp')
+  if (r.includes('止盈') || r === 'take_profit' || r === 'tp' || r === 'takeProfit')
     return <Badge className="border-[#00ff88]/40 bg-[#00ff88]/10 text-[#00ff88] font-mono text-[9px] px-1.5 py-0.5">止盈</Badge>;
   if (r.includes('止损') || r === 'stop_loss' || r === 'sl' || r === 'stopLoss')
     return <Badge className="border-[#ff3366]/40 bg-[#ff3366]/10 text-[#ff3366] font-mono text-[9px] px-1.5 py-0.5">止损</Badge>;
   if (r.includes('超时') || r === 'timeout' || r === 'time_stop')
     return <Badge className="border-orange-500/40 bg-orange-500/10 text-orange-400 font-mono text-[9px] px-1.5 py-0.5">超时强平</Badge>;
+  if (r.includes('追踪') || r === 'trailingStop')
+    return <Badge className="border-blue-400/40 bg-blue-400/10 text-blue-400 font-mono text-[9px] px-1.5 py-0.5">追踪止损</Badge>;
   if (r.includes('卖点') || r === 'sellSignal')
-    return <Badge className="border-blue-500/40 bg-blue-500/10 text-blue-400 font-mono text-[9px] px-1.5 py-0.5">卖点出场</Badge>;
+    return <Badge className="border-purple-400/40 bg-purple-400/10 text-purple-400 font-mono text-[9px] px-1.5 py-0.5">卖点出场</Badge>;
   return <Badge className="border-border bg-secondary/50 text-muted-foreground font-mono text-[9px] px-1.5 py-0.5">{r}</Badge>;
 }
 
-// ─── Trade Ledger ──────────────────────────────────────────
+// ─── Trade Ledger (collapsible) ────────────────────────────
 
 function TradeLedger({ trades }: { trades: AnalyzeTrade[] }) {
-  if (trades.length === 0) return (
-    <div className="rounded-lg border border-border bg-card p-5 text-center font-mono text-[12px] text-muted-foreground">
-      暂无交易记录
-    </div>
-  );
+  const [open, setOpen] = useState(false);
+
+  const wins   = trades.filter(t => t.return > 0).length;
+  const losses = trades.length - wins;
 
   return (
-    <div className="rounded-lg border border-border bg-card p-5 flex flex-col gap-3">
-      <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        交易账本（{trades.length} 笔，按时间降序）
-      </div>
-      {trades.map((t, i) => {
-        const profit = t.return >= 0;
-        const net = ((t.return - 0.007) * 100).toFixed(2);
-        return (
-          <div key={`${t.buyDate}-${i}`} className={`rounded-lg border border-border p-3 ${profit ? 'bg-[#00ff88]/5' : 'bg-[#ff3366]/5'}`}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-[10px] text-muted-foreground">#{i + 1}</span>
-              <div className="flex items-center gap-1.5">
-                <ExitBadge reason={t.exitReason} />
-                <span className={`rounded border px-2 py-0.5 font-mono text-[10px] ${profit ? 'border-[#00ff88]/30 bg-[#00ff88]/10 text-[#00ff88]' : 'border-[#ff3366]/30 bg-[#ff3366]/10 text-[#ff3366]'}`}>
-                  {profit ? '盈利' : '亏损'}
+    <div className="rounded-lg border border-border bg-card">
+      {/* Header / toggle */}
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-secondary/30"
+      >
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            历史交易记录
+          </span>
+          <span className="font-mono text-[10px] text-muted-foreground/60">
+            {trades.length} 笔 · {wins}盈 {losses}亏
+          </span>
+        </div>
+        <span className="font-mono text-[12px] text-muted-foreground">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {/* Body */}
+      {open && (
+        <div className="border-t border-border px-5 py-4 flex flex-col gap-2.5">
+          {trades.length === 0 ? (
+            <div className="py-4 text-center font-mono text-[12px] text-muted-foreground">暂无交易记录</div>
+          ) : trades.map((t, i) => {
+            const profit = t.return >= 0;
+            const net = ((t.return - 0.007) * 100);
+            return (
+              <div
+                key={`${t.buyDate}-${i}`}
+                className={`flex items-center gap-3 rounded-md border px-3 py-2 ${profit ? 'border-[#00ff88]/20 bg-[#00ff88]/5' : 'border-[#ff3366]/20 bg-[#ff3366]/5'}`}
+              >
+                {/* Trade number */}
+                <span className="w-6 shrink-0 font-mono text-[10px] text-muted-foreground/50 text-right">
+                  {i + 1}
                 </span>
+
+                {/* Dates */}
+                <div className="flex flex-col min-w-[140px]">
+                  <span className="font-mono text-[10px] text-muted-foreground">{t.buyDate} → {t.sellDate}</span>
+                  <span className="font-mono text-[10px] text-muted-foreground/60">持仓 {t.holdingDays} 天</span>
+                </div>
+
+                {/* Return */}
+                <span className={`ml-auto font-mono text-[13px] font-bold min-w-[60px] text-right ${profit ? 'text-[#00ff88]' : 'text-[#ff3366]'}`}>
+                  {net >= 0 ? '+' : ''}{net.toFixed(2)}%
+                </span>
+
+                {/* Exit reason */}
+                <ExitBadge reason={t.exitReason} />
               </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Strategy Params (collapsible) ────────────────────────
+
+function StrategyParams({ result }: { result: AnalyzeResult }) {
+  const [open, setOpen] = useState(false);
+  const cfg = result.bestConfig as any;
+  if (!cfg) return null;
+
+  const rows: [string, string][] = cfg.trendProfile != null ? [
+    ['趋势过滤', cfg.trendProfile === 'A' ? 'A — 不限制' : cfg.trendProfile === 'B' ? 'B — 大盘MA20' : 'C — 双重MA20'],
+    ['RSI 超卖阈值', `< ${cfg.rsiThreshold}`],
+    ['J 值超卖阈值', `< ${cfg.jThreshold}`],
+    ['超卖条件数', `≥ ${cfg.oversoldMinCount} / 6`],
+    ['布林带位置', cfg.bollPosThreshold === 999 ? '不限制' : `< ${cfg.bollPosThreshold}`],
+    ['出场方案', cfg.exitPlan ? `方案${cfg.exitPlan.name}  止损${(cfg.exitPlan.stopLoss * 100).toFixed(1)}%  最长${cfg.exitPlan.maxHoldingDays}天` : 'N/A'],
+  ] : [];
+
+  return (
+    <div className="rounded-lg border border-border bg-card">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-secondary/30"
+      >
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">策略参数详情</span>
+        <span className="font-mono text-[12px] text-muted-foreground">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="border-t border-border px-5 py-4 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
+          {rows.map(([label, value]) => (
+            <div key={label}>
+              <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground/60">{label}</div>
+              <div className="font-mono text-[12px] text-foreground mt-0.5">{value}</div>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
-              <div className="rounded border border-border bg-card/50 p-2">
-                <div className="text-[10px] text-muted-foreground">买入</div>
-                <div className="text-foreground">{t.buyDate}</div>
-                <div className="font-bold text-[#ff3366]">¥{t.buyPrice.toFixed(2)}</div>
-              </div>
-              <div className="rounded border border-border bg-card/50 p-2">
-                <div className="text-[10px] text-muted-foreground">卖出</div>
-                <div className="text-foreground">{t.sellDate}</div>
-                <div className="font-bold text-[#00ff88]">¥{t.sellPrice.toFixed(2)}</div>
-              </div>
-            </div>
-            <div className="mt-2 flex gap-4 font-mono text-[11px] text-muted-foreground">
-              <span>净收益：<span className={profit ? 'text-[#00ff88]' : 'text-[#ff3366]'}>{Number(net) >= 0 ? '+' : ''}{net}%</span></span>
-              <span>持仓：<span className="text-foreground">{t.holdingDays}天</span></span>
-            </div>
-          </div>
-        );
-      })}
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -228,22 +422,20 @@ function TradeLedger({ trades }: { trades: AnalyzeTrade[] }) {
 export function StockAnalyzerPage() {
   const { selectedStock, pushDebugLog } = useAppContext();
 
-  const [inputCode, setInputCode] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  const [history, setHistory] = useState<HistoryEntry[]>(loadHistory);
-  const [showHistory, setShowHistory] = useState(false);
+  const [inputCode, setInputCode]       = useState('');
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState<string | null>(null);
+  const [elapsed, setElapsed]           = useState(0);
+  const [history, setHistory]           = useState<HistoryEntry[]>(loadHistory);
+  const [showHistory, setShowHistory]   = useState(false);
 
   const [analyzeResult, setAnalyzeResult] = useState<AnalyzeResult | null>(null);
-  const [klineData, setKlineData] = useState<KLinePoint[]>([]);
+  const [klineData, setKlineData]         = useState<KLinePoint[]>([]);
   const [signalMarkers, setSignalMarkers] = useState<SignalMarker[]>([]);
-  const [stockName, setStockName] = useState('');
+  const [stockName, setStockName]         = useState('');
 
-  // Ref to track what's currently being analyzed — avoids stale closure issues
   const analyzingRef = useRef<string>('');
-  // Ref to track last completed analysis — avoids re-triggering same code
-  const lastDoneRef = useRef<string>('');
+  const lastDoneRef  = useRef<string>('');
 
   // Timer
   useEffect(() => {
@@ -251,8 +443,6 @@ export function StockAnalyzerPage() {
     const t = window.setInterval(() => setElapsed(v => v + 1), 1000);
     return () => window.clearInterval(t);
   }, [loading]);
-
-  // ─── Core analyze function (no useCallback to avoid stale closure) ──────
 
   const analyze = async (targetCode: string, refresh = false) => {
     const code = targetCode.trim();
@@ -264,7 +454,7 @@ export function StockAnalyzerPage() {
     setError(null);
     setShowHistory(false);
 
-    pushDebugLog({ level: 'info', module: 'StockAnalyzer', message: refresh ? '强制刷新分析（实时信号）' : '发起分析请求', payload: { code, timestamp: new Date().toISOString() } });
+    pushDebugLog({ level: 'info', module: 'StockAnalyzer', message: refresh ? '强制刷新分析' : '发起分析请求', payload: { code } });
 
     try {
       const url = `http://localhost:3001/api/analyze/${code}${refresh ? '?refresh=1' : ''}`;
@@ -275,14 +465,11 @@ export function StockAnalyzerPage() {
       if (analyzingRef.current !== code) return;
 
       const raw = json?.data ?? json;
-
-      // If refresh, backend has already updated summary.json — treat same as normal analyze
-      // (remove the early-return so full result including new trades is shown)
       const trades = extractOosTrades(raw);
       const bestResult = buildBestResult(raw, trades);
       const kline: KLinePoint[] = raw.kline ?? [];
       const markers: SignalMarker[] = trades.flatMap(t => [
-        { date: t.buyDate, type: 'buy' as const, price: t.buyPrice, label: 'B' as const },
+        { date: t.buyDate, type: 'buy'  as const, price: t.buyPrice,  label: 'B' as const },
         { date: t.sellDate, type: 'sell' as const, price: t.sellPrice, label: 'S' as const },
       ]);
 
@@ -294,17 +481,7 @@ export function StockAnalyzerPage() {
       setStockName(raw.stockName ?? code);
       lastDoneRef.current = code;
 
-      const entry: HistoryEntry = {
-        code: raw.stockCode ?? code,
-        name: raw.stockName ?? code,
-        winRate: bestResult?.winRate ?? 0,
-        avgReturn: bestResult?.avgReturn ?? 0,
-        timestamp: Date.now(),
-        result,
-        kline,
-        markers,
-      };
-      saveToHistory(entry);
+      saveToHistory({ code: raw.stockCode ?? code, name: raw.stockName ?? code, winRate: bestResult?.winRate ?? 0, avgReturn: bestResult?.avgReturn ?? 0, timestamp: Date.now(), result, kline, markers });
       setHistory(loadHistory());
     } catch (err) {
       if (analyzingRef.current !== code) return;
@@ -316,7 +493,6 @@ export function StockAnalyzerPage() {
     }
   };
 
-  // Listen to AppContext.selectedStock
   useEffect(() => {
     if (!selectedStock) return;
     if (lastDoneRef.current === selectedStock) return;
@@ -326,7 +502,6 @@ export function StockAnalyzerPage() {
   }, [selectedStock]);
 
   const loadFromHistory = (entry: HistoryEntry) => {
-    // Mark as done so selectedStock effect won't re-trigger
     lastDoneRef.current = entry.code;
     analyzingRef.current = entry.code;
     setInputCode(entry.code);
@@ -340,11 +515,9 @@ export function StockAnalyzerPage() {
 
   const hasResult = analyzeResult !== null && !loading;
 
-  // ─── Render ───────────────────────────────────────────────
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Input bar */}
+      {/* ── Input bar ─────────────────────────────────────── */}
       <div className="flex gap-2">
         <input
           className="flex-1 rounded-md border border-border bg-card px-4 py-2 font-mono text-sm text-foreground outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,212,255,0.15)]"
@@ -359,17 +532,16 @@ export function StockAnalyzerPage() {
           disabled={loading}
           className="rounded-md bg-primary px-5 py-2 font-mono text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(0,212,255,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? `分析中 ${elapsed}s...` : '分析'}
+          {loading ? `分析中 ${elapsed}s…` : '分析'}
         </button>
-        {/* Refresh button — forces re-run of optimizer for real-time signal */}
         {analyzeResult && !loading && (
           <button
             type="button"
             onClick={() => { lastDoneRef.current = ''; void analyze(inputCode, true); }}
-            title="强制重新分析，获取最新实时信号（较慢）"
-            className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 font-mono text-xs text-amber-400 transition-all hover:bg-amber-500/20 hover:border-amber-500/60"
+            title="强制重新分析，获取最新实时信号"
+            className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 font-mono text-xs text-amber-400 transition-all hover:bg-amber-500/20"
           >
-            ↻ 刷新实时信号
+            ↻ 刷新
           </button>
         )}
         {history.length > 0 && (
@@ -383,7 +555,7 @@ export function StockAnalyzerPage() {
         )}
       </div>
 
-      {/* History panel */}
+      {/* ── History panel ──────────────────────────────────── */}
       {showHistory && history.length > 0 && (
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="mb-2 font-mono text-[10px] uppercase tracking-[2px] text-muted-foreground">分析历史</div>
@@ -412,31 +584,41 @@ export function StockAnalyzerPage() {
         </div>
       )}
 
-      {/* Loading */}
+      {/* ── Loading ────────────────────────────────────────── */}
       {loading && (
         <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-6">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
-          <div className="font-mono text-sm text-muted-foreground">量化分析中... {elapsed}s</div>
+          <div className="font-mono text-sm text-muted-foreground">量化分析中… {elapsed}s</div>
           <div className="h-[2px] w-full overflow-hidden rounded bg-secondary">
             <div className="h-full animate-pulse bg-primary" style={{ width: `${Math.min(100, Math.max(10, elapsed * 2))}%` }} />
           </div>
         </div>
       )}
 
-      {/* Error */}
+      {/* ── Error ──────────────────────────────────────────── */}
       {error && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 font-mono text-sm text-destructive">{error}</div>
       )}
 
-      {/* Results */}
+      {/* ── Results ────────────────────────────────────────── */}
       {hasResult && (
         <div className="flex flex-col gap-4">
-          <FactorCheckCard analyzeResult={analyzeResult} />
-          <SummaryCard result={analyzeResult} />
+          {/* Layer 1: Signal hero */}
+          <SignalHeroCard result={analyzeResult} />
+
+          {/* Layer 2: Indicator bars */}
+          <IndicatorBars result={analyzeResult} />
+
+          {/* Layer 3: K-line chart */}
           {klineData.length > 0
             ? <KLineChart klineData={klineData} signalMarkers={signalMarkers} stockCode={analyzeResult.stockCode} stockName={stockName || analyzeResult.stockCode} />
             : <div className="rounded-lg border border-border bg-card p-6 text-center font-mono text-[12px] text-muted-foreground">K线数据加载中或暂无数据</div>
           }
+
+          {/* Layer 4: Strategy params (collapsed by default) */}
+          <StrategyParams result={analyzeResult} />
+
+          {/* Layer 5: Trade ledger (collapsed by default) */}
           <TradeLedger trades={analyzeResult.bestResult?.trades ?? []} />
         </div>
       )}
