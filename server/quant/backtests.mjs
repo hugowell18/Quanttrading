@@ -65,10 +65,19 @@ const normalizeProfitFactor = (value) => clamp(value >= 99 ? 5 : value, 0, 5);
 const normalizeSharpe = (value) => clamp(value, -1, 4);
 
 const buildStrategyScore = ({ sharpe, annualReturn, winRate, maxDrawdown: drawdown, profitFactor: pf, trades }) => {
+  // Minimum trade gate: fewer than 6 trades is statistically meaningless
+  if (trades < 6) return 0;
   const effectiveSharpe = normalizeSharpe(sharpe);
   const effectiveAnnualReturn = clamp(annualReturn, -60, 120);
   const effectiveProfitFactor = normalizeProfitFactor(pf);
-  return Number((effectiveSharpe * 4.5 + effectiveAnnualReturn * 0.12 + winRate * 0.18 + effectiveProfitFactor * 6 - drawdown * 0.22 + Math.min(trades, 18) * 0.2).toFixed(2));
+  // Rebalanced weights:
+  //   Sharpe ×6       (up from 4.5) — most reliable risk-adjusted metric
+  //   annualReturn ×0.15 (up from 0.12)
+  //   winRate ×0.20   (up from 0.18)
+  //   profitFactor ×3 (down from 6)  — unstable in small samples
+  //   drawdown ×0.25  (up from 0.22) — penalise risk more
+  //   trades ×0.15    (down from 0.20)
+  return Number((effectiveSharpe * 6 + effectiveAnnualReturn * 0.15 + winRate * 0.2 + effectiveProfitFactor * 3 - drawdown * 0.25 + Math.min(trades, 20) * 0.15).toFixed(2));
 };
 
 const inferSignalFromMetrics = (strategy) => {
@@ -159,7 +168,10 @@ const simulateTrades = (candles, shouldEnter, shouldExit, capitalWan, stopLossPe
 const runWalkForward = (candles, evaluator) => {
   const trainSize = 120;
   const testSize = 40;
-  const step = 20;
+  // step = testSize gives non-overlapping test windows: each candle appears in
+  // exactly one out-of-sample slice. Previously step=20 caused the same candle
+  // to be evaluated twice, inflating trade counts and biasing metrics.
+  const step = testSize;
   const trades = [];
 
   for (let start = 0; start + trainSize + testSize <= candles.length; start += step) {

@@ -83,11 +83,15 @@ const buildExitPlan = (name) => {
   }
 };
 
+// 432 种参数组合（精简自原 864）
+// jThreshold 从 [15,20,25,30] 精简为 [15,25]：
+//   中间值在统计上与端点高度相关，model-selector 会自动调整特征权重，
+//   保留两端点足以覆盖极严格/宽松两种情景，组合数减半提速约 50%。
 const buildParamGrid = () => {
   const grid = [];
   for (const trendProfile of ['A', 'B', 'C']) {
     for (const rsiThreshold of [35, 40, 45]) {
-      for (const jThreshold of [15, 20, 25, 30]) {
+      for (const jThreshold of [15, 25]) {
         for (const oversoldMinCount of [2, 3]) {
           for (const bollPosThreshold of [0.2, 0.3, NO_BOLL_LIMIT]) {
             for (const exitPlanName of ['A', 'B', 'C', 'D']) {
@@ -221,16 +225,21 @@ const buildLabeledRows = (baseRows, config, indexMap) => {
 
   for (let index = 0; index < labeledRows.length - LABEL_FORWARD_DAYS; index += 1) {
     const row = labeledRows[index];
-    const stockTrendOk = row.ma60 != null && row.close_adj > row.ma60;
-    if (!stockTrendOk || row.indexTrendOk === false) {
-      continue;
-    }
-    trendPassedCount += 1;
+
+    // 市场大盘过滤始终有效
+    if (row.indexTrendOk === false) continue;
 
     const oversoldCount = countOversoldConditions(labeledRows, index, config);
-    if (oversoldCount < config.oversoldMinCount) {
-      continue;
-    }
+    const stockAboveMa60 = row.ma60 != null && row.close_adj > row.ma60;
+
+    // 标准路径：个股在 MA60 以上，满足配置的最小超卖条件数
+    // 熊市例外路径：个股在 MA60 以下，但极度超卖（≥4/6 条件），
+    //   捕捉真实空头砸盘低点，不允许普通回调触发此路径
+    const standardEntry = stockAboveMa60 && oversoldCount >= config.oversoldMinCount;
+    const extremeBearEntry = !stockAboveMa60 && oversoldCount >= Math.max(config.oversoldMinCount + 1, 4);
+
+    if (!standardEntry && !extremeBearEntry) continue;
+    trendPassedCount += 1;
 
     const outcome = validateLabelOutcome(labeledRows, index);
     if (!outcome) {
