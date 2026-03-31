@@ -76,7 +76,13 @@ app.get('/api/batch/summary', (_req, res) => {
   } else {
     items = [];
   }
-  return res.json({ ok: true, data: items });
+  // 统一字段：summary.json 存的是 code/name，前端期望 stockCode/stockName
+  const normalized = items.map((item) => ({
+    ...item,
+    stockCode: item.stockCode ?? item.code,
+    stockName: item.stockName ?? item.name,
+  }));
+  return res.json({ ok: true, data: normalized });
 });
 
 app.get('/api/analyze/:code', async (req, res) => {
@@ -85,23 +91,15 @@ app.get('/api/analyze/:code', async (req, res) => {
   const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const tsCode = /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
 
-  // ── Helper: build kline from CSV covering all trade dates ──────────────
-  const buildKline = (trades) => {
+  // ── Helper: build kline — 返回 CSV 全量历史，不按交易日截断 ──────────────
+  const buildKline = (_trades) => {
     const fp = resolve(KLINE_DIR, `${tsCode}.csv`);
     if (!existsSync(fp)) return [];
     const candles = parseKlineCsv(fp);
-    const earliest = [...trades].map(t => t.buyDate).sort()[0];
-    let cutoff;
-    if (earliest) {
-      const d = new Date(earliest); d.setDate(d.getDate() - 30);
-      cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
-    } else {
-      const d = new Date(); d.setFullYear(d.getFullYear() - 2);
-      cutoff = d.toISOString().slice(0, 10).replace(/-/g, '');
-    }
-    return candles
-      .filter(c => c.date >= cutoff)
-      .map(c => ({ ...c, date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}` }));
+    return candles.map(c => ({
+      ...c,
+      date: `${c.date.slice(0,4)}-${c.date.slice(4,6)}-${c.date.slice(6,8)}`,
+    }));
   };
 
   // ── Helper: run optimizer + flatten + write back to summary ────────────

@@ -192,7 +192,7 @@ function TradeLedger({ trades }: { trades: AnalyzeTrade[] }) {
         return (
           <div key={`${t.buyDate}-${i}`} className={`rounded-lg border border-border p-3 ${profit ? 'bg-[#00ff88]/5' : 'bg-[#ff3366]/5'}`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-[10px] text-muted-foreground">#{trades.length - i}</span>
+              <span className="font-mono text-[10px] text-muted-foreground">#{i + 1}</span>
               <div className="flex items-center gap-1.5">
                 <ExitBadge reason={t.exitReason} />
                 <span className={`rounded border px-2 py-0.5 font-mono text-[10px] ${profit ? 'border-[#00ff88]/30 bg-[#00ff88]/10 text-[#00ff88]' : 'border-[#ff3366]/30 bg-[#ff3366]/10 text-[#ff3366]'}`}>
