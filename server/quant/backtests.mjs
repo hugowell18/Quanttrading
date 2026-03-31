@@ -71,12 +71,12 @@ const buildStrategyScore = ({ sharpe, annualReturn, winRate, maxDrawdown: drawdo
   const effectiveAnnualReturn = clamp(annualReturn, -60, 120);
   const effectiveProfitFactor = normalizeProfitFactor(pf);
   // Rebalanced weights:
-  //   Sharpe ×6   (up from 4.5) — most reliable risk-adjusted metric
+  //   Sharpe ×6       (up from 4.5) — most reliable risk-adjusted metric
   //   annualReturn ×0.15 (up from 0.12)
-  //   winRate ×0.20 (up from 0.18)
-  //   profitFactor ×3  (down from 6) — unstable in small samples
-  //   drawdown ×0.25 (up from 0.22) — penalise risk more
-  //   trade count ×0.15 (down from 0.20) — less incentive to churn
+  //   winRate ×0.20   (up from 0.18)
+  //   profitFactor ×3 (down from 6)  — unstable in small samples
+  //   drawdown ×0.25  (up from 0.22) — penalise risk more
+  //   trades ×0.15    (down from 0.20)
   return Number((effectiveSharpe * 6 + effectiveAnnualReturn * 0.15 + winRate * 0.2 + effectiveProfitFactor * 3 - drawdown * 0.25 + Math.min(trades, 20) * 0.15).toFixed(2));
 };
 
@@ -168,7 +168,7 @@ const simulateTrades = (candles, shouldEnter, shouldExit, capitalWan, stopLossPe
 const runWalkForward = (candles, evaluator) => {
   const trainSize = 120;
   const testSize = 40;
-  // step = testSize means non-overlapping test windows: each candle appears in
+  // step = testSize gives non-overlapping test windows: each candle appears in
   // exactly one out-of-sample slice. Previously step=20 caused the same candle
   // to be evaluated twice, inflating trade counts and biasing metrics.
   const step = testSize;

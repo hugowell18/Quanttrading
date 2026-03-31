@@ -83,20 +83,27 @@ const buildExitPlan = (name) => {
   }
 };
 
-const EXIT_PLAN_NAMES = ['A', 'B', 'C', 'D'];
-
-// 108 种信号配置（不含出场方案）
-// jThreshold 从 [15,20,25,30] 精简为 [15,25]：model-selector 自动调整特征权重，
-// 中间值 20/25 在统计上与端点重叠，保留端点即可覆盖极端/宽松两种情景。
-// 整体组合数减半：108 × 4 出场方案 = 432，比原 864 快约 50%。
-const buildSignalGrid = () => {
+// 432 种参数组合（精简自原 864）
+// jThreshold 从 [15,20,25,30] 精简为 [15,25]：
+//   中间值在统计上与端点高度相关，model-selector 会自动调整特征权重，
+//   保留两端点足以覆盖极严格/宽松两种情景，组合数减半提速约 50%。
+const buildParamGrid = () => {
   const grid = [];
   for (const trendProfile of ['A', 'B', 'C']) {
     for (const rsiThreshold of [35, 40, 45]) {
       for (const jThreshold of [15, 25]) {
         for (const oversoldMinCount of [2, 3]) {
           for (const bollPosThreshold of [0.2, 0.3, NO_BOLL_LIMIT]) {
-            grid.push({ trendProfile, rsiThreshold, jThreshold, oversoldMinCount, bollPosThreshold });
+            for (const exitPlanName of ['A', 'B', 'C', 'D']) {
+              grid.push({
+                trendProfile,
+                rsiThreshold,
+                jThreshold,
+                oversoldMinCount,
+                bollPosThreshold,
+                exitPlan: buildExitPlan(exitPlanName),
+              });
+            }
           }
         }
       }
@@ -219,16 +226,15 @@ const buildLabeledRows = (baseRows, config, indexMap) => {
   for (let index = 0; index < labeledRows.length - LABEL_FORWARD_DAYS; index += 1) {
     const row = labeledRows[index];
 
-    // Market-level filter is always required
+    // 市场大盘过滤始终有效
     if (row.indexTrendOk === false) continue;
 
     const oversoldCount = countOversoldConditions(labeledRows, index, config);
     const stockAboveMa60 = row.ma60 != null && row.close_adj > row.ma60;
 
-    // Standard path: stock above MA60, meets configured oversold min count
-    // Bear-market path: stock below MA60 but extreme oversold (≥4/6 conditions).
-    //   Catches real capitulation dips in sustained downtrends without lowering the
-    //   bar for ordinary pullbacks.
+    // 标准路径：个股在 MA60 以上，满足配置的最小超卖条件数
+    // 熊市例外路径：个股在 MA60 以下，但极度超卖（≥4/6 条件），
+    //   捕捉真实空头砸盘低点，不允许普通回调触发此路径
     const standardEntry = stockAboveMa60 && oversoldCount >= config.oversoldMinCount;
     const extremeBearEntry = !stockAboveMa60 && oversoldCount >= Math.max(config.oversoldMinCount + 1, 4);
 
@@ -292,17 +298,22 @@ const normalizedProfitFactor = (result) => {
 };
 
 const passesHardFilters = (trainResult, validationResult) => {
-  if (!trainResult || !validationResult) return false;
+  if (!trainResult || !validationResult) {
+    return false;
+  }
+
+  const trainWinRate = Number(trainResult.winRate ?? 0);
+  const validationWinRate = Number(validationResult.winRate ?? 0);
   const trainTrades = Number(trainResult.totalTrades ?? 0);
   const validationTrades = Number(validationResult.totalTrades ?? 0);
-  if (trainTrades < 10 || validationTrades < 3) return false;
-  // 用期望收益而非胜率——盈亏比好的策略胜率可以偏低
-  const trainExp = expectedReturn(trainResult);
-  const validExp = expectedReturn(validationResult);
-  if (trainExp <= 0 || validExp <= 0) return false;
-  // 防止严重过拟合：验证集期望收益不能低于训练集的40%
-  if (validExp < trainExp * 0.4) return false;
-  return true;
+
+  return (
+    trainWinRate > 0.6 &&
+    validationWinRate > 0.55 &&
+    Math.abs(trainWinRate - validationWinRate) <= 0.15 &&
+    trainTrades > 50 &&
+    validationTrades > 15
+  );
 };
 
 const scoreConfig = (validationResult) => {
@@ -322,24 +333,42 @@ const scoreConfig = (validationResult) => {
   };
 };
 
-// 第一层：打标签 + 训练模型（216次，不含出场方案）
-const prepareSignal = (partitions, indexPartitions, signalConfig) => {
-  const trainPack = buildLabeledRows(partitions.train, signalConfig, indexPartitions.trainMap);
+const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) => {
+  const trainPack = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
+  const validationPack = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
+  const stressPack = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
+  const finalPack = buildLabeledRows(partitions.final, config, indexPartitions.finalMap);
   const trainRows = trainPack.rows;
+  const validationRows = validationPack.rows;
+  const stressRows = stressPack.rows;
+  const finalRows = finalPack.rows;
+
   const trainBuyCount = trainRows.filter((row) => row.isBuyPoint === 1).length;
-  if (trainBuyCount < 8) return null;
+  if (trainBuyCount < 8) {
+    return null;
+  }
 
   const selector = new ModelSelector(trainRows);
   selector.run();
   const bestModel = selector.bestModel();
-  if (!bestModel?.predictor) return null;
+  if (!bestModel?.predictor) {
+    return null;
+  }
 
-  const validationPack = buildLabeledRows(partitions.validation, signalConfig, indexPartitions.validationMap);
-  const stressPack = buildLabeledRows(partitions.stress, signalConfig, indexPartitions.stressMap);
-  const finalPack = buildLabeledRows(partitions.final, signalConfig, indexPartitions.finalMap);
+  const trainValidation = createValidator(trainRows, indexPartitions.train, config).validate(bestModel);
+  const validation = createValidator(validationRows, indexPartitions.validation, config).validate(bestModel);
+  const stress = createValidator(stressRows, indexPartitions.stress, config).validate(bestModel);
+  if (!passesHardFilters(trainValidation, validation)) {
+    return null;
+  }
+  const final = unlockTest ? createValidator(finalRows, indexPartitions.final, config).validate(bestModel) : null;
+  const score = scoreConfig(validation);
+  if (!score) {
+    return null;
+  }
 
   return {
-    signalConfig,
+    config,
     bestModel: {
       featureSet: bestModel.featureSet,
       model: bestModel.model,
@@ -350,27 +379,12 @@ const prepareSignal = (partitions, indexPartitions, signalConfig) => {
       predictor: bestModel.predictor,
     },
     trainBuyCount,
-    rows: { train: trainPack.rows, validation: validationPack.rows, stress: stressPack.rows, final: finalPack.rows },
-    diagnostics: { train: trainPack.diagnostics, validation: validationPack.diagnostics, stress: stressPack.diagnostics, final: finalPack.diagnostics },
-  };
-};
-
-// 第二层：对已有模型测试出场方案（864次，但只跑 Validator）
-const runExitPlan = (signal, indexPartitions, exitPlan, unlockTest) => {
-  const config = { ...signal.signalConfig, exitPlan };
-  const trainValidation = createValidator(signal.rows.train, indexPartitions.train, config).validate(signal.bestModel);
-  const validation = createValidator(signal.rows.validation, indexPartitions.validation, config).validate(signal.bestModel);
-  if (!passesHardFilters(trainValidation, validation)) return null;
-  const stress = createValidator(signal.rows.stress, indexPartitions.stress, config).validate(signal.bestModel);
-  const final = unlockTest ? createValidator(signal.rows.final, indexPartitions.final, config).validate(signal.bestModel) : null;
-  const score = scoreConfig(validation);
-  if (!score) return null;
-
-  return {
-    config,
-    bestModel: signal.bestModel,
-    trainBuyCount: signal.trainBuyCount,
-    diagnostics: signal.diagnostics,
+    diagnostics: {
+      train: trainPack.diagnostics,
+      validation: validationPack.diagnostics,
+      stress: stressPack.diagnostics,
+      final: finalPack.diagnostics,
+    },
     trainValidation,
     validation,
     stress,
@@ -486,7 +500,7 @@ const printDataOverview = (summary) => {
   console.log(`总K线数量: ${overview.totalRows}`);
   console.log(`满足大趋势过滤的K线数量: ${overview.trendPassedCount} (${percent(overview.trendPassedRatio)})`);
   console.log(`最终买点标注数量: ${overview.buyPointCount}`);
-  console.log(`432组参数中通过所有硬性过滤的数量: ${overview.passedConfigs}`);
+  console.log(`864组参数中通过所有硬性过滤的数量: ${overview.passedConfigs}`);
 };
 
 const printTopConfigs = (summary) => {
@@ -558,61 +572,23 @@ const printExitReasonAnalysis = (summary) => {
 export async function optimize(stockCode, _startDate, endDate = todayCompact(), options = {}) {
   const unlockTest = options.unlockTest ?? false;
   const startTime = Date.now();
-
-  console.log(`[optimizer] 加载 ${stockCode} 本地CSV数据...`);
   const { optimizerRows, indexFeatures, indexMap } = loadInMemoryDataset(stockCode, endDate);
-  console.log(`[optimizer] 数据加载完成，共 ${optimizerRows.length} 行，耗时 ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
-
   const partitions = splitByDateWindows(optimizerRows);
-  console.log(`[optimizer] 数据分区 — 训练=${partitions.train.length}行 验证=${partitions.validation.length}行 压测=${partitions.stress.length}行 最终=${partitions.final.length}行`);
-
   const indexPartitions = buildPartitionMaps(indexFeatures);
-  const signalGrid = buildSignalGrid();
-  const totalSignals = signalGrid.length;
-  const totalConfigs = totalSignals * EXIT_PLAN_NAMES.length;
-  console.log(`[optimizer] 第一层：216 种信号配置（打标签+训练模型）...`);
+  const grid = buildParamGrid();
   const results = [];
-  let diagNullSignal = 0;
-  let diagFailedFilter = 0;
-  let diagBestTrainTrades = 0;
-  let diagBestValidTrades = 0;
-  let diagBestTrainWinRate = 0;
-  let diagBestValidWinRate = 0;
 
-  for (let si = 0; si < totalSignals; si += 1) {
-    const signal = prepareSignal(partitions, indexPartitions, signalGrid[si]);
-    if (!signal) {
-      diagNullSignal += 1;
-    } else {
-      for (const exitPlanName of EXIT_PLAN_NAMES) {
-        const exitPlan = buildExitPlan(exitPlanName);
-        const config = { ...signal.signalConfig, exitPlan };
-        const trainValidation = createValidator(signal.rows.train, indexPartitions.train, config).validate(signal.bestModel);
-        const validation = createValidator(signal.rows.validation, indexPartitions.validation, config).validate(signal.bestModel);
-        diagBestTrainTrades = Math.max(diagBestTrainTrades, trainValidation?.totalTrades ?? 0);
-        diagBestValidTrades = Math.max(diagBestValidTrades, validation?.totalTrades ?? 0);
-        diagBestTrainWinRate = Math.max(diagBestTrainWinRate, trainValidation?.winRate ?? 0);
-        diagBestValidWinRate = Math.max(diagBestValidWinRate, validation?.winRate ?? 0);
-        if (!passesHardFilters(trainValidation, validation)) {
-          diagFailedFilter += 1;
-          continue;
-        }
-        const stress = createValidator(signal.rows.stress, indexPartitions.stress, config).validate(signal.bestModel);
-        const final = unlockTest ? createValidator(signal.rows.final, indexPartitions.final, config).validate(signal.bestModel) : null;
-        const score = scoreConfig(validation);
-        if (!score) continue;
-        results.push({ config, bestModel: signal.bestModel, trainBuyCount: signal.trainBuyCount, diagnostics: signal.diagnostics, trainValidation, validation, stress, final, score });
-      }
+  const total = grid.length;
+  for (let gridIndex = 0; gridIndex < total; gridIndex += 1) {
+    const result = runOneConfig(partitions, indexPartitions, grid[gridIndex], unlockTest);
+    if (result) {
+      results.push(result);
     }
-    if ((si + 1) % 5 === 0 || si + 1 === totalSignals) {
+    if ((gridIndex + 1) % 100 === 0 || gridIndex + 1 === total) {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      const pct = (((si + 1) / totalSignals) * 100).toFixed(0);
-      process.stdout.write(`\r[optimizer] 信号 ${si + 1}/${totalSignals} (${pct}%) 通过=${results.length} 无信号=${diagNullSignal} 过滤淘汰=${diagFailedFilter} 最高trades(训|验)=${diagBestTrainTrades}|${diagBestValidTrades} 耗时=${elapsed}s`);
+      console.log(`[optimizer] ${gridIndex + 1}/${total} 组扫描完成，已通过 ${results.length} 组，耗时 ${elapsed}s`);
     }
   }
-  process.stdout.write('\n');
-  console.log(`[optimizer] 诊断：无信号=${diagNullSignal}/216, 过滤淘汰=${diagFailedFilter}/${totalConfigs}, 通过=${results.length}/${totalConfigs}`);
-  console.log(`[optimizer] 最高胜率(训|验)=${(diagBestTrainWinRate*100).toFixed(1)}%|${(diagBestValidWinRate*100).toFixed(1)}%  最高交易次数(训|验)=${diagBestTrainTrades}|${diagBestValidTrades}`);
 
   results.sort((left, right) => {
     if (right.score.primary !== left.score.primary) return right.score.primary - left.score.primary;
@@ -651,7 +627,7 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
     currentSignal: best ? generateCurrentSignal(optimizerRows, best.config, best.bestModel, indexMap) : { signal: 'hold', confidence: 0, reason: 'no-valid-config' },
     report: buildReport({ stockRows: optimizerRows, results, best, unlockTest }),
     stats: {
-      totalCombinations: totalConfigs,
+      totalCombinations: grid.length,
       validCombinations: results.length,
       unlockTest,
       scanDurationMs: Date.now() - startTime,

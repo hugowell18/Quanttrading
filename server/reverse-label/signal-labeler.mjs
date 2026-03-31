@@ -19,7 +19,7 @@
     };
   }
 
-  // 检查是否符合短线超卖（6选N），返回满足的条件数量
+  // 统计满足的超卖条件数量（6选N 的基础方法）
   _countOversoldConditions(index) {
     if (index < 4) return 0;
 
@@ -100,11 +100,12 @@
       const stockAboveMa60 = row.ma60 != null && row.close_adj > row.ma60;
 
       // === 条件组二：短期超卖特征 ===
-      // 先统计超卖条件数量，用于熊市例外路径判断
+      // 先统计超卖条件数量，再决定是否允许入场
       const oversoldCount = this._countOversoldConditions(i);
 
-      // 标准路径：个股在 MA60 以上，满足 6选3
-      // 熊市例外路径：个股在 MA60 以下，但极度超卖（6选4），捕捉真实的空头砸盘低点
+      // 标准路径：个股在 MA60 以上，6选3
+      // 熊市例外路径：个股在 MA60 以下，但极度超卖（6选4），
+      //   捕捉真实空头砸盘低点，普通回调不触发此路径
       const standardEntry = stockAboveMa60 && oversoldCount >= 3;
       const extremeBearEntry = !stockAboveMa60 && oversoldCount >= 4;
 
