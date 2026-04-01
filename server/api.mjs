@@ -578,6 +578,41 @@ app.post('/api/sync/backfill', async (req, res) => {
   })();
 });
 
+// ─── 1.14 Daily auto-scheduler ───────────────────────────────────────────────
+// Runs syncOneDay(today) every day at 15:35 (after A-share market close).
+// Also runs at startup to catch any missed days since last cached date.
+
+function scheduleDailySync() {
+  function msUntilNext1535() {
+    const now = new Date();
+    const target = new Date(now);
+    target.setHours(15, 35, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1); // already past today → tomorrow
+    return target - now;
+  }
+
+  const schedule = () => {
+    const delay = msUntilNext1535();
+    const hh = Math.floor(delay / 3600000);
+    const mm = Math.floor((delay % 3600000) / 60000);
+    console.log(`[scheduler] 下次自动采集在 ${hh}h${mm}m 后 (每日 15:35)`);
+
+    setTimeout(async () => {
+      const today = todayCompact();
+      console.log(`[scheduler] 开始自动采集 ${today}`);
+      try {
+        const created = await syncOneDay(today);
+        console.log(`[scheduler] ${today} 采集${created ? '完成' : '已有缓存，跳过'}`);
+      } catch (err) {
+        console.error(`[scheduler] ${today} 采集失败: ${err.message}`);
+      }
+      schedule(); // reschedule for next day
+    }, delay);
+  };
+
+  schedule();
+}
+
 // ─── Start server ────────────────────────────────────────────────────────────
 
 app.listen(PORT, async () => {
@@ -591,6 +626,8 @@ app.listen(PORT, async () => {
   console.log(`  http://localhost:${PORT}/api/ztpool?date=${todayCompact()}`);
   console.log(`  http://localhost:${PORT}/api/ztpool/dates`);
   await ensureIndexKlines();
-  // Backfill runs in background — server is already listening
+  // Backfill missed trading days since last cached date (runs in background)
   backfillMissingDates().catch((err) => console.error(`[backfill] error: ${err.message}`));
+  // Schedule daily auto-sync at 15:35 every trading day
+  scheduleDailySync();
 });
