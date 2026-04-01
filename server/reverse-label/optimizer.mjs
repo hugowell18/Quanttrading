@@ -3,6 +3,9 @@ import { SignalLabeler } from './signal-labeler.mjs';
 import { ModelSelector } from './model-selector.mjs';
 import { WalkForwardValidator } from './validator.mjs';
 import { readDaily } from '../data/csv-manager.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('optimizer');
 
 const LABEL_FORWARD_DAYS = 5;
 const LABEL_MIN_RETURN = 0.045;
@@ -630,14 +633,14 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
     }
     if ((gridIndex + 1) % 50 === 0 || gridIndex + 1 === total) {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      console.log(`[optimizer] ${gridIndex + 1}/${total} 组扫描完成，已通过 ${results.length} 组，耗时 ${elapsed}s`);
+      log.info(`扫描进度 ${gridIndex + 1}/${total}`, { passed: results.length, elapsed: `${elapsed}s` });
       await new Promise((r) => setImmediate(r)); // yield event loop
     }
   }
   if (results.length === 0) {
-    console.warn(`[optimizer] 0组通过 — 上市日=${listingDate} 训练年=${trainYears.toFixed(1)} minTrainTrades=${minTrainTrades}`);
-    console.warn(`[optimizer] 拒绝原因: trainBuyTooFew=${diag.trainBuyTooFew} noModel=${diag.noModel} hardFilterFail=${diag.hardFilterFail} noScore=${diag.noScore}`);
-    console.warn(`[optimizer] 最佳见到值: trainWinRate=${bestSeen.trainWinRate.toFixed(3)} validWinRate=${bestSeen.validWinRate.toFixed(3)} trainTrades=${bestSeen.trainTrades} validTrades=${bestSeen.validTrades}`);
+    log.warn('0组通过', { listingDate, trainYears: trainYears.toFixed(1), minTrainTrades });
+    log.warn('拒绝原因', { trainBuyTooFew: diag.trainBuyTooFew, noModel: diag.noModel, hardFilterFail: diag.hardFilterFail, noScore: diag.noScore });
+    log.warn('最佳见到值', { trainWinRate: bestSeen.trainWinRate.toFixed(3), validWinRate: bestSeen.validWinRate.toFixed(3), trainTrades: bestSeen.trainTrades, validTrades: bestSeen.validTrades });
   }
 
   results.sort((left, right) => {

@@ -1,5 +1,8 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('csv-manager');
 
 const CACHE_DIR = resolve(process.cwd(), 'cache');
 const KLINE_DIR = resolve(CACHE_DIR, 'kline');
@@ -344,6 +347,7 @@ export const ensureSymbolCsv = async (tsCode, securityType) => {
   const endDate = todayYmd();
 
   if (!lastUpdate || !existsSync(filePath) || readCsvRows(tsCode).length === 0) {
+    log.info(`${tsCode} 全量拉取`, { from: DEFAULT_START_DATE, to: endDate });
     const rows = await fetchSymbolRows(tsCode, resolvedSecurityType, DEFAULT_START_DATE, endDate);
     rewriteCsvRows(tsCode, rows);
     meta[tsCode] = {
@@ -351,6 +355,7 @@ export const ensureSymbolCsv = async (tsCode, securityType) => {
       lastUpdate: rows.length ? rows[rows.length - 1].trade_date : endDate,
     };
     writeMeta(meta);
+    log.info(`${tsCode} 全量完成`, { rows: rows.length, latest: meta[tsCode].lastUpdate });
     return {
       tsCode,
       securityType: resolvedSecurityType,
@@ -363,6 +368,7 @@ export const ensureSymbolCsv = async (tsCode, securityType) => {
   const fetchStartDate = nextDate(lastUpdate);
   if (fetchStartDate > endDate) {
     const existingRows = readCsvRows(tsCode);
+    log.debug(`${tsCode} 已是最新`, { rows: existingRows.length, latest: lastUpdate });
     return {
       tsCode,
       securityType: resolvedSecurityType,
@@ -383,6 +389,7 @@ export const ensureSymbolCsv = async (tsCode, securityType) => {
       lastUpdate: newRows[newRows.length - 1].trade_date,
     };
     writeMeta(meta);
+    log.info(`${tsCode} 增量追加`, { appended: newRows.length, latest: meta[tsCode].lastUpdate });
   }
 
   const allRows = readCsvRows(tsCode);
@@ -431,15 +438,15 @@ if (process.argv[1]?.endsWith('csv-manager.mjs')) {
     for (const item of symbols) {
       try {
         const result = await ensureSymbolCsv(item.tsCode, item.securityType);
-        console.log(`${result.tsCode} rows=${result.rows} latest=${result.latestTradeDate}`);
+        log.info(`${result.tsCode} done`, { rows: result.rows, latest: result.latestTradeDate, mode: result.mode });
       } catch (err) {
-        console.error(`[csv-manager] ${item.tsCode} 失败: ${err.message}`);
+        log.error(`${item.tsCode} 失败`, { error: err.message });
       }
     }
   };
 
   main().catch((error) => {
-    console.error(`[csv-manager] ${error.message}`);
+    log.fatal('启动失败', { error: error.message });
     process.exitCode = 1;
   });
 }

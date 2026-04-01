@@ -4,6 +4,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { optimize } from './reverse-label/optimizer.mjs';
 import { ensureSymbolCsv, readDaily } from './data/csv-manager.mjs';
+import { createLogger } from './logger.mjs';
 
 const app = express();
 const PORT = 3001;
@@ -12,6 +13,13 @@ const KLINE_DIR = resolve(process.cwd(), 'cache', 'kline');
 const SENTIMENT_DIR = resolve(process.cwd(), 'cache', 'sentiment');
 const SENTIMENT_STATE_PATH = resolve(process.cwd(), 'cache', 'sentiment-state', 'state-history.json');
 const ZTPOOL_DIR = resolve(process.cwd(), 'cache', 'ztpool');
+
+const logAnalyze   = createLogger('analyze');
+const logStartup   = createLogger('startup');
+const logBackfill  = createLogger('backfill');
+const logScheduler = createLogger('scheduler');
+const logSyncBatch = createLogger('sync-batch');
+const logMarket    = createLogger('market');
 
 app.use(cors());
 app.use(express.json());
@@ -107,13 +115,13 @@ app.get('/api/analyze/:code', async (req, res) => {
     // 1. Incremental CSV update
     try {
       const r = await ensureSymbolCsv(tsCode, 'stock');
-      console.log(`[analyze] ${code} CSV rows=${r.rows} appended=${r.appended ?? 0}`);
+      logAnalyze.info(`${code} CSV synced`, { rows: r.rows, appended: r.appended ?? 0 });
     } catch (e) {
-      console.warn(`[analyze] ${code} CSV update failed: ${e.message}`);
+      logAnalyze.warn(`${code} CSV update failed`, { error: e.message });
     }
 
     // 2. Full optimizer run — unlock final partition to get 2022-today trades
-    console.log(`[analyze] ${code} running optimizer...`);
+    logAnalyze.info(`${code} running optimizer`);
     const raw = await optimize(code, '20050101', todayStr, { unlockTest: true });
     const br = raw.bestResult;
     // Combine all partitions for complete trade history
@@ -162,9 +170,9 @@ app.get('/api/analyze/:code', async (req, res) => {
       else s.failed.push({ code, name: raw.stockName ?? code, valid: false, lastUpdated: todayStr });
       s.total = s.strictPassed.length + s.weakPassed.length + s.failed.length;
       writeFileSync(SUMMARY_PATH, JSON.stringify(s, null, 2), 'utf8');
-      console.log(`[analyze] ${code} written to summary.json`);
+      logAnalyze.info(`${code} written to summary.json`, { strictPass: newItem.strictPass, trades: flatBestResult?.totalTrades ?? 0 });
     } catch (e) {
-      console.warn(`[analyze] failed to write summary: ${e.message}`);
+      logAnalyze.warn(`${code} failed to write summary`, { error: e.message });
     }
 
     return { ...newItem, stockCode: code, stockName: newItem.name, kline: buildKline(allTrades) };
@@ -187,7 +195,7 @@ app.get('/api/analyze/:code', async (req, res) => {
 
         if (!forceRefresh && isUpToDate) {
           // Serve from cache — includes failed stocks (don't re-run optimizer every click)
-          console.log(`[analyze] ${code} up-to-date (valid=${item.valid ?? true}), serving from summary`);
+          logAnalyze.info(`${code} up-to-date, serving from summary`, { valid: item.valid ?? true });
           const trades = item.bestResult?.trades ?? [];
           return res.json({ ...item, stockCode: code, stockName: item.name, kline: buildKline(trades) });
         }
@@ -195,23 +203,23 @@ app.get('/api/analyze/:code', async (req, res) => {
         if (item.valid === false && !forceRefresh) {
           // Failed result from a previous day — serve stale kline but don't re-run optimizer
           // unless the user explicitly hits the refresh button
-          console.log(`[analyze] ${code} previously failed (${item.lastUpdated}), serving cached kline without re-analysis`);
+          logAnalyze.info(`${code} previously failed, serving cached kline without re-analysis`, { lastUpdated: item.lastUpdated });
           return res.json({ ...item, stockCode: code, stockName: item.name, kline: buildKline([]) });
         }
 
-        console.log(`[analyze] ${code} stale (${item.lastUpdated ?? 'unknown'}), refreshing...`);
+        logAnalyze.info(`${code} stale, refreshing`, { lastUpdated: item.lastUpdated ?? 'unknown' });
       } else {
-        console.log(`[analyze] ${code} not in summary, running full analysis...`);
+        logAnalyze.info(`${code} not in summary, running full analysis`);
       }
     } else {
-      console.log(`[analyze] ${code} no summary.json, running full analysis...`);
+      logAnalyze.info(`${code} no summary.json, running full analysis`);
     }
 
     const result = await runFull();
     return res.json(result);
 
   } catch (error) {
-    console.error(`[analyze] ${code} failed: ${error.message}`);
+    logAnalyze.error(`${code} analysis failed`, { error: error.message });
     return res.status(500).json({ error: error.message });
   }
 });
@@ -234,12 +242,12 @@ app.post('/api/sync/batch', async (_req, res) => {
       try {
         const tsCode = /^6/.test(item.code) ? `${item.code}.SH` : `${item.code}.SZ`;
         await ensureSymbolCsv(tsCode, 'stock');
-        console.log(`[sync/batch] refreshed ${item.code}`);
+        logSyncBatch.info(`refreshed ${item.code}`);
       } catch (e) {
-        console.warn(`[sync/batch] ${item.code} failed: ${e.message}`);
+        logSyncBatch.warn(`${item.code} failed`, { error: e.message });
       }
     }
-    console.log(`[sync/batch] done`);
+    logSyncBatch.info('done');
   })();
 });
 
@@ -253,7 +261,7 @@ app.get('/api/market/kline/:code', async (req, res) => {
     try {
       await ensureSymbolCsv(code, securityType);
     } catch (syncErr) {
-      console.warn(`[market/kline] sync failed for ${code}: ${syncErr.message}`);
+      logMarket.warn(`sync failed for ${code}`, { error: syncErr.message });
     }
     const filePath = resolve(KLINE_DIR, `${code}.csv`);
     if (!existsSync(filePath)) {
@@ -416,9 +424,9 @@ const ensureIndexKlines = async () => {
     try {
       // Always call ensureSymbolCsv — it does incremental sync automatically
       const result = await ensureSymbolCsv(tsCode, securityType);
-      console.log(`[startup] ${tsCode} mode=${result.mode} rows=${result.rows} latest=${result.latestTradeDate} appended=${result.appended ?? 0}`);
+      logStartup.info(`${tsCode} kline synced`, { mode: result.mode, rows: result.rows, latest: result.latestTradeDate, appended: result.appended ?? 0 });
     } catch (err) {
-      console.error(`[startup] ${tsCode} sync failed: ${err.message}`);
+      logStartup.error(`${tsCode} sync failed`, { error: err.message });
     }
   }
 };
@@ -465,7 +473,7 @@ async function syncOneDay(date) {
           // Empty cache — delete and retry
           const { unlinkSync } = await import('node:fs');
           unlinkSync(cachedPath);
-          console.log(`[backfill] ${date} cache was empty, deleted — will retry`);
+          logBackfill.warn(`${date} cache was empty, deleted — will retry`);
           return false; // skip for now; next startup will retry
         }
       } catch { /* ignore parse errors */ }
@@ -473,13 +481,13 @@ async function syncOneDay(date) {
     return false; // already done with real data
   }
   if (!ztResult.ok && !ztResult.skipped) {
-    console.warn(`[backfill] ${date} ztpool failed: ${ztResult.error}`);
+    logBackfill.warn(`${date} ztpool failed`, { error: ztResult.error });
     return false;
   }
   // Guard: if fetch succeeded but returned 0 rows, don't save empty sentiment
   const ztRows = ztResult.ztCount ?? ztResult.ztpool?.count ?? ztResult.data?.ztpool?.count ?? 0;
   if (ztRows === 0) {
-    console.warn(`[backfill] ${date} ztpool returned 0 rows (likely network/proxy issue), skipping sentiment`);
+    logBackfill.warn(`${date} ztpool returned 0 rows (likely network/proxy issue), skipping sentiment`);
     // Delete the empty ztpool file so it can be retried properly
     const emptyPath = resolve(process.cwd(), 'cache', 'ztpool', `${date}.json`);
     if (existsSync(emptyPath)) {
@@ -495,7 +503,7 @@ async function syncOneDay(date) {
 
   const metrics = calcMetrics(date, null);
   if (!metrics) {
-    console.warn(`[backfill] ${date} sentiment calc failed (no ztpool data)`);
+    logBackfill.warn(`${date} sentiment calc failed (no ztpool data)`);
     return false;
   }
   saveSentiment(metrics);
@@ -512,7 +520,7 @@ async function syncOneDay(date) {
     ...result.snapshot,
   });
 
-  console.log(`[backfill] ${date} done — zt=${metrics.ztCount} state=${currentState}→${result.state}`);
+  logBackfill.info(`${date} done`, { zt: metrics.ztCount, prevState: currentState, newState: result.state });
   return true;
 }
 
@@ -532,21 +540,21 @@ async function backfillMissingDates() {
   const today = todayCompact();
 
   if (!lastCached || lastCached >= today) {
-    console.log(`[backfill] 已是最新 (last=${lastCached ?? '无缓存'})`);
+    logBackfill.info('已是最新', { last: lastCached ?? '无缓存' });
     return;
   }
 
   const missing = getTradingDaysBetween(lastCached, today);
   if (!missing.length) {
-    console.log(`[backfill] 已是最新 (last=${lastCached})`);
+    logBackfill.info('已是最新', { last: lastCached });
     return;
   }
 
-  console.log(`[backfill] 发现 ${missing.length} 个缺失交易日 (${lastCached} → ${today})，开始补充...`);
+  logBackfill.info(`发现 ${missing.length} 个缺失交易日，开始补充`, { from: lastCached, to: today });
   for (const date of missing) {
     await syncOneDay(date);
   }
-  console.log(`[backfill] 完成`);
+  logBackfill.info('补充完成');
 }
 
 // ─── 1.12 Manual sync endpoint ───────────────────────────────────────────────
@@ -584,9 +592,9 @@ app.post('/api/sync/backfill', async (req, res) => {
   // Run in background
   (async () => {
     for (const date of dates) {
-      try { await syncOneDay(date); } catch (e) { console.warn(`[backfill] ${date} error: ${e.message}`); }
+      try { await syncOneDay(date); } catch (e) { logBackfill.warn(`${date} error`, { error: e.message }); }
     }
-    console.log(`[backfill] range ${from}→${endDate} done`);
+    logBackfill.info(`range done`, { from, to: endDate });
   })();
 });
 
@@ -607,16 +615,16 @@ function scheduleDailySync() {
     const delay = msUntilNext1535();
     const hh = Math.floor(delay / 3600000);
     const mm = Math.floor((delay % 3600000) / 60000);
-    console.log(`[scheduler] 下次自动采集在 ${hh}h${mm}m 后 (每日 15:35)`);
+    logScheduler.info(`下次自动采集在 ${hh}h${mm}m 后 (每日 15:35)`);
 
     setTimeout(async () => {
       const today = todayCompact();
-      console.log(`[scheduler] 开始自动采集 ${today}`);
+      logScheduler.info(`开始自动采集`, { date: today });
       try {
         const created = await syncOneDay(today);
-        console.log(`[scheduler] ${today} 采集${created ? '完成' : '已有缓存，跳过'}`);
+        logScheduler.info(`采集${created ? '完成' : '已有缓存，跳过'}`, { date: today });
       } catch (err) {
-        console.error(`[scheduler] ${today} 采集失败: ${err.message}`);
+        logScheduler.error(`采集失败`, { date: today, error: err.message });
       }
       schedule(); // reschedule for next day
     }, delay);
@@ -628,18 +636,10 @@ function scheduleDailySync() {
 // ─── Start server ────────────────────────────────────────────────────────────
 
 app.listen(PORT, async () => {
-  console.log('\nQuantPulse API started');
-  console.log(`  http://localhost:${PORT}/api/status`);
-  console.log(`  http://localhost:${PORT}/api/batch/summary`);
-  console.log(`  http://localhost:${PORT}/api/analyze/600519`);
-  console.log(`  http://localhost:${PORT}/api/market/kline/000300.SH`);
-  console.log(`  http://localhost:${PORT}/api/sentiment/metrics?date=${todayCompact()}`);
-  console.log(`  http://localhost:${PORT}/api/sentiment/state-history`);
-  console.log(`  http://localhost:${PORT}/api/ztpool?date=${todayCompact()}`);
-  console.log(`  http://localhost:${PORT}/api/ztpool/dates`);
+  logStartup.info(`QuantPulse API started on port ${PORT}`);
   await ensureIndexKlines();
   // Backfill missed trading days since last cached date (runs in background)
-  backfillMissingDates().catch((err) => console.error(`[backfill] error: ${err.message}`));
+  backfillMissingDates().catch((err) => logBackfill.error('backfill error', { error: err.message }));
   // Schedule daily auto-sync at 15:35 every trading day
   scheduleDailySync();
 });

@@ -11,6 +11,9 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('ztpool-coll');
 
 const ROOT = process.cwd();
 const CACHE_DIR = resolve(ROOT, 'cache', 'ztpool');
@@ -99,21 +102,18 @@ export async function collectZtpool(dateStr, { force = false } = {}) {
 
   // 跳过周末
   if (isWeekend(date)) {
-    console.log(`[ztpool-collector] ${date} 是周末，跳过`);
+    log.info(`${date} 是周末，跳过`);
     return { skipped: true, reason: 'weekend', date };
   }
 
   // 已有缓存且不强制
   if (!force && existsSync(path)) {
     const cached = JSON.parse(readFileSync(path, 'utf8'));
-    console.log(
-      `[ztpool-collector] ${date} 缓存已存在 — `
-      + `涨停=${cached.ztpool?.count ?? 0} 炸板=${cached.zbgcpool?.count ?? 0} 跌停=${cached.dtpool?.count ?? 0}`,
-    );
+    log.info(`${date} 缓存已存在`, { zt: cached.ztpool?.count ?? 0, zb: cached.zbgcpool?.count ?? 0, dt: cached.dtpool?.count ?? 0 });
     return { skipped: true, reason: 'cached', date, data: cached };
   }
 
-  console.log(`[ztpool-collector] ${date} 开始采集...`);
+  log.info(`${date} 开始采集`);
   const startMs = Date.now();
 
   let data;
@@ -121,7 +121,7 @@ export async function collectZtpool(dateStr, { force = false } = {}) {
     data = runPythonCollector(date);
   } catch (err) {
     const msg = `Python采集失败: ${err.message}`;
-    console.error(`[ztpool-collector] ${msg}`);
+    log.error(`${date} 采集失败`, { error: err.message });
     return { ok: false, date, error: msg };
   }
 
@@ -130,7 +130,7 @@ export async function collectZtpool(dateStr, { force = false } = {}) {
   // 数据验证
   const issues = validate(data);
   if (issues.length) {
-    console.warn(`[ztpool-collector] 验证警告: ${issues.join(' | ')}`);
+    log.warn(`${date} 验证警告`, { issues: issues.join(' | ') });
   }
 
   // 写入缓存
@@ -141,11 +141,7 @@ export async function collectZtpool(dateStr, { force = false } = {}) {
   const dtCount = data.dtpool?.count ?? 0;
   const errorKeys = Object.keys(data.errors ?? {});
 
-  console.log(
-    `[ztpool-collector] ${date} 完成 ${elapsed}s — `
-    + `涨停=${ztCount} 炸板=${zbCount} 跌停=${dtCount}`
-    + (errorKeys.length ? ` ⚠️ 失败池: ${errorKeys.join(',')}` : ''),
-  );
+  log.info(`${date} 采集完成`, { elapsed: `${elapsed}s`, zt: ztCount, zb: zbCount, dt: dtCount, ...(errorKeys.length ? { failedPools: errorKeys.join(',') } : {}) });
 
   return { ok: data.ok, date, ztCount, zbCount, dtCount, errors: data.errors, issues, elapsed };
 }

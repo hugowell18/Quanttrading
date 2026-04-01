@@ -26,8 +26,10 @@ import { scanChannelB } from './signal/channel-b-selector.mjs';
 import { generateReviewReport, saveReviewReport, formatReportText } from './risk/review-reporter.mjs';
 import { isPaperMode, isParamsLocked } from './risk/paper-trading.mjs';
 import { isLiveMode, recordLiveStart } from './risk/order-router.mjs';
+import { createLogger } from './logger.mjs';
 
 const HS300_CODE = '000300.SH';
+const log = createLogger('scheduler');
 
 // ──────────────────────────────────────────────
 // CLI 参数
@@ -45,12 +47,6 @@ const isDryRun = args.includes('--dry-run');
 function todayCompact() {
   const d = new Date();
   return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function log(tag, msg) {
-  const now = new Date();
-  const t = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-  console.log(`[${t}][${tag}] ${msg}`);
 }
 
 /**
@@ -76,7 +72,7 @@ export async function scheduleAt(timeHHMM, fn) {
 
   const diffMs = target - now;
   if (diffMs > 0) {
-    log('调度', `等待至 ${timeHHMM}（${Math.round(diffMs / 1000)} 秒后）`);
+    log.info(`等待至 ${timeHHMM}`, { waitSec: Math.round(diffMs / 1000) });
     await new Promise((resolve) => setTimeout(resolve, diffMs));
   }
   await fn();
@@ -97,24 +93,24 @@ function prevTradingDay(date) {
 // ──────────────────────────────────────────────
 
 async function task0915(date) {
-  log('09:15', `交易日检查 date=${date}`);
+  log.info(`[09:15] 交易日检查`, { date });
 
   if (!isPaperMode() && !isLiveMode()) {
-    log('09:15', '⚠️  ZT_MODE 未设置（paper/live），调度器仅记录日志，不执行下单');
+    log.warn('[09:15] ZT_MODE 未设置（paper/live），调度器仅记录日志，不执行下单');
   }
 
   if (isLiveMode()) {
     recordLiveStart(date);
-    log('09:15', '实盘模式：已记录启动日期（首月半仓生效）');
+    log.info('[09:15] 实盘模式：已记录启动日期（首月半仓生效）');
   }
 
   if (isPaperMode() && !isParamsLocked()) {
-    log('09:15', '⚠️  模拟盘模式：参数尚未锁定，建议先调用 lockParams() 锁定策略参数');
+    log.warn('[09:15] 模拟盘模式：参数尚未锁定，建议先调用 lockParams() 锁定策略参数');
   }
 }
 
 async function task0925(date, state) {
-  log('09:25', 'Channel B 竞价扫描开始');
+  log.info('[09:25] Channel B 竞价扫描开始');
   // 竞价数据需实时获取，此处为框架占位
   // 实盘/模拟盘接入后，从 fetch_realtime.py --type auction 获取竞价快照
   const candidates = await scanChannelB({
@@ -122,60 +118,60 @@ async function task0925(date, state) {
     auctionData: [],   // TODO: 接入实时竞价数据
     emotionState: state,
   });
-  log('09:25', `Channel B 候选 ${candidates.length} 只`);
+  log.info('[09:25] Channel B 扫描完成', { candidates: candidates.length });
   candidates.slice(0, 5).forEach((c) => {
-    log('09:25', `  ${c.code} ${c.name} 竞价+${c.auctionPct}% 综合分${c.totalScore}`);
+    log.info(`[09:25]   ${c.code} ${c.name} 竞价+${c.auctionPct}% 综合分${c.totalScore}`);
   });
   return candidates;
 }
 
 async function task1430(date, state) {
-  log('14:30', 'Channel A 尾盘初筛开始');
+  log.info('[14:30] Channel A 尾盘初筛开始');
   // 实时行情需从 fetch_realtime.py --type stocks 获取
   const candidates = await scanChannelA({
     date,
     liveStocks: [],    // TODO: 接入实时行情
     emotionState: state,
   });
-  log('14:30', `Channel A 初筛候选 ${candidates.length} 只`);
+  log.info('[14:30] Channel A 初筛完成', { candidates: candidates.length });
   return candidates;
 }
 
 async function task1450(channelACandidates) {
-  log('14:50', 'Channel A 最终候选输出');
+  log.info('[14:50] Channel A 最终候选输出');
   const final = channelACandidates.filter((c) => c.sortScore >= 30);
   if (!final.length) {
-    log('14:50', '无满足条件的候选股');
+    log.info('[14:50] 无满足条件的候选股');
     return;
   }
-  log('14:50', `最终候选 ${final.length} 只：`);
+  log.info('[14:50] 最终候选', { count: final.length });
   final.forEach((c) => {
-    log('14:50', `  ${c.code} ${c.name} 涨幅${c.pctChg}% 市值${c.circMvYi}亿 仓位上限${(c.positionCap * 100).toFixed(0)}%`);
+    log.info(`[14:50]   ${c.code} ${c.name} 涨幅${c.pctChg}% 市值${c.circMvYi}亿 仓位上限${(c.positionCap * 100).toFixed(0)}%`);
   });
 }
 
 async function task1530(date) {
-  log('15:30', '涨停池采集开始');
+  log.info('[15:30] 涨停池采集开始');
   const result = await collectZtpool(date);
   if (result.skipped) {
-    log('15:30', '涨停池已有缓存，跳过采集');
+    log.info('[15:30] 涨停池已有缓存，跳过采集');
   } else if (!result.ok) {
-    log('15:30', `⚠️  涨停池采集失败：${result.error}`);
+    log.warn('[15:30] 涨停池采集失败', { error: result.error });
   } else {
-    log('15:30', `涨停池采集完成：涨停=${result.ztCount} 炸板=${result.zbCount} 跌停=${result.dtCount}`);
+    log.info('[15:30] 涨停池采集完成', { zt: result.ztCount, zb: result.zbCount, dt: result.dtCount });
   }
 }
 
 async function task1535(date) {
-  log('15:35', '情绪指标计算 + 状态机评估');
+  log.info('[15:35] 情绪指标计算 + 状态机评估');
   const prevDate = prevTradingDay(date);
   const metrics = calcMetrics(date, prevDate);
   if (!metrics) {
-    log('15:35', '⚠️  情绪指标计算失败（涨停池数据缺失）');
+    log.warn('[15:35] 情绪指标计算失败（涨停池数据缺失）');
     return null;
   }
   saveSentiment(metrics);
-  log('15:35', `情绪指标：涨停=${metrics.ztCount} 炸板率=${metrics.zbRate ?? 'N/A'} 涨跌停比=${metrics.ztDtRatio ?? 'N/A'}`);
+  log.info('[15:35] 情绪指标', { zt: metrics.ztCount, zbRate: metrics.zbRate ?? 'N/A', ztDtRatio: metrics.ztDtRatio ?? 'N/A' });
 
   // 状态机评估
   const history = readStateHistory();
@@ -199,12 +195,12 @@ async function task1535(date) {
     ...result.snapshot,
   });
 
-  log('15:35', `情绪状态：${currentState} → ${result.state}${result.changed ? ' ⚡' : ''}  仓位上限=${(result.positionLimit * 100).toFixed(0)}%`);
+  log.info('[15:35] 情绪状态变化', { from: currentState, to: result.state, changed: result.changed, positionLimit: `${(result.positionLimit * 100).toFixed(0)}%` });
   return result.state;
 }
 
 async function task1600(date, emotionState, prevEmotionState) {
-  log('16:00', '复盘报告生成');
+  log.info('[16:00] 复盘报告生成');
   const report = generateReviewReport(date, {
     trades: [],           // TODO: 接入当日已平仓交易记录
     openPositions: [],    // TODO: 接入当日持仓
@@ -214,8 +210,8 @@ async function task1600(date, emotionState, prevEmotionState) {
     weeklyTrades:     [],
   });
   const path = saveReviewReport(report);
-  log('16:00', `复盘报告已保存：${path}`);
-  log('16:00', formatReportText(report));
+  log.info('[16:00] 复盘报告已保存', { path });
+  log.info('[16:00] ' + formatReportText(report));
 }
 
 // ──────────────────────────────────────────────
@@ -227,7 +223,7 @@ async function task1600(date, emotionState, prevEmotionState) {
  * @param {string} date - YYYYMMDD
  */
 export async function runDailySchedule(date) {
-  log('调度', `========== ${date} 日调度启动 ==========`);
+  log.info(`========== ${date} 日调度启动 ==========`);
 
   // 获取前日情绪状态（用于复盘报告对比）
   const history = readStateHistory();
@@ -236,7 +232,7 @@ export async function runDailySchedule(date) {
   let currentState = prevEmotionState;
 
   if (isDryRun) {
-    log('调度', '[DRY-RUN] 时间表预览：');
+    log.info('[DRY-RUN] 时间表预览：');
     [
       '09:15 交易日检查',
       '09:25 Channel B 竞价扫描',
@@ -245,7 +241,7 @@ export async function runDailySchedule(date) {
       '15:30 涨停池采集',
       '15:35 情绪指标+状态机',
       '16:00 复盘报告',
-    ].forEach((item) => log('调度', `  ${item}`));
+    ].forEach((item) => log.info(`  ${item}`));
     return;
   }
 
@@ -266,7 +262,7 @@ export async function runDailySchedule(date) {
   });
   await scheduleAt('16:00', () => task1600(date, currentState, prevEmotionState));
 
-  log('调度', `========== ${date} 日调度完成 ==========`);
+  log.info(`========== ${date} 日调度完成 ==========`);
 }
 
 // ──────────────────────────────────────────────
@@ -276,11 +272,11 @@ export async function runDailySchedule(date) {
 const date = forceDateArg ?? todayCompact();
 
 if (!isTradingDay(date)) {
-  log('调度', `${date} 非交易日，退出`);
+  log.info(`${date} 非交易日，退出`);
   process.exit(0);
 }
 
 runDailySchedule(date).catch((err) => {
-  console.error(err.stack || err.message || String(err));
+  log.fatal('日调度异常', { error: err.stack || err.message || String(err) });
   process.exitCode = 1;
 });
