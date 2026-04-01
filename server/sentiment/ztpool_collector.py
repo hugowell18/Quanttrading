@@ -220,8 +220,10 @@ def _em_price(raw):
     v = normalize_number(raw)
     return round(v / 100, 2) if v > 10000 else v
 
-def fetch_ztpool_em():
+def fetch_ztpool_em(trade_date: str = ""):
     url = f"{EM_BASE}&dpt=wz.ztzt&sort=fbt:asc"
+    if trade_date:
+        url += f"&date={trade_date}"
     payload = http_get_json(url)
     rows = []
     for row in (payload.get("data") or {}).get("pool") or []:
@@ -245,8 +247,10 @@ def fetch_ztpool_em():
     return rows
 
 
-def fetch_zbgcpool_em():
+def fetch_zbgcpool_em(trade_date: str = ""):
     url = f"{EM_BASE}&dpt=wz.zbgc"
+    if trade_date:
+        url += f"&date={trade_date}"
     payload = http_get_json(url)
     rows = []
     for row in (payload.get("data") or {}).get("pool") or []:
@@ -269,8 +273,10 @@ def fetch_zbgcpool_em():
     return rows
 
 
-def fetch_dtpool_em():
+def fetch_dtpool_em(trade_date: str = ""):
     url = f"{EM_BASE}&dpt=wz.dtzt"
+    if trade_date:
+        url += f"&date={trade_date}"
     payload = http_get_json(url)
     rows = []
     for row in (payload.get("data") or {}).get("pool") or []:
@@ -315,7 +321,7 @@ def fetch_with_fallback(pool_type: str, trade_date: str = ""):
         ak_error = str(e)
 
     try:
-        rows = em_fn[pool_type]()
+        rows = em_fn[pool_type](trade_date)
         return rows, f"eastmoney (akshare failed: {ak_error})"
     except Exception as e:
         raise RuntimeError(f"{pool_type} 全部数据源失败 — akshare: {ak_error}; eastmoney: {e}")
