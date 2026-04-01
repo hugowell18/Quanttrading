@@ -477,7 +477,7 @@ async function syncOneDay(date) {
     return false;
   }
   // Guard: if fetch succeeded but returned 0 rows, don't save empty sentiment
-  const ztRows = ztResult.ztpool?.count ?? ztResult.data?.ztpool?.count ?? 0;
+  const ztRows = ztResult.ztCount ?? ztResult.ztpool?.count ?? ztResult.data?.ztpool?.count ?? 0;
   if (ztRows === 0) {
     console.warn(`[backfill] ${date} ztpool returned 0 rows (likely network/proxy issue), skipping sentiment`);
     // Delete the empty ztpool file so it can be retried properly
