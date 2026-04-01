@@ -247,35 +247,16 @@ export function QuantDashboard() {
     }
   }, []);
 
+  // Auto-load most recent history entry on mount
+  useEffect(() => {
+    const hist = loadHistory();
+    if (hist.length > 0) void analyze(hist[0].code);
+  }, [analyze]);
+
   const loadFromHistory = (entry: HistoryEntry) => {
     setCode(entry.code);
-    setStockName(entry.name);
-    setOptimizerResult(entry.optimizerResult);
-    setError(null);
     setShowHistory(false);
-
-    // Re-derive trades/markers from saved optimizer result
-    const optTrades = entry.optimizerResult?.bestResult?.trades ?? [];
-    setTradeRecords(optTrades.map((t, i) => ({
-      id: `hist-${t.buyDate}-${i}`,
-      buyDate: t.buyDate,
-      buyPrice: Number(t.buyPrice.toFixed(2)),
-      sellDate: t.sellDate,
-      sellPrice: Number(t.sellPrice.toFixed(2)),
-      returnPct: Number((t.return * 100).toFixed(2)),
-      returnAmount: Number((t.return * 10000).toFixed(2)),
-      result: t.return >= 0 ? 'success' as const : 'failure' as const,
-    })).sort((a, b) => b.buyDate.localeCompare(a.buyDate)));
-    setSignalMarkers(optTrades.flatMap((t) => [
-      { date: t.buyDate, type: 'buy' as const, price: Number(t.buyPrice.toFixed(2)), label: 'B' as const },
-      { date: t.sellDate, type: 'sell' as const, price: Number(t.sellPrice.toFixed(2)), label: 'S' as const },
-    ]));
-
-    // Need to re-fetch K-line data for chart
-    fetch(`http://localhost:3030/api/tushare/stock/${entry.code}?period=3y&strategyMode=adaptive_composite_e`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((p) => { if (p?.candles?.length) setKlineData(p.candles); })
-      .catch(() => { /* silent - chart will be empty */ });
+    void analyze(entry.code);
   };
 
   // ─── Derived state ────────────────────────────────────

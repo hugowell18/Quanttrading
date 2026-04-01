@@ -1,23 +1,13 @@
+import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, BarChart, Bar } from 'recharts';
+
+interface KLinePoint { date: string; close: number; }
 
 const marketIndices = [
   { name: 'CSI 300', value: '3,845.62', change: '+1.24%', trend: 'up', volume: '245.8B' },
   { name: 'SSE Composite', value: '3,102.58', change: '-0.32%', trend: 'down', volume: '328.5B' },
   { name: 'STAR Market', value: '2,756.43', change: '+2.18%', trend: 'up', volume: '89.2B' },
-];
-
-const indexData = [
-  { time: '09:30', value: 3802 },
-  { time: '10:00', value: 3815 },
-  { time: '10:30', value: 3808 },
-  { time: '11:00', value: 3825 },
-  { time: '11:30', value: 3820 },
-  { time: '13:00', value: 3830 },
-  { time: '13:30', value: 3835 },
-  { time: '14:00', value: 3828 },
-  { time: '14:30', value: 3840 },
-  { time: '15:00', value: 3846 },
 ];
 
 const sectorPerformance = [
@@ -44,6 +34,24 @@ const topStocks = {
 };
 
 export function MarketDashboard() {
+  const [indexData, setIndexData] = useState<KLinePoint[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3030/api/tushare/index/000300?period=6m')
+      .then((r) => r.ok ? r.json() : null)
+      .then((payload) => {
+        if (payload?.candles?.length) {
+          // Show last 60 trading days
+          const candles: KLinePoint[] = payload.candles.slice(-60).map((c: { date: string; close: number }) => ({
+            date: c.date,
+            close: c.close,
+          }));
+          setIndexData(candles);
+        }
+      })
+      .catch(() => { /* silent fallback — chart stays empty */ });
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* System Suggestion Banner */}
@@ -78,7 +86,17 @@ export function MarketDashboard() {
 
       {/* Main Index Chart */}
       <div className="bg-card border border-border rounded-lg p-6">
-        <h3 className="mb-4">沪深300指数 - 实时走势</h3>
+        <h3 className="mb-4">
+          沪深300指数 - 近60日走势
+          {indexData.length > 0 && (
+            <span className="ml-3 text-sm font-normal text-muted-foreground">
+              最新: {indexData[indexData.length - 1]?.date}
+            </span>
+          )}
+        </h3>
+        {indexData.length === 0 ? (
+          <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">正在加载...</div>
+        ) : (
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={indexData}>
             <defs>
@@ -88,15 +106,15 @@ export function MarketDashboard() {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.1} />
-            <XAxis dataKey="time" stroke="#888" />
-            <YAxis domain={['dataMin - 10', 'dataMax + 10']} stroke="#888" />
+            <XAxis dataKey="date" stroke="#888" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+            <YAxis domain={['dataMin - 20', 'dataMax + 20']} stroke="#888" />
             <Tooltip
               contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
               labelStyle={{ color: '#fff' }}
             />
             <Area
               type="monotone"
-              dataKey="value"
+              dataKey="close"
               stroke="#3b82f6"
               strokeWidth={2}
               fillOpacity={1}
@@ -104,6 +122,7 @@ export function MarketDashboard() {
             />
           </AreaChart>
         </ResponsiveContainer>
+        )}
       </div>
 
       {/* Sector Performance & Top Stocks */}
