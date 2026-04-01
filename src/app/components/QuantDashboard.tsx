@@ -175,8 +175,8 @@ export function QuantDashboard() {
     try {
       // Parallel fetch: K-line data + optimizer
       const [stockRes, optimizerRes] = await Promise.all([
-        fetch(`http://localhost:3030/api/tushare/stock/${normalized}?period=3y&strategyMode=adaptive_composite_e`),
-        fetch(`http://localhost:3030/api/tushare/optimizer/${normalized}?period=3y`),
+        fetch(`http://localhost:3030/api/tushare/stock/${normalized}?period=3y&strategyMode=adaptive_composite_e`, { cache: 'no-store' }),
+        fetch(`http://localhost:3030/api/tushare/optimizer/${normalized}?period=3y`, { cache: 'no-store' }),
       ]);
 
       // K-line data

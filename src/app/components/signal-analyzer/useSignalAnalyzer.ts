@@ -87,8 +87,8 @@ export function useSignalAnalyzer(initialCode?: string, initialStrategyType = 'a
         period: '3y',
       });
       const [response, optimizerResponse] = await Promise.all([
-        fetch(`http://localhost:3030/api/tushare/stock/${normalizedCode}?${query.toString()}`),
-        fetch(`http://localhost:3030/api/tushare/optimizer/${normalizedCode}?${optimizerQuery.toString()}`),
+        fetch(`http://localhost:3030/api/tushare/stock/${normalizedCode}?${query.toString()}`, { cache: 'no-store' }),
+        fetch(`http://localhost:3030/api/tushare/optimizer/${normalizedCode}?${optimizerQuery.toString()}`, { cache: 'no-store' }),
       ]);
       const payload = (await response.json()) as LiveStockResponse & { error?: string };
       const optimizerPayload = optimizerResponse.ok

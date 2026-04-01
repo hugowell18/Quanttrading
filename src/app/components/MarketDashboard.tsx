@@ -37,7 +37,7 @@ export function MarketDashboard() {
   const [indexData, setIndexData] = useState<KLinePoint[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:3030/api/tushare/index/000300?period=6m')
+    fetch('http://localhost:3030/api/tushare/index/000300?period=6m', { cache: 'no-store' })
       .then((r) => r.ok ? r.json() : null)
       .then((payload) => {
         if (payload?.candles?.length) {

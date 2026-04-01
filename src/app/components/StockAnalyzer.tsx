@@ -423,7 +423,7 @@ export function StockAnalyzer({ initialCode = '', initialName = '', onResolvedSt
     setShowHistory(false);
 
     try {
-      const res = await fetch(`http://localhost:3030/api/tushare/optimizer/${targetCode.trim()}?period=3y`);
+      const res = await fetch(`http://localhost:3030/api/tushare/optimizer/${targetCode.trim()}?period=3y`, { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as AnalyzeResult;
       setResult(data);
