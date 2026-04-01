@@ -448,9 +448,37 @@ async function syncOneDay(date) {
 
   // 1. Collect ztpool
   const ztResult = await collectZtpool(date);
-  if (ztResult.skipped && ztResult.reason === 'cached') return false; // already done
+  if (ztResult.skipped && ztResult.reason === 'cached') {
+    // Already cached — but only trust it if it has actual data
+    const ztpoolDir = resolve(process.cwd(), 'cache', 'ztpool');
+    const cachedPath = resolve(ztpoolDir, `${date}.json`);
+    if (existsSync(cachedPath)) {
+      try {
+        const cached = JSON.parse(readFileSync(cachedPath, 'utf8'));
+        if ((cached.ztpool?.count ?? 0) === 0 && (cached.zbgcpool?.count ?? 0) === 0) {
+          // Empty cache — delete and retry
+          const { unlinkSync } = await import('node:fs');
+          unlinkSync(cachedPath);
+          console.log(`[backfill] ${date} cache was empty, deleted — will retry`);
+          return false; // skip for now; next startup will retry
+        }
+      } catch { /* ignore parse errors */ }
+    }
+    return false; // already done with real data
+  }
   if (!ztResult.ok && !ztResult.skipped) {
     console.warn(`[backfill] ${date} ztpool failed: ${ztResult.error}`);
+    return false;
+  }
+  // Guard: if fetch succeeded but returned 0 rows, don't save empty sentiment
+  const ztRows = ztResult.ztpool?.count ?? ztResult.data?.ztpool?.count ?? 0;
+  if (ztRows === 0) {
+    console.warn(`[backfill] ${date} ztpool returned 0 rows (likely network/proxy issue), skipping sentiment`);
+    // Delete the empty ztpool file so it can be retried properly
+    const emptyPath = resolve(process.cwd(), 'cache', 'ztpool', `${date}.json`);
+    if (existsSync(emptyPath)) {
+      try { const { unlinkSync: del } = await import('node:fs'); del(emptyPath); } catch { /* ok */ }
+    }
     return false;
   }
 
