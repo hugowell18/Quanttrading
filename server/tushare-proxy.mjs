@@ -1,7 +1,7 @@
 ﻿import { createServer } from 'node:http';
 import { existsSync, readFileSync as readTextFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { ensureSymbolCsv, readDaily } from './data/csv-manager.mjs';
+import { ensureSymbolCsv, readDaily, warmupDefaultSymbols } from './data/csv-manager.mjs';
 import {
   buildSignalMarkers,
   buildTradeRecordsFromRaw,
@@ -237,6 +237,7 @@ const server = createServer(async (request, response) => {
   const stockMatch = requestUrl.pathname.match(/^\/api\/tushare\/stock\/(\d{6})$/);
   const optimizerMatch = requestUrl.pathname.match(/^\/api\/tushare\/optimizer\/(\d{6})$/);
   const indexMatch = requestUrl.pathname.match(/^\/api\/tushare\/index\/(\d{6})$/);
+  const syncMatch = requestUrl.pathname.match(/^\/api\/tushare\/sync\/(.+)$/);
   const batchSummaryMatch = requestUrl.pathname === '/api/tushare/batch/summary';
 
   if (batchSummaryMatch) {
@@ -256,6 +257,19 @@ const server = createServer(async (request, response) => {
       weakPassed: decorate(summary.weakPassed),
       failed: decorate(summary.failed),
     });
+    return;
+  }
+
+  // Diagnostic: /api/tushare/sync/600519.SH  or  /api/tushare/sync/000300.SH
+  if (syncMatch) {
+    const tsCode = syncMatch[1]; // expect full ts_code like 600519.SH
+    const securityType = tsCode === '000300.SH' ? 'index' : 'stock';
+    try {
+      const result = await ensureSymbolCsv(tsCode, securityType);
+      sendJson(response, 200, { ...result, serverTime: new Date().toISOString() });
+    } catch (error) {
+      sendJson(response, 502, { error: error instanceof Error ? error.message : String(error), serverTime: new Date().toISOString() });
+    }
     return;
   }
 
@@ -407,4 +421,14 @@ const server = createServer(async (request, response) => {
 
 server.listen(PORT, () => {
   console.log(`Tushare proxy listening on http://localhost:${PORT}`);
+  // Warmup: sync default symbols (000300.SH + 600519.SH) on startup
+  warmupDefaultSymbols()
+    .then((results) => {
+      for (const r of results) {
+        console.log(`[warmup] ${r.tsCode} mode=${r.mode} rows=${r.rows} latest=${r.latestTradeDate} appended=${r.appended ?? 0}`);
+      }
+    })
+    .catch((err) => {
+      console.error(`[warmup] FAILED: ${err.message}`);
+    });
 });
