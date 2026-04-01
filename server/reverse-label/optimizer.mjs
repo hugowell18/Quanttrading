@@ -584,9 +584,10 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
     if (result) {
       results.push(result);
     }
-    if ((gridIndex + 1) % 100 === 0 || gridIndex + 1 === total) {
+    if ((gridIndex + 1) % 50 === 0 || gridIndex + 1 === total) {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
       console.log(`[optimizer] ${gridIndex + 1}/${total} 组扫描完成，已通过 ${results.length} 组，耗时 ${elapsed}s`);
+      await new Promise((r) => setImmediate(r)); // yield event loop
     }
   }
 
