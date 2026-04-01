@@ -439,11 +439,8 @@ export function StockAnalyzer({ initialCode = '', initialName = '', onResolvedSt
 
   const loadFromHistory = (entry: HistoryEntry) => {
     setCode(entry.code);
-    setName(entry.name);
-    setResult(entry.result);
-    setError(null);
     setShowHistory(false);
-    onResolvedStock?.(entry.code, entry.name);
+    void analyze(entry.code, entry.name);
   };
 
   useEffect(() => {
