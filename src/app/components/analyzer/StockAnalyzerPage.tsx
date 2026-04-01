@@ -599,8 +599,20 @@ export function StockAnalyzerPage() {
       {/* ── Results ────────────────────────────────────────── */}
       {hasResult && (
         <div className="flex flex-col gap-4">
-          {/* Layer 1: Signal hero */}
-          <SignalHeroCard result={analyzeResult} />
+          {/* Layer 1: Signal hero — or strategy-not-applicable notice */}
+          {analyzeResult.bestResult
+            ? <SignalHeroCard result={analyzeResult} />
+            : (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/8 p-5">
+                <div className="font-mono text-[13px] font-semibold text-amber-400 mb-1">策略不适用</div>
+                <div className="font-mono text-[12px] text-muted-foreground leading-relaxed">
+                  本系统基于「超卖反转」策略（RSI低位+KDJ底背离），历史回测未找到符合条件的交易信号。<br/>
+                  可能原因：① 此股处于强势上涨（如连板），不会出现超卖 ② 上市时间短，样本不足 ③ 波动率不匹配策略参数。<br/>
+                  点击「↻ 刷新」可强制重新分析。
+                </div>
+              </div>
+            )
+          }
 
           {/* Layer 2: Indicator bars */}
           <IndicatorBars result={analyzeResult} />

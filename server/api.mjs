@@ -182,17 +182,23 @@ app.get('/api/analyze/:code', async (req, res) => {
       ];
       const item = all.find(x => x.code === code);
 
-      if (item && item.valid !== false) {
+      if (item) {
         const isUpToDate = item.lastUpdated === todayStr;
 
         if (!forceRefresh && isUpToDate) {
-          // Data is fresh today — serve immediately
-          console.log(`[analyze] ${code} up-to-date, serving from summary`);
+          // Serve from cache — includes failed stocks (don't re-run optimizer every click)
+          console.log(`[analyze] ${code} up-to-date (valid=${item.valid ?? true}), serving from summary`);
           const trades = item.bestResult?.trades ?? [];
           return res.json({ ...item, stockCode: code, stockName: item.name, kline: buildKline(trades) });
         }
 
-        // Data is stale (or force refresh) — update CSV + re-run optimizer
+        if (item.valid === false && !forceRefresh) {
+          // Failed result from a previous day — serve stale kline but don't re-run optimizer
+          // unless the user explicitly hits the refresh button
+          console.log(`[analyze] ${code} previously failed (${item.lastUpdated}), serving cached kline without re-analysis`);
+          return res.json({ ...item, stockCode: code, stockName: item.name, kline: buildKline([]) });
+        }
+
         console.log(`[analyze] ${code} stale (${item.lastUpdated ?? 'unknown'}), refreshing...`);
       } else {
         console.log(`[analyze] ${code} not in summary, running full analysis...`);
