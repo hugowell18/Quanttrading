@@ -311,8 +311,8 @@ const passesHardFilters = (trainResult, validationResult) => {
     trainWinRate > 0.6 &&
     validationWinRate > 0.55 &&
     Math.abs(trainWinRate - validationWinRate) <= 0.15 &&
-    trainTrades > 50 &&
-    validationTrades > 15
+    trainTrades >= 8 &&       // 从 >50 降至 >=8，兼容低频优质策略
+    validationTrades >= 3     // 从 >15 降至 >=3
   );
 };
 
@@ -349,9 +349,23 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false, d
     return null;
   }
 
-  // Cap trainRows to the most recent 600 rows to keep ModelSelector fast.
-  // Full 2500-row partitions inflate cross-validation cost ~4x without adding signal.
-  const modelRows = trainRows.length > 600 ? trainRows.slice(-600) : trainRows;
+  // Cap trainRows to ~600 rows for ModelSelector speed, but ALWAYS keep all buy points.
+  // Simple slice(-600) would drop buy points for sparse stocks (e.g. 12 buys in 10 yrs).
+  const MODEL_ROWS_CAP = 600;
+  let modelRows;
+  if (trainRows.length <= MODEL_ROWS_CAP) {
+    modelRows = trainRows;
+  } else {
+    const buyIdx = [];
+    const nonBuyIdx = [];
+    trainRows.forEach((r, i) => (r.isBuyPoint === 1 ? buyIdx : nonBuyIdx).push(i));
+    const nonBuyCap = Math.max(0, MODEL_ROWS_CAP - buyIdx.length);
+    const step = nonBuyIdx.length / Math.max(nonBuyCap, 1);
+    const sampledNonBuy = Array.from({ length: nonBuyCap }, (_, k) =>
+      nonBuyIdx[Math.min(Math.floor(k * step), nonBuyIdx.length - 1)]);
+    const selected = new Set([...buyIdx, ...sampledNonBuy]);
+    modelRows = trainRows.filter((_, i) => selected.has(i));
+  }
   const selector = new ModelSelector(modelRows);
   selector.run();
   const bestModel = selector.bestModel();
