@@ -17,10 +17,10 @@ export interface SentimentMetrics {
   zbCount: number;           // 炸板数量
   dtCount: number;           // 跌停数量
   maxContinuousDays: number; // 连板高度（最高连板天数）
-  zbRate: number;            // 炸板率（0-1）
-  ztDtRatio: number;         // 涨跌停比
-  sealRate: number;          // 封板率（0-1）
-  prevZtPremium: number;     // 昨日涨停溢价（%）
+  zbRate: number | null;     // 炸板率（0-1）
+  ztDtRatio: number | null;  // 涨跌停比
+  sealRate: number | null;   // 封板率（0-1）
+  prevZtPremium: number | null; // 昨日涨停溢价（%）
   premiumCoverage?: number;  // 溢价覆盖率
 }
 

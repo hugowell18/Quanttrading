@@ -142,10 +142,10 @@ export function SentimentDashboard() {
             <div className="flex flex-col">
               <MetricRow label="涨停家数" value={`${metrics.ztCount}（一字${metrics.yiziCount} / 非一字${metrics.nonYiziCount}）`} />
               <MetricRow label="连板高度" value={`${metrics.maxContinuousDays} 板`} />
-              <MetricRow label="炸板率" value={`${(metrics.zbRate * 100).toFixed(1)}%`} />
-              <MetricRow label="涨跌停比" value={`${metrics.ztDtRatio.toFixed(2)}`} />
-              <MetricRow label="封板率" value={`${(metrics.sealRate * 100).toFixed(1)}%`} />
-              <MetricRow label="昨日涨停溢价" value={`${metrics.prevZtPremium.toFixed(2)}%`} />
+              <MetricRow label="炸板率" value={`${((metrics.zbRate ?? 0) * 100).toFixed(1)}%`} />
+              <MetricRow label="涨跌停比" value={`${(metrics.ztDtRatio ?? 0).toFixed(2)}`} />
+              <MetricRow label="封板率" value={`${((metrics.sealRate ?? 0) * 100).toFixed(1)}%`} />
+              <MetricRow label="昨日涨停溢价" value={`${(metrics.prevZtPremium ?? 0).toFixed(2)}%`} />
             </div>
           </>
         )}
