@@ -3,7 +3,10 @@ import cors from 'cors';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { optimize } from './reverse-label/optimizer.mjs';
-import { ensureSymbolCsv } from './data/csv-manager.mjs';
+import { ensureSymbolCsv, readDaily } from './data/csv-manager.mjs';
+import { collectZtpool } from './sentiment/ztpool-collector.mjs';
+import { calcMetrics, saveSentiment, loadMetrics } from './sentiment/sentiment-engine.mjs';
+import { evaluateState, readStateHistory, writeStateRecord } from './sentiment/sentiment-state-machine.mjs';
 
 const app = express();
 const PORT = 3001;
@@ -210,6 +213,33 @@ app.get('/api/analyze/:code', async (req, res) => {
   }
 });
 
+// ─── 1.0b POST /api/sync/batch — refresh all stale leaderboard entries ───────
+
+app.post('/api/sync/batch', async (_req, res) => {
+  if (!existsSync(SUMMARY_PATH)) {
+    return res.status(404).json({ ok: false, error: 'No summary.json found' });
+  }
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const s = JSON.parse(readFileSync(SUMMARY_PATH, 'utf8'));
+  const all = [...(s.strictPassed || []), ...(s.weakPassed || [])];
+  const stale = all.filter((x) => x.lastUpdated !== today);
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, stale: stale.length, total: all.length, message: `Refreshing ${stale.length} stale entries in background` });
+  // Run in background — don't await
+  (async () => {
+    for (const item of stale) {
+      try {
+        const tsCode = /^6/.test(item.code) ? `${item.code}.SH` : `${item.code}.SZ`;
+        await ensureSymbolCsv(tsCode, 'stock');
+        console.log(`[sync/batch] refreshed ${item.code}`);
+      } catch (e) {
+        console.warn(`[sync/batch] ${item.code} failed: ${e.message}`);
+      }
+    }
+    console.log(`[sync/batch] done`);
+  })();
+});
+
 // ─── 1.1 GET /api/market/kline/:code ────────────────────────────────────────
 
 app.get('/api/market/kline/:code', async (req, res) => {
@@ -390,6 +420,106 @@ const ensureIndexKlines = async () => {
   }
 };
 
+// ─── 1.11 Startup backfill: ztpool + sentiment for missing trading days ──────
+
+function todayCompact() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * Get all trading days from HS300 calendar between start (exclusive) and end (inclusive).
+ */
+function getTradingDaysBetween(startDateExclusive, endDate) {
+  try {
+    const rows = readDaily('000300.SH', startDateExclusive, endDate);
+    return rows.map((r) => r.trade_date).filter((d) => d > startDateExclusive);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Run ztpool collection + sentiment calculation for a single date.
+ * Returns true if data was newly created, false if skipped/failed.
+ */
+async function syncOneDay(date) {
+  // 1. Collect ztpool
+  const ztResult = await collectZtpool(date);
+  if (ztResult.skipped && ztResult.reason === 'cached') return false; // already done
+  if (!ztResult.ok && !ztResult.skipped) {
+    console.warn(`[backfill] ${date} ztpool failed: ${ztResult.error}`);
+    return false;
+  }
+
+  // 2. Calc sentiment metrics
+  const history = readStateHistory();
+  const prevRecord = history.filter((r) => r.date < date).pop();
+  const currentState = prevRecord?.state ?? '冰点';
+
+  const metrics = calcMetrics(date, null);
+  if (!metrics) {
+    console.warn(`[backfill] ${date} sentiment calc failed (no ztpool data)`);
+    return false;
+  }
+  saveSentiment(metrics);
+
+  // 3. State machine
+  const series = [metrics];
+  const result = evaluateState(series, currentState);
+  writeStateRecord({
+    date,
+    state: result.state,
+    positionLimit: result.positionLimit,
+    changed: result.changed,
+    previousState: currentState,
+    ...result.snapshot,
+  });
+
+  console.log(`[backfill] ${date} done — zt=${metrics.ztCount} state=${currentState}→${result.state}`);
+  return true;
+}
+
+/**
+ * Backfill all missing dates from last cached ztpool date up to today.
+ */
+async function backfillMissingDates() {
+  const ztpoolDir = resolve(process.cwd(), 'cache', 'ztpool');
+  if (!existsSync(ztpoolDir)) return;
+
+  const cached = readdirSync(ztpoolDir)
+    .map((f) => f.match(/^(\d{8})\.json$/)?.[1])
+    .filter(Boolean)
+    .sort();
+
+  const lastCached = cached[cached.length - 1];
+  const today = todayCompact();
+
+  if (!lastCached || lastCached >= today) return;
+
+  const missing = getTradingDaysBetween(lastCached, today);
+  if (!missing.length) return;
+
+  console.log(`[backfill] 发现 ${missing.length} 个缺失交易日 (${lastCached} → ${today})，开始补充...`);
+  for (const date of missing) {
+    await syncOneDay(date);
+  }
+  console.log(`[backfill] 完成`);
+}
+
+// ─── 1.12 Manual sync endpoint ───────────────────────────────────────────────
+
+app.post('/api/sync/daily', async (_req, res) => {
+  try {
+    const today = todayCompact();
+    const created = await syncOneDay(today);
+    res.set('Cache-Control', 'no-store');
+    res.json({ ok: true, date: today, created });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // ─── Start server ────────────────────────────────────────────────────────────
 
 app.listen(PORT, async () => {
@@ -398,9 +528,11 @@ app.listen(PORT, async () => {
   console.log(`  http://localhost:${PORT}/api/batch/summary`);
   console.log(`  http://localhost:${PORT}/api/analyze/600519`);
   console.log(`  http://localhost:${PORT}/api/market/kline/000300.SH`);
-  console.log(`  http://localhost:${PORT}/api/sentiment/metrics?date=20260327`);
+  console.log(`  http://localhost:${PORT}/api/sentiment/metrics?date=${todayCompact()}`);
   console.log(`  http://localhost:${PORT}/api/sentiment/state-history`);
-  console.log(`  http://localhost:${PORT}/api/ztpool?date=20260327`);
+  console.log(`  http://localhost:${PORT}/api/ztpool?date=${todayCompact()}`);
   console.log(`  http://localhost:${PORT}/api/ztpool/dates`);
   await ensureIndexKlines();
+  // Backfill runs in background — server is already listening
+  backfillMissingDates().catch((err) => console.error(`[backfill] error: ${err.message}`));
 });
