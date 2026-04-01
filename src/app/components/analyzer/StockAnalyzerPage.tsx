@@ -45,9 +45,11 @@ interface HistoryEntry {
   winRate: number;
   avgReturn: number;
   timestamp: number;
-  result: AnalyzeResult;
-  kline: KLinePoint[];
-  markers: SignalMarker[];
+  // NOTE: result/kline/markers are NOT persisted to avoid LocalStorage quota overflow.
+  // They are populated in-memory after re-fetch when user clicks a history item.
+  result?: AnalyzeResult;
+  kline?: KLinePoint[];
+  markers?: SignalMarker[];
 }
 
 // ─── Helpers ───────────────────────────────────────────────
@@ -64,9 +66,17 @@ function loadHistory(): HistoryEntry[] {
 
 function saveToHistory(entry: HistoryEntry) {
   const list = loadHistory().filter(h => h.code !== entry.code);
-  list.unshift(entry);
+  // Only persist lightweight metadata — never kline/result/markers (too large)
+  const { result: _r, kline: _k, markers: _m, ...meta } = entry;
+  list.unshift(meta);
   if (list.length > MAX_HISTORY) list.length = MAX_HISTORY;
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch {
+    // If quota still exceeded (e.g. other keys), trim to 10 and retry
+    list.length = Math.min(list.length, 10);
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch { /* give up */ }
+  }
 }
 
 function removeFromHistory(code: string) {

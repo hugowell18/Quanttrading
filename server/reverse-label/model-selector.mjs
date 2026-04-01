@@ -51,7 +51,7 @@ const computeReturnMetric = (rows, predictions, forwardDays = 10) => {
   const winRate = winCount / selectedReturns.length;
   return avgRet * (0.5 + winRate); // 收益率 × 胜率加成
 };
-const buildTimeSeriesSplits = (length, nSplits = 5) => {
+const buildTimeSeriesSplits = (length, nSplits = 3) => {
   const splits = [];
   const minTrain = Math.max(Math.floor(length * 0.45), 80);
   const testSize = Math.max(Math.floor((length - minTrain) / nSplits), 20);
@@ -67,25 +67,12 @@ const buildTimeSeriesSplits = (length, nSplits = 5) => {
 const FEATURE_SETS = {
   momentum: ['rsi6', 'rsi12', 'macd_dif', 'macd_bar', 'roc5', 'roc20'],
   trend: ['maBull', 'adx14', 'bollPos', 'macd_dea'],
-  volume_price: ['volRatio5', 'volRatio20', 'obv', 'roc5'],
   composite: ['rsi6', 'rsi12', 'macd_dif', 'macd_bar', 'maBull', 'adx14', 'bollPos', 'volRatio5', 'volRatio20', 'roc5'],
   mean_rev: ['rsi6', 'bollPos', 'roc5', 'atr14'],
   anti_stoploss: ['roc20', 'macd_bar', 'rsi12', 'volRatio5', 'macd_dif', 'adx14'],
-  anti_stoploss_core: ['roc20', 'macd_bar', 'macd_dif', 'adx14'],
-  // 新增：量价质量组合（低波动压缩 + 动量启动）
-  quality_momentum: ['bollWidth', 'maBull', 'rsi6', 'roc5', 'volRatio5', 'adx14'],
-  // 新增：突破前夕特征（Boll带收窄 + ADX上升 + 量能放大）
-  breakout_ready: ['bollWidth', 'bollPos', 'volRatio20', 'adx14', 'roc5', 'macd_dif'],
-  // 新增：KDJ+RSI超卖反弹
   oversold_bounce: ['rsi6', 'rsi2', 'k', 'j', 'wr14', 'bollPos', 'volRatio5'],
-  // 新增：全要素综合（胜率最大化）
-  full_composite: ['rsi6', 'rsi12', 'macd_dif', 'macd_bar', 'macd_dea', 'maBull', 'adx14', 'bollPos', 'bollWidth', 'volRatio5', 'volRatio20', 'roc5', 'roc20', 'k', 'j'],
-  // 事件+交叉特征组合（方向2+4）
   event_cross: ['distFromHigh', 'distFromLow', 'atrRatio', 'consecutiveDown', 'rsiVolCross', 'bollAdxCross', 'rsi6', 'volRatio5'],
-  // 反弹猎手：超卖事件特征 + 量价交叉
-  bounce_hunter: ['distFromHigh', 'consecutiveDown', 'rsiVolCross', 'rsi6', 'rsi2', 'bollPos', 'volRatio5'],
-  // 突破猎手：压缩事件特征 + 突破交叉
-  breakout_hunter: ['distFromLow', 'atrRatio', 'bollAdxCross', 'bollWidth', 'adx14', 'volRatio20'],
+  full_composite: ['rsi6', 'rsi12', 'macd_dif', 'macd_bar', 'macd_dea', 'maBull', 'adx14', 'bollPos', 'bollWidth', 'volRatio5', 'volRatio20', 'roc5', 'roc20', 'k', 'j'],
 };
 
 const buildFeatureStats = (featureNames, rows, labels) => {
@@ -173,7 +160,7 @@ const createRankPredictor = ({ modelName, featureNames, stats, scoreRow }) => {
 };
 
 // 方向4：简单逻辑回归（梯度下降），学习最优特征权重替代手工 separation
-const trainLogisticWeights = (X, y, lr = 0.1, epochs = 30, l2 = 0.01) => {
+const trainLogisticWeights = (X, y, lr = 0.15, epochs = 8, l2 = 0.01) => {
   const n = X.length;
   const d = X[0].length;
   const w = new Array(d).fill(0);

@@ -348,7 +348,10 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) =
     return null;
   }
 
-  const selector = new ModelSelector(trainRows);
+  // Cap trainRows to the most recent 600 rows to keep ModelSelector fast.
+  // Full 2500-row partitions inflate cross-validation cost ~4x without adding signal.
+  const modelRows = trainRows.length > 600 ? trainRows.slice(-600) : trainRows;
+  const selector = new ModelSelector(modelRows);
   selector.run();
   const bestModel = selector.bestModel();
   if (!bestModel?.predictor) {
