@@ -502,15 +502,11 @@ export function StockAnalyzerPage() {
   }, [selectedStock]);
 
   const loadFromHistory = (entry: HistoryEntry) => {
-    lastDoneRef.current = entry.code;
-    analyzingRef.current = entry.code;
+    lastDoneRef.current = '';
     setInputCode(entry.code);
     setStockName(entry.name);
-    setAnalyzeResult(entry.result);
-    setKlineData(entry.kline);
-    setSignalMarkers(entry.markers);
-    setError(null);
     setShowHistory(false);
+    void analyze(entry.code);
   };
 
   const hasResult = analyzeResult !== null && !loading;
