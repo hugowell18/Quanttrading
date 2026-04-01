@@ -4,9 +4,6 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { optimize } from './reverse-label/optimizer.mjs';
 import { ensureSymbolCsv, readDaily } from './data/csv-manager.mjs';
-import { collectZtpool } from './sentiment/ztpool-collector.mjs';
-import { calcMetrics, saveSentiment, loadMetrics } from './sentiment/sentiment-engine.mjs';
-import { evaluateState, readStateHistory, writeStateRecord } from './sentiment/sentiment-state-machine.mjs';
 
 const app = express();
 const PORT = 3001;
@@ -444,6 +441,11 @@ function getTradingDaysBetween(startDateExclusive, endDate) {
  * Returns true if data was newly created, false if skipped/failed.
  */
 async function syncOneDay(date) {
+  // Lazy import — avoids blocking server startup if these modules have issues
+  const { collectZtpool } = await import('./sentiment/ztpool-collector.mjs');
+  const { calcMetrics, saveSentiment } = await import('./sentiment/sentiment-engine.mjs');
+  const { evaluateState, readStateHistory, writeStateRecord } = await import('./sentiment/sentiment-state-machine.mjs');
+
   // 1. Collect ztpool
   const ztResult = await collectZtpool(date);
   if (ztResult.skipped && ztResult.reason === 'cached') return false; // already done
