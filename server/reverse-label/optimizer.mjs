@@ -333,7 +333,7 @@ const scoreConfig = (validationResult) => {
   };
 };
 
-const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) => {
+const runOneConfig = (partitions, indexPartitions, config, unlockTest = false, diag = null, bestSeen = null) => {
   const trainPack = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
   const validationPack = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
   const stressPack = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
@@ -345,6 +345,7 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) =
 
   const trainBuyCount = trainRows.filter((row) => row.isBuyPoint === 1).length;
   if (trainBuyCount < 8) {
+    if (diag) diag.trainBuyTooFew += 1;
     return null;
   }
 
@@ -355,18 +356,31 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false) =
   selector.run();
   const bestModel = selector.bestModel();
   if (!bestModel?.predictor) {
+    if (diag) diag.noModel += 1;
     return null;
   }
 
   const trainValidation = createValidator(trainRows, indexPartitions.train, config).validate(bestModel);
   const validation = createValidator(validationRows, indexPartitions.validation, config).validate(bestModel);
   const stress = createValidator(stressRows, indexPartitions.stress, config).validate(bestModel);
+  if (bestSeen) {
+    const tw = Number(trainValidation?.winRate ?? 0);
+    const vw = Number(validation?.winRate ?? 0);
+    const tt = Number(trainValidation?.totalTrades ?? 0);
+    const vt = Number(validation?.totalTrades ?? 0);
+    if (tw > bestSeen.trainWinRate) bestSeen.trainWinRate = tw;
+    if (vw > bestSeen.validWinRate) bestSeen.validWinRate = vw;
+    if (tt > bestSeen.trainTrades) bestSeen.trainTrades = tt;
+    if (vt > bestSeen.validTrades) bestSeen.validTrades = vt;
+  }
   if (!passesHardFilters(trainValidation, validation)) {
+    if (diag) diag.hardFilterFail += 1;
     return null;
   }
   const final = unlockTest ? createValidator(finalRows, indexPartitions.final, config).validate(bestModel) : null;
   const score = scoreConfig(validation);
   if (!score) {
+    if (diag) diag.noScore += 1;
     return null;
   }
 
@@ -582,8 +596,11 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
   const results = [];
 
   const total = grid.length;
+  // Diagnostic: track best metrics seen even when hard filters reject
+  const diag = { trainBuyTooFew: 0, noModel: 0, hardFilterFail: 0, noScore: 0 };
+  let bestSeen = { trainWinRate: 0, validWinRate: 0, trainTrades: 0, validTrades: 0 };
   for (let gridIndex = 0; gridIndex < total; gridIndex += 1) {
-    const result = runOneConfig(partitions, indexPartitions, grid[gridIndex], unlockTest);
+    const result = runOneConfig(partitions, indexPartitions, grid[gridIndex], unlockTest, diag, bestSeen);
     if (result) {
       results.push(result);
     }
@@ -592,6 +609,10 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
       console.log(`[optimizer] ${gridIndex + 1}/${total} 组扫描完成，已通过 ${results.length} 组，耗时 ${elapsed}s`);
       await new Promise((r) => setImmediate(r)); // yield event loop
     }
+  }
+  if (results.length === 0) {
+    console.warn(`[optimizer] 0组通过 — 拒绝原因: trainBuyTooFew=${diag.trainBuyTooFew} noModel=${diag.noModel} hardFilterFail=${diag.hardFilterFail} noScore=${diag.noScore}`);
+    console.warn(`[optimizer] 最佳见到值: trainWinRate=${bestSeen.trainWinRate.toFixed(3)} validWinRate=${bestSeen.validWinRate.toFixed(3)} trainTrades=${bestSeen.trainTrades} validTrades=${bestSeen.validTrades}`);
   }
 
   results.sort((left, right) => {
