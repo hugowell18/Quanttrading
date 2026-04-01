@@ -297,7 +297,7 @@ const normalizedProfitFactor = (result) => {
   return avgLoss > 0 ? avgProfit / avgLoss : (avgProfit > 0 ? 99 : 0);
 };
 
-const passesHardFilters = (trainResult, validationResult) => {
+const passesHardFilters = (trainResult, validationResult, minTrainTrades = 8) => {
   if (!trainResult || !validationResult) {
     return false;
   }
@@ -311,8 +311,8 @@ const passesHardFilters = (trainResult, validationResult) => {
     trainWinRate > 0.6 &&
     validationWinRate > 0.55 &&
     Math.abs(trainWinRate - validationWinRate) <= 0.15 &&
-    trainTrades >= 8 &&       // 从 >50 降至 >=8，兼容低频优质策略
-    validationTrades >= 3     // 从 >15 降至 >=3
+    trainTrades >= minTrainTrades &&
+    validationTrades >= 3
   );
 };
 
@@ -333,7 +333,7 @@ const scoreConfig = (validationResult) => {
   };
 };
 
-const runOneConfig = (partitions, indexPartitions, config, unlockTest = false, diag = null, bestSeen = null) => {
+const runOneConfig = (partitions, indexPartitions, config, unlockTest = false, diag = null, bestSeen = null, minTrainTrades = 8) => {
   const trainPack = buildLabeledRows(partitions.train, config, indexPartitions.trainMap);
   const validationPack = buildLabeledRows(partitions.validation, config, indexPartitions.validationMap);
   const stressPack = buildLabeledRows(partitions.stress, config, indexPartitions.stressMap);
@@ -387,7 +387,7 @@ const runOneConfig = (partitions, indexPartitions, config, unlockTest = false, d
     if (tt > bestSeen.trainTrades) bestSeen.trainTrades = tt;
     if (vt > bestSeen.validTrades) bestSeen.validTrades = vt;
   }
-  if (!passesHardFilters(trainValidation, validation)) {
+  if (!passesHardFilters(trainValidation, validation, minTrainTrades)) {
     if (diag) diag.hardFilterFail += 1;
     return null;
   }
@@ -434,10 +434,13 @@ const loadInMemoryDataset = (stockCode, endDate) => {
   const indexMap = createIndexMap(indexFeatures);
   const stockFeatures = new DataEngine(stockCandles).computeAllFeatures(indexFeatures);
   const optimizerRows = buildOptimizerRows(stockFeatures);
+  // Detect listing date from first available row (YYYY-MM-DD format)
+  const listingDate = optimizerRows[0]?.date ?? '2005-01-01';
   return {
     optimizerRows,
     indexFeatures,
     indexMap,
+    listingDate,
   };
 };
 
@@ -603,9 +606,16 @@ const printExitReasonAnalysis = (summary) => {
 export async function optimize(stockCode, _startDate, endDate = todayCompact(), options = {}) {
   const unlockTest = options.unlockTest ?? false;
   const startTime = Date.now();
-  const { optimizerRows, indexFeatures, indexMap } = loadInMemoryDataset(stockCode, endDate);
+  const { optimizerRows, indexFeatures, indexMap, listingDate } = loadInMemoryDataset(stockCode, endDate);
   const partitions = splitByDateWindows(optimizerRows);
   const indexPartitions = buildPartitionMaps(indexFeatures);
+
+  // Dynamic minTrainTrades: proportional to actual train years (listing→2015-12-31).
+  // Old stocks (listed pre-2005): 10yr → minTrades=8. New stocks: scales down proportionally, floor=3.
+  const trainEndYear = 2016; // WINDOW_TRAIN_END is 2015-12-31
+  const listingYear = Number(listingDate.slice(0, 4)) + Number(listingDate.slice(5, 7)) / 12;
+  const trainYears = Math.max(0.5, trainEndYear - listingYear);
+  const minTrainTrades = Math.max(3, Math.round(trainYears * 0.8));
   const grid = buildParamGrid();
   const results = [];
 
@@ -614,7 +624,7 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
   const diag = { trainBuyTooFew: 0, noModel: 0, hardFilterFail: 0, noScore: 0 };
   let bestSeen = { trainWinRate: 0, validWinRate: 0, trainTrades: 0, validTrades: 0 };
   for (let gridIndex = 0; gridIndex < total; gridIndex += 1) {
-    const result = runOneConfig(partitions, indexPartitions, grid[gridIndex], unlockTest, diag, bestSeen);
+    const result = runOneConfig(partitions, indexPartitions, grid[gridIndex], unlockTest, diag, bestSeen, minTrainTrades);
     if (result) {
       results.push(result);
     }
@@ -625,7 +635,8 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
     }
   }
   if (results.length === 0) {
-    console.warn(`[optimizer] 0组通过 — 拒绝原因: trainBuyTooFew=${diag.trainBuyTooFew} noModel=${diag.noModel} hardFilterFail=${diag.hardFilterFail} noScore=${diag.noScore}`);
+    console.warn(`[optimizer] 0组通过 — 上市日=${listingDate} 训练年=${trainYears.toFixed(1)} minTrainTrades=${minTrainTrades}`);
+    console.warn(`[optimizer] 拒绝原因: trainBuyTooFew=${diag.trainBuyTooFew} noModel=${diag.noModel} hardFilterFail=${diag.hardFilterFail} noScore=${diag.noScore}`);
     console.warn(`[optimizer] 最佳见到值: trainWinRate=${bestSeen.trainWinRate.toFixed(3)} validWinRate=${bestSeen.validWinRate.toFixed(3)} trainTrades=${bestSeen.trainTrades} validTrades=${bestSeen.validTrades}`);
   }
 
@@ -671,7 +682,7 @@ export async function optimize(stockCode, _startDate, endDate = todayCompact(), 
       unlockTest,
       scanDurationMs: Date.now() - startTime,
       partitions: {
-        train: { start: '2005-01-01', end: WINDOW_TRAIN_END, rows: partitions.train.length },
+        train: { start: listingDate, end: WINDOW_TRAIN_END, rows: partitions.train.length, minTrainTrades },
         validation: { start: WINDOW_VALID_START, end: WINDOW_VALID_END, rows: partitions.validation.length },
         stress: { start: WINDOW_STRESS_START, end: WINDOW_STRESS_END, rows: partitions.stress.length },
         final: { start: WINDOW_FINAL_START, end: formatTradeDate(endDate), rows: partitions.final.length },
