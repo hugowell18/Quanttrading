@@ -118,7 +118,7 @@ export async function collectZtpool(dateStr, { force = false } = {}) {
 
   let data;
   try {
-    data = runPythonCollector(date === todayCompact() ? '' : date);
+    data = runPythonCollector(date);
   } catch (err) {
     const msg = `Python采集失败: ${err.message}`;
     console.error(`[ztpool-collector] ${msg}`);
