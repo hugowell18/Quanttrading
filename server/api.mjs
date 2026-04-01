@@ -539,15 +539,43 @@ async function backfillMissingDates() {
 
 // ─── 1.12 Manual sync endpoint ───────────────────────────────────────────────
 
-app.post('/api/sync/daily', async (_req, res) => {
+app.post('/api/sync/daily', async (req, res) => {
   try {
-    const today = todayCompact();
-    const created = await syncOneDay(today);
+    // Accept optional ?date=YYYYMMDD to backfill a specific date
+    const date = (req.query.date && /^\d{8}$/.test(req.query.date))
+      ? req.query.date
+      : todayCompact();
+    const created = await syncOneDay(date);
     res.set('Cache-Control', 'no-store');
-    res.json({ ok: true, date: today, created });
+    res.json({ ok: true, date, created });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }
+});
+
+// ─── 1.13 Backfill range endpoint ────────────────────────────────────────────
+
+app.post('/api/sync/backfill', async (req, res) => {
+  const { from, to } = req.query;  // both YYYYMMDD
+  if (!from || !/^\d{8}$/.test(from)) {
+    return res.status(400).json({ ok: false, error: 'from=YYYYMMDD required' });
+  }
+  const endDate = (to && /^\d{8}$/.test(to)) ? to : todayCompact();
+  const dates = getTradingDaysBetween(
+    String(Number(from) - 1).padStart(8, '0'), // include `from` itself
+    endDate,
+  ).filter((d) => d >= from);
+
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, queued: dates, message: `Backfilling ${dates.length} dates in background` });
+
+  // Run in background
+  (async () => {
+    for (const date of dates) {
+      try { await syncOneDay(date); } catch (e) { console.warn(`[backfill] ${date} error: ${e.message}`); }
+    }
+    console.log(`[backfill] range ${from}→${endDate} done`);
+  })();
 });
 
 // ─── Start server ────────────────────────────────────────────────────────────

@@ -51,11 +51,17 @@ function runPythonCollector(dateStr) {
   const args = [PYTHON_SCRIPT, '--type', 'all'];
   if (dateStr) args.push('--date', dateStr);
 
+  // Strip proxy env vars — inherited proxy settings from the Node process
+  // can block akshare's HTTP requests with a ProxyError.
+  const env = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' };
+  delete env.HTTP_PROXY; delete env.HTTPS_PROXY;
+  delete env.http_proxy; delete env.https_proxy;
+
   const stdout = execFileSync(PYTHON_BIN, args, {
     encoding: 'utf8',
     timeout: 120_000,   // 2分钟超时
     maxBuffer: 10 * 1024 * 1024,
-    env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
+    env,
   });
 
   return JSON.parse(stdout.trim());
