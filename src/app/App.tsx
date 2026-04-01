@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Component } from 'react';
+import type { ReactNode, ErrorInfo } from 'react';
 import { LayoutDashboard, TrendingUp, Settings } from 'lucide-react';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { MarketOverview } from './components/market/MarketOverview';
@@ -6,6 +7,38 @@ import { StockAnalyzerPage } from './components/analyzer/StockAnalyzerPage';
 import { DebugAdminPage } from './components/admin/DebugAdminPage';
 import { Toaster } from './components/ui/sonner';
 import type { PageType } from './types/api';
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[ErrorBoundary]', error, info);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 32, fontFamily: 'monospace', color: '#ff4444', background: '#0a0a0a', minHeight: '100vh' }}>
+          <h2 style={{ fontSize: 18, marginBottom: 12 }}>React 渲染错误</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: '#ff8888' }}>
+            {this.state.error.message}
+          </pre>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 11, color: '#666', marginTop: 16 }}>
+            {this.state.error.stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const navigation: { id: PageType; name: string; icon: React.ElementType }[] = [
   { id: 'market', name: '大盘全景', icon: LayoutDashboard },
@@ -84,9 +117,11 @@ function AppShell() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppShell />
-      <Toaster />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <AppShell />
+        <Toaster />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
