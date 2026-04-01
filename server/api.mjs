@@ -212,14 +212,22 @@ app.get('/api/analyze/:code', async (req, res) => {
 
 // ─── 1.1 GET /api/market/kline/:code ────────────────────────────────────────
 
-app.get('/api/market/kline/:code', (req, res) => {
+app.get('/api/market/kline/:code', async (req, res) => {
   try {
     const { code } = req.params;
+    const securityType = 'index';
+    // Always sync incrementally before serving — this is cheap if up-to-date
+    try {
+      await ensureSymbolCsv(code, securityType);
+    } catch (syncErr) {
+      console.warn(`[market/kline] sync failed for ${code}: ${syncErr.message}`);
+    }
     const filePath = resolve(KLINE_DIR, `${code}.csv`);
     if (!existsSync(filePath)) {
       return res.status(404).json({ ok: false, error: `K线文件不存在: ${code}` });
     }
     const data = parseKlineCsv(filePath);
+    res.set('Cache-Control', 'no-store');
     return res.json({ ok: true, data });
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message });
@@ -364,6 +372,7 @@ app.get('/api/admin/sentiment/list', (_req, res) => {
 // ─── 1.10 Startup: ensure index kline CSVs exist ────────────────────────────
 
 const INDEX_SYMBOLS = [
+  { tsCode: '000300.SH', securityType: 'index' },
   { tsCode: '000001.SH', securityType: 'index' },
   { tsCode: '399001.SZ', securityType: 'index' },
   { tsCode: '399006.SZ', securityType: 'index' },
@@ -371,15 +380,12 @@ const INDEX_SYMBOLS = [
 
 const ensureIndexKlines = async () => {
   for (const { tsCode, securityType } of INDEX_SYMBOLS) {
-    const filePath = resolve(KLINE_DIR, `${tsCode}.csv`);
-    if (!existsSync(filePath)) {
-      console.log(`[startup] 缺少指数K线文件 ${tsCode}，正在拉取...`);
-      try {
-        const result = await ensureSymbolCsv(tsCode, securityType);
-        console.log(`[startup] ${tsCode} 拉取完成，共 ${result.rows} 行`);
-      } catch (err) {
-        console.error(`[startup] ${tsCode} 拉取失败: ${err.message}`);
-      }
+    try {
+      // Always call ensureSymbolCsv — it does incremental sync automatically
+      const result = await ensureSymbolCsv(tsCode, securityType);
+      console.log(`[startup] ${tsCode} mode=${result.mode} rows=${result.rows} latest=${result.latestTradeDate} appended=${result.appended ?? 0}`);
+    } catch (err) {
+      console.error(`[startup] ${tsCode} sync failed: ${err.message}`);
     }
   }
 };
