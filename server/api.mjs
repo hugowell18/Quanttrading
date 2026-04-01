@@ -531,10 +531,16 @@ async function backfillMissingDates() {
   const lastCached = cached[cached.length - 1];
   const today = todayCompact();
 
-  if (!lastCached || lastCached >= today) return;
+  if (!lastCached || lastCached >= today) {
+    console.log(`[backfill] 已是最新 (last=${lastCached ?? '无缓存'})`);
+    return;
+  }
 
   const missing = getTradingDaysBetween(lastCached, today);
-  if (!missing.length) return;
+  if (!missing.length) {
+    console.log(`[backfill] 已是最新 (last=${lastCached})`);
+    return;
+  }
 
   console.log(`[backfill] 发现 ${missing.length} 个缺失交易日 (${lastCached} → ${today})，开始补充...`);
   for (const date of missing) {
