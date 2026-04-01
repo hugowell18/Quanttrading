@@ -235,6 +235,7 @@ const server = createServer(async (request, response) => {
   const requestUrl = new URL(request.url || '/', `http://${request.headers.host}`);
   const stockMatch = requestUrl.pathname.match(/^\/api\/tushare\/stock\/(\d{6})$/);
   const optimizerMatch = requestUrl.pathname.match(/^\/api\/tushare\/optimizer\/(\d{6})$/);
+  const indexMatch = requestUrl.pathname.match(/^\/api\/tushare\/index\/(\d{6})$/);
   const batchSummaryMatch = requestUrl.pathname === '/api/tushare/batch/summary';
 
   if (batchSummaryMatch) {
@@ -254,6 +255,20 @@ const server = createServer(async (request, response) => {
       weakPassed: decorate(summary.weakPassed),
       failed: decorate(summary.failed),
     });
+    return;
+  }
+
+  if (indexMatch) {
+    const symbol = indexMatch[1];
+    const period = requestUrl.searchParams.get('period') || '1y';
+    // Map 6-digit index symbol to ts_code (000300 → 000300.SH, others → .SH fallback)
+    const tsCode = `${symbol}.SH`;
+    try {
+      const candles = await loadDailyCandles(tsCode, period);
+      sendJson(response, 200, { tsCode, candles });
+    } catch (error) {
+      sendJson(response, 502, { error: error instanceof Error ? error.message : 'Index fetch error' });
+    }
     return;
   }
 
