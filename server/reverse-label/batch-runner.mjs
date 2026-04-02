@@ -2,6 +2,9 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { optimize } from './optimizer.mjs';
 import { STOCK_UNIVERSE } from './stock-universe.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('batch-runner');
 
 const START_DATE = '20220101';
 const END_DATE = '20260322';
@@ -121,6 +124,6 @@ ${'='.repeat(70)}`);
 }
 
 runBatch().catch((error) => {
-  console.error(error);
+  log.fatal('batch run failed', { error: error.message ?? String(error) });
   process.exitCode = 1;
 });

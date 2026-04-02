@@ -15,6 +15,9 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { buildAlignedUniverse, trainPerStockModels } from './date-aligner.mjs';
 import { PortfolioBacktester } from './portfolio-backtester.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('rotation');
 
 const OUT_DIR = resolve(process.cwd(), 'results', 'portfolio');
 
@@ -36,11 +39,11 @@ export async function runRotation(options = {}) {
   console.log('═'.repeat(70));
 
   // ── 1. 加载数据 ──
-  console.log('\n[1/4] 加载对齐数据 ...');
+  log.info('[1/4] 加载对齐数据');
   const { stockDataMap, indexRows, tradeDates, stockMeta } = buildAlignedUniverse(stockCodes);
 
   if (stockDataMap.size < 5) {
-    console.error('有效股票不足 5 只，请先运行 server/data/csv-manager.mjs 下载或更新本地CSV数据');
+    log.error('有效股票不足 5 只，请先运行 server/data/csv-manager.mjs 下载或更新本地CSV数据');
     return null;
   }
 
@@ -48,11 +51,10 @@ export async function runRotation(options = {}) {
   const splitIdx = Math.floor(tradeDates.length * testStartRatio);
   const trainEndDate = tradeDates[splitIdx];
   const testDates = tradeDates.slice(splitIdx);
-  console.log(`[2/4] 数据分割: 训练截止 ${trainEndDate}, 测试期 ${testDates.length} 天`);
-  console.log(`      股票池: ${stockDataMap.size} 只, 最大持仓: ${maxPositions}`);
+  log.info('[2/4] 数据分割', { trainEnd: trainEndDate, testDays: testDates.length, stocks: stockDataMap.size, maxPositions });
 
   // ── 3. Walk-Forward 训练 ──
-  console.log('[3/4] Walk-Forward 模型训练 ...');
+  log.info('[3/4] Walk-Forward 模型训练');
   const retrainDates = [];
   let models = null;
 
@@ -70,11 +72,11 @@ export async function runRotation(options = {}) {
 
     models = trainPerStockModels(stockDataMap, retrainDate, { minTrainRows });
     modelSnapshots.set(retrainDate, models);
-    console.log(` ${models.size} 只有效模型`);
+    log.info(`训练完成 [${ri + 1}/${retrainDates.length}]`, { date: retrainDate, validModels: models.size });
   }
 
   // ── 4. 运行组合回测 ──
-  console.log('[4/4] 运行组合回测 ...');
+  log.info('[4/4] 运行组合回测');
 
   // 扩展 backtester 以支持 walk-forward 模型切换
   const backtester = new PortfolioBacktester({
@@ -318,7 +320,7 @@ export async function runRotation(options = {}) {
 if (process.argv[1]?.endsWith('rotation-runner.mjs')) {
   const maxPositions = parseInt(process.argv[2] ?? '5', 10);
   runRotation({ maxPositions }).catch((err) => {
-    console.error(err);
+    log.fatal('rotation run failed', { error: err.message ?? String(err) });
     process.exitCode = 1;
   });
 }

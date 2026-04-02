@@ -31,6 +31,9 @@ import { resolve } from 'node:path';
 import { readDaily } from '../data/csv-manager.mjs';
 import { readZtpool } from '../sentiment/ztpool-collector.mjs';
 import { readStateHistory } from '../sentiment/sentiment-state-machine.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('channel-a');
 
 const ROOT = process.cwd();
 
@@ -306,15 +309,16 @@ if (process.argv[1]?.includes('channel-a-selector')) {
     const parsed = JSON.parse(stdout.trim());
     liveStocks = parsed.ok ? parsed.data : [];
   } catch (e) {
-    console.error('[channel-a] 实时行情获取失败:', e.message);
+    log.error('实时行情获取失败', { error: e.message });
   }
 
   const results = await scanChannelA({ date, liveStocks });
 
   if (!results.length) {
-    console.log(`[channel-a] ${date} 无候选股（情绪状态或过滤条件）`);
+    log.info(`${date} 无候选股（情绪状态或过滤条件）`);
   } else {
-    console.log(`\n[channel-a] ${date} 找到 ${results.length} 只候选股：\n`);
+    log.info(`${date} 找到候选股`, { count: results.length });
+    console.log();
     console.table(results.map((r) => ({
       代码: r.code,
       名称: r.name,

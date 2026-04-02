@@ -28,6 +28,9 @@
  */
 import { readZtpool } from '../sentiment/ztpool-collector.mjs';
 import { readStateHistory } from '../sentiment/sentiment-state-machine.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('channel-b');
 import { computeFirstBoardScore, getPositionCapByMarketCap } from './channel-a-selector.mjs';
 
 // ──────────────────────────────────────────────
@@ -252,7 +255,7 @@ if (process.argv[1]?.includes('channel-b-selector')) {
   const prevZt   = prevPool?.ztpool?.rows ?? [];
   const firstBoards = prevZt.filter((r) => (r.continuous_days ?? 1) === 1);
 
-  console.log(`[channel-b] 前日(${prevDate})首板 ${firstBoards.length} 只，模拟竞价数据验证过滤逻辑...`);
+  log.info(`前日首板模拟竞价验证`, { prevDate, firstBoards: firstBoards.length });
 
   // 构造模拟竞价：假设竞价涨幅 4%（中间值），竞昨比 10%，换手率 1%
   const mockAuction = firstBoards.map((r) => ({
@@ -268,11 +271,10 @@ if (process.argv[1]?.includes('channel-b-selector')) {
   const results = await scanChannelB({ date, auctionData: mockAuction });
 
   if (!results.length) {
-    console.log(`[channel-b] 无候选（情绪状态=${
-      readStateHistory().filter((r) => r.date <= date).pop()?.state ?? '冰点'
-    }，或全部被过滤）`);
+    log.info(`${date} 无候选`, { emotionState: readStateHistory().filter((r) => r.date <= date).pop()?.state ?? '冰点' });
   } else {
-    console.log(`\n[channel-b] ${date} 候选股 ${results.length} 只：\n`);
+    log.info(`${date} 候选股`, { count: results.length });
+    console.log();
     console.table(results.slice(0, 10).map((r) => ({
       代码:       r.code,
       名称:       r.name,

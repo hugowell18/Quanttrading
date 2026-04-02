@@ -19,6 +19,9 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { readZtpool } from './ztpool-collector.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('sentiment-eng');
 
 const ROOT = process.cwd();
 const SENTIMENT_DIR = resolve(ROOT, 'cache', 'sentiment');
@@ -195,7 +198,7 @@ if (process.argv[1]?.includes('sentiment-engine')) {
   if (isBackfill) {
     // 补算所有已缓存的 ztpool 日期
     const dates = getCachedDates();
-    console.log(`[sentiment-engine] 补算 ${dates.length} 个交易日...`);
+    log.info(`补算 ${dates.length} 个交易日`);
     let done = 0;
     for (let i = 0; i < dates.length; i++) {
       const date = dates[i];
@@ -204,13 +207,13 @@ if (process.argv[1]?.includes('sentiment-engine')) {
       const m = calcMetrics(date, prevDate);
       if (m) { saveSentiment(m); done++; }
     }
-    console.log(`[sentiment-engine] 完成 ${done}/${dates.length}`);
+    log.info(`补算完成`, { done, total: dates.length });
 
   } else {
     // 单日计算
     const date = dateIdx >= 0 ? args[dateIdx + 1] : '';
     if (!date) {
-      console.error('用法: node sentiment-engine.mjs --date YYYYMMDD');
+      log.error('用法: node sentiment-engine.mjs --date YYYYMMDD');
       process.exit(1);
     }
 
@@ -220,7 +223,7 @@ if (process.argv[1]?.includes('sentiment-engine')) {
 
     const m = calcMetrics(date, prevDate);
     if (!m) {
-      console.error(`[sentiment-engine] ${date} 无数据`);
+      log.error(`${date} 无数据`);
       process.exit(1);
     }
 

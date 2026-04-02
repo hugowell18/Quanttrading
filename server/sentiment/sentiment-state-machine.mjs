@@ -15,6 +15,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadMetrics } from './sentiment-engine.mjs';
+import { createLogger } from '../logger.mjs';
+
+const log = createLogger('state-machine');
 
 const ROOT = process.cwd();
 const STATE_DIR = resolve(ROOT, 'cache', 'sentiment-state');
@@ -224,7 +227,7 @@ if (process.argv[1]?.includes('sentiment-state-machine')) {
   if (isBackfill) {
     // ── 批量：滚动历史，逐日推进状态 ──
     const dates = getSentimentDates();
-    console.log(`[state-machine] 批量运行 ${dates.length} 个交易日...`);
+    log.info(`批量运行 ${dates.length} 个交易日`);
 
     let currentState = '冰点';
     let done = 0;
@@ -257,7 +260,7 @@ if (process.argv[1]?.includes('sentiment-state-machine')) {
       done++;
     }
 
-    console.log(`[state-machine] 完成 ${done}/${dates.length}`);
+    log.info(`批量完成`, { done, total: dates.length });
 
     // 打印最近 10 条
     const recent = readStateHistory().slice(-10);
@@ -275,14 +278,14 @@ if (process.argv[1]?.includes('sentiment-state-machine')) {
     // ── 单日 ──
     const date = dateIdx >= 0 ? args[dateIdx + 1] : '';
     if (!date) {
-      console.error('用法: node sentiment-state-machine.mjs --date YYYYMMDD');
+      log.error('用法: node sentiment-state-machine.mjs --date YYYYMMDD');
       process.exit(1);
     }
 
     const dates = getSentimentDates();
     const idx   = dates.indexOf(date);
     if (idx < 0) {
-      console.error(`[state-machine] ${date} 无情绪缓存，请先运行 sentiment-engine.mjs --date`);
+      log.error(`${date} 无情绪缓存，请先运行 sentiment-engine.mjs --date`);
       process.exit(1);
     }
 
