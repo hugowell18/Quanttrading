@@ -125,10 +125,28 @@ function checkS2Entry(feat) {
 function checkS2Exit(feat, holdDays, prevFeat) {
   if (!feat) return { exit: true, reason: 'no_feat' };
   if (holdDays >= MAX_HOLD_DAYS.S2) return { exit: true, reason: 'timeout' };
-  // 峰数增加表示筹码开始分散（洗盘结束或分布破坏）
-  if (prevFeat && feat.peak_count > prevFeat.peak_count + 1) {
+
+  // ① 套牢盘急增：upper_chip_ratio 相比入场时上涨 12 pct → 筹码结构恶化
+  //    prevFeat 在 S2 中持续更新为最新一期，所以用前1日对比
+  if (prevFeat && feat.upper_chip_ratio - prevFeat.upper_chip_ratio > 0.12) {
+    return { exit: true, reason: 'upper_chip_spike' };
+  }
+
+  // ② 单峰破坏：持仓后峰数从 1 增加到 ≥ 3（筹码高度分散，多空分歧加大）
+  if (feat.peak_count >= 3) {
     return { exit: true, reason: 'peak_scatter' };
   }
+
+  // ③ 获利盘持续萎缩：profit_ratio 从 >70% 跌回 <45%（价格回落到主峰区域以下）
+  if (prevFeat && prevFeat.profit_ratio > 0.60 && feat.profit_ratio < 0.45) {
+    return { exit: true, reason: 'profit_pullback' };
+  }
+
+  // ④ 90% 成本带急速扩宽（绝对宽度）：band_90_width 日增 > 5%（分布崩散信号）
+  if (prevFeat && feat.band_90_width - prevFeat.band_90_width > 0.05) {
+    return { exit: true, reason: 'band_widen' };
+  }
+
   return { exit: false };
 }
 

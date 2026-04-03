@@ -432,7 +432,7 @@ if (process.argv[1]?.endsWith('csv-manager.mjs')) {
       return /^6/.test(code) ? `${code}.SH` : `${code}.SZ`;
     };
     const symbols = cliCodes.length > 0
-      ? cliCodes.map((code) => ({ tsCode: toTsCode(code), securityType: /^(000300|399|0[0-9]{5})/.test(code) ? 'index' : 'stock' }))
+      ? cliCodes.map((code) => ({ tsCode: toTsCode(code), securityType: /^(000300|000016|000905|399)/.test(code) ? 'index' : 'stock' }))
       : DEFAULT_SYMBOLS;
 
     for (const item of symbols) {
