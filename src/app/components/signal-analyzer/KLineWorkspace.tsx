@@ -1,3 +1,4 @@
+import { ChipDistributionPanel } from './ChipDistributionPanel';
 import {
   Area,
   AreaChart,
@@ -226,7 +227,8 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-lg border border-border bg-[#08121c]">
+              <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
+              <div className="relative flex-1 overflow-hidden bg-[#08121c]">
                 <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="block h-[360px] w-full" preserveAspectRatio="none">
                   {Array.from({ length: 5 }, (_, index) => {
                     const y = chartPadding.top + (drawableHeight / 4) * index;
@@ -321,6 +323,16 @@ export function KLineWorkspace(props: KLineWorkspaceProps) {
                     );
                   })}
                 </svg>
+              </div>
+              <ChipDistributionPanel
+                stockCode={selectedStock.code}
+                date={visibleKlineData[visibleKlineData.length - 1]?.date}
+                visibleMinPrice={visibleMaxPrice - visiblePriceSpan}
+                visibleMaxPrice={visibleMaxPrice}
+                chartHeight={chartHeight}
+                chartPadding={chartPadding}
+                panelWidth={140}
+              />
               </div>
 
               {visibleWindowSize < klineData.length ? (
