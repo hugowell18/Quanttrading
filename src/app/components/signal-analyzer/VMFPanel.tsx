@@ -18,7 +18,7 @@
  *   ⚡ divergence  — 价跌机构逆买（DS > 0.81），来自后端 moneyflow 数据
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { KLinePoint } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -166,10 +166,124 @@ function detectOhlcvSignals(base: Omit<VMFPoint, 'signal' | 'divergenceScore'>[]
 // 组件
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 使用说明弹窗
+// ─────────────────────────────────────────────────────────────────────────────
+
+function VMFHelpModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.72)' }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-[520px] max-h-[80vh] overflow-y-auto rounded-xl border border-border bg-[#0d1a26] p-6 shadow-2xl"
+        style={{ boxShadow: '0 0 40px rgba(0,212,255,0.12)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* 关闭按钮 */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 text-muted-foreground transition hover:text-foreground"
+          aria-label="关闭"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z" />
+          </svg>
+        </button>
+
+        {/* 标题 */}
+        <h2 className="mb-4 font-mono text-[13px] font-bold uppercase tracking-widest text-[#00d4ff]">
+          VMF · 量价资金流 使用说明
+        </h2>
+
+        {/* 指标说明 */}
+        <section className="mb-4">
+          <h3 className="mb-2 font-mono text-[11px] font-semibold text-foreground/80">📐 指标构成</h3>
+          <div className="space-y-1.5 font-mono text-[10px] leading-relaxed text-muted-foreground">
+            <p><span className="text-[#ff3366]">■</span> <span className="text-foreground/70">Volume 柱</span> — 涨红跌绿，30%透明度，直观显示当日成交量规模</p>
+            <p><span className="text-[rgba(160,160,160,0.8)]">—</span> <span className="text-foreground/70">MA5 均量线</span> — 5日成交量均线，反映近期量能基准</p>
+            <p><span className="text-[rgba(255,140,0,0.9)]">—</span> <span className="text-foreground/70">MA20 均量线</span> — 20日成交量均线，判断放量/缩量的参考基准</p>
+            <p><span className="text-[#00d4ff]">～</span> <span className="text-foreground/70">NMF 曲线</span> — 修正后的资金流向，围绕零轴上下波动：
+              零轴以上 = 资金净流入，零轴以下 = 资金净流出</p>
+            <p><span className="text-[#ff8c00]">█</span> <span className="text-foreground/70">背离突刺</span> — 来自 Tushare 真实大单数据，柱越高代表背离强度越大</p>
+          </div>
+        </section>
+
+        {/* NMF公式 */}
+        <section className="mb-4 rounded-lg border border-border/40 bg-[#08121c] p-3">
+          <h3 className="mb-2 font-mono text-[11px] font-semibold text-foreground/80">🔢 NMF 计算公式</h3>
+          <div className="space-y-1 font-mono text-[10px] text-muted-foreground">
+            <p>TrueRange = max(High, PreClose) − min(Low, PreClose)</p>
+            <p>NMF_raw &nbsp;= TrueRange = 0 ? 0 : (Close − PreClose) / TrueRange × Volume</p>
+            <p>NMF &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= EMA(NMF_raw, 20)</p>
+          </div>
+          <p className="mt-2 font-mono text-[9px] text-muted-foreground/60">
+            A股跳空修正版：真实波动幅度替代单日振幅，避免一字板时的除零错误
+          </p>
+        </section>
+
+        {/* 信号说明 */}
+        <section className="mb-4">
+          <h3 className="mb-2 font-mono text-[11px] font-semibold text-foreground/80">🚦 信号说明</h3>
+          <div className="space-y-3">
+            {/* 突 */}
+            <div className="flex gap-3">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded" style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid #00d4ff55' }}>
+                <span className="font-mono text-[9px] font-bold text-[#00d4ff]">突</span>
+              </div>
+              <div className="font-mono text-[10px] text-muted-foreground">
+                <span className="text-[#00d4ff]">放量突破</span> — 价格创近10日新高，且当日成交量 &gt; MA20 × 1.5<br />
+                <span className="text-[9px] text-muted-foreground/60">主力拉升信号，可关注追涨或持仓加码时机</span>
+              </div>
+            </div>
+            {/* 滞 */}
+            <div className="flex gap-3">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded" style={{ background: 'rgba(255,107,107,0.15)', border: '1px solid #ff6b6b55' }}>
+                <span className="font-mono text-[9px] font-bold text-[#ff6b6b]">滞</span>
+              </div>
+              <div className="font-mono text-[10px] text-muted-foreground">
+                <span className="text-[#ff6b6b]">缩量滞涨</span> — 连续3日涨幅绝对值 &lt; 0.5%，且今日量 &lt; MA20 × 0.6<br />
+                <span className="text-[9px] text-muted-foreground/60">主力控盘观望信号，上涨动能衰减，警惕回调风险</span>
+              </div>
+            </div>
+            {/* ⚡ */}
+            <div className="flex gap-3">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded" style={{ background: 'rgba(255,140,0,0.15)', border: '1px solid #ff8c0055' }}>
+                <span className="text-[11px]">⚡</span>
+              </div>
+              <div className="font-mono text-[10px] text-muted-foreground">
+                <span className="text-[#ff8c00]">机构背离抄底</span> — 价格跌幅处于60日前10%，同时机构大单净流入处于60日前10%<br />
+                背离得分 DS = 价跌分位 × 流入分位 &gt; 0.81<br />
+                <span className="text-[9px] text-muted-foreground/60">数据来源：Tushare 超大单+大单（≥20万元）真实成交流向</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 使用建议 */}
+        <section>
+          <h3 className="mb-2 font-mono text-[11px] font-semibold text-foreground/80">💡 使用建议</h3>
+          <ul className="list-disc space-y-1 pl-4 font-mono text-[10px] text-muted-foreground">
+            <li>⚡ 信号出现后，配合筹码峰查看主力成本区，判断是否形成「黄金坑」</li>
+            <li>突 + NMF 上穿零轴 = 双重确认，入场胜率更高</li>
+            <li>滞 + NMF 持续负值 = 主力撤离前兆，优先减仓</li>
+            <li>背离突刺柱高度 &gt; 0.9 为极端信号，历史上常对应短期底部</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeight = 160, onSignals }: VMFPanelProps) {
   const [divData, setDivData] = useState<Map<string, DivergencePoint>>(new Map());
   const [loading, setLoading] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const fetchedRef = useRef('');
+  const toggleHelp = useCallback(() => setHelpOpen(v => !v), []);
 
   // ── 拉取后端背离得分 ───────────────────────────────────────────────────
   useEffect(() => {
@@ -308,12 +422,30 @@ export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeig
 
   return (
     <div className="mt-3 rounded-lg border border-border bg-[#08121c] p-3">
+      {helpOpen && <VMFHelpModal onClose={toggleHelp} />}
+
       {/* ── 标题行 ── */}
       <div className="mb-1.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             VMF · 量价资金流
           </span>
+          {/* 帮助按钮 */}
+          <button
+            type="button"
+            onClick={toggleHelp}
+            title="使用说明"
+            className="flex h-4 w-4 items-center justify-center rounded-full border transition"
+            style={{
+              borderColor: helpOpen ? '#00d4ff' : 'rgba(122,155,181,0.35)',
+              color: helpOpen ? '#00d4ff' : 'rgba(122,155,181,0.6)',
+              background: helpOpen ? 'rgba(0,212,255,0.1)' : 'transparent',
+            }}
+          >
+            <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor">
+              <text x="1" y="9" fontSize="9" fontFamily="serif" fontStyle="italic">?</text>
+            </svg>
+          </button>
           {loading && (
             <span className="font-mono text-[9px] text-muted-foreground/50">同步资金数据...</span>
           )}
