@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { type KLinePoint, type SignalMarker, priceViewOptions } from './types';
 
@@ -9,9 +10,11 @@ interface KLineChartProps {
   stockCode: string;
   stockName: string;
   onCandleClick?: (date: string) => void;
+  onVisiblePriceRange?: (min: number, max: number) => void;
+  onHoverDate?: (date: string) => void;
 }
 
-export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onCandleClick }: KLineChartProps) {
+export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onCandleClick, onVisiblePriceRange, onHoverDate }: KLineChartProps) {
   const [priceView, setPriceView] = useState<PriceViewPreset>('120');
   const [priceWindowStart, setPriceWindowStart] = useState(0);
   const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(null);
@@ -42,6 +45,19 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   const candleSlotWidth = visibleKlineData.length ? drawableWidth / visibleKlineData.length : drawableWidth;
   const candleBodyWidth = Math.max(4, Math.min(14, candleSlotWidth * 0.62));
   const yOfPrice = (price: number) => chartPadding.top + ((visibleMaxPrice - price) / visiblePriceSpan) * drawableHeight;
+
+  useEffect(() => {
+    if (visibleMinPrice > 0 && onVisiblePriceRange) {
+      onVisiblePriceRange(visibleMinPrice, visibleMaxPrice);
+    }
+  }, [visibleMinPrice, visibleMaxPrice, onVisiblePriceRange]);
+
+  // Notify parent of hovered date (for chip distribution sync)
+  useEffect(() => {
+    if (hoveredPoint?.date && onHoverDate) {
+      onHoverDate(hoveredPoint.date);
+    }
+  }, [hoveredPoint?.date, onHoverDate]);
 
   // Signal marker lookup
   const markerMap = new Map(
@@ -240,5 +256,3 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   );
 }
 
-// React imports needed
-import { useEffect, useState } from 'react';

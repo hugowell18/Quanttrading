@@ -129,7 +129,7 @@ export function ChipDistributionPanel({
     setLoading(true);
     setError(null);
 
-    fetch(`/api/chip/${code}?${params}`)
+    fetch(`http://localhost:3001/api/chip/${code}?${params}`)
       .then((r) => r.json())
       .then((json) => {
         if (json.ok) {
@@ -152,8 +152,8 @@ export function ChipDistributionPanel({
   // ── 有效显示宽度 ──
   const barAreaWidth = panelWidth - chartPadding.left - chartPadding.right;
 
-  // ── 骨架渲染 ──
-  if (loading || !chipData) {
+  // ── 骨架渲染（仅在没有任何数据时显示，有旧数据时继续展示旧数据）──
+  if (!chipData) {
     return (
       <div
         style={{ width: panelWidth, height: chartHeight }}
@@ -365,6 +365,11 @@ export function ChipDistributionPanel({
           stroke="rgba(26,45,66,0.8)"
           strokeWidth={1}
         />
+
+        {/* ── 加载中蒙层（保留旧数据，半透明遮盖）── */}
+        {loading && (
+          <rect x={0} y={0} width={panelWidth} height={chartHeight} fill="rgba(8,18,28,0.45)" />
+        )}
       </svg>
     </div>
   );

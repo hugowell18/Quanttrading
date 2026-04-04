@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
+import { ChipDistributionPanel } from '../signal-analyzer/ChipDistributionPanel';
 import { KLineChart } from '../signal-analyzer/KLineChart';
 import { Badge } from '../ui/badge';
 import type { KLinePoint, SignalMarker } from '../signal-analyzer/types';
@@ -442,6 +443,9 @@ export function StockAnalyzerPage() {
   const [analyzeResult, setAnalyzeResult] = useState<AnalyzeResult | null>(null);
   const [klineData, setKlineData]         = useState<KLinePoint[]>([]);
   const [signalMarkers, setSignalMarkers] = useState<SignalMarker[]>([]);
+  const [visiblePriceRange, setVisiblePriceRange] = useState<{ min: number; max: number } | null>(null);
+  const [hoveredDate, setHoveredDate] = useState<string>('');
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [stockName, setStockName]         = useState('');
 
   const analyzingRef = useRef<string>('');
@@ -627,9 +631,34 @@ export function StockAnalyzerPage() {
           {/* Layer 2: Indicator bars */}
           <IndicatorBars result={analyzeResult} />
 
-          {/* Layer 3: K-line chart */}
+          {/* Layer 3: K-line chart + chip panel */}
           {klineData.length > 0
-            ? <KLineChart klineData={klineData} signalMarkers={signalMarkers} stockCode={analyzeResult.stockCode} stockName={stockName || analyzeResult.stockCode} />
+            ? (
+              <div className="flex items-stretch overflow-hidden rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <KLineChart
+                    klineData={klineData}
+                    signalMarkers={signalMarkers}
+                    stockCode={analyzeResult.stockCode}
+                    stockName={stockName || analyzeResult.stockCode}
+                    onVisiblePriceRange={(min, max) => setVisiblePriceRange({ min, max })}
+                    onHoverDate={(date) => {
+                      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+                      hoverTimerRef.current = setTimeout(() => setHoveredDate(date), 250);
+                    }}
+                  />
+                </div>
+                <ChipDistributionPanel
+                  stockCode={analyzeResult.stockCode}
+                  date={(hoveredDate || (klineData[klineData.length - 1]?.date ?? '')).replace(/-/g, '')}
+                  visibleMinPrice={visiblePriceRange?.min ?? 0}
+                  visibleMaxPrice={visiblePriceRange?.max ?? 1}
+                  chartHeight={420}
+                  chartPadding={{ top: 24, right: 4, bottom: 34, left: 8 }}
+                  panelWidth={140}
+                />
+              </div>
+            )
             : <div className="rounded-lg border border-border bg-card p-6 text-center font-mono text-[12px] text-muted-foreground">K线数据加载中或暂无数据</div>
           }
 
