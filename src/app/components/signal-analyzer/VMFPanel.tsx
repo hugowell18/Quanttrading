@@ -45,9 +45,12 @@ interface VMFPoint {
 }
 
 interface VMFPanelProps {
-  klineData: KLinePoint[];   // 当前可见窗口的 K 线数据
+  visibleKlineData: KLinePoint[];   // 当前可见窗口（用于渲染）
+  fullKlineData: KLinePoint[];      // 完整历史（用于 EMA warmup）
   stockCode: string;
   chartHeight?: number;
+  /** 信号回调：将 breakout/stagnation/divergence 信号提升到父组件（KLineChart）渲染 */
+  onSignals?: (signals: Map<string, 'breakout' | 'stagnation' | 'divergence'>) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -163,7 +166,7 @@ function detectOhlcvSignals(base: Omit<VMFPoint, 'signal' | 'divergenceScore'>[]
 // 组件
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function VMFPanel({ klineData, stockCode, chartHeight = 160 }: VMFPanelProps) {
+export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeight = 160, onSignals }: VMFPanelProps) {
   const [divData, setDivData] = useState<Map<string, DivergencePoint>>(new Map());
   const [loading, setLoading] = useState(false);
   const fetchedRef = useRef('');
@@ -183,7 +186,6 @@ export function VMFPanel({ klineData, stockCode, chartHeight = 160 }: VMFPanelPr
         if (json.ok && Array.isArray(json.data)) {
           const m = new Map<string, DivergencePoint>(
             json.data.map((d: DivergencePoint) => [
-              // normalize YYYYMMDD → YYYY-MM-DD for matching klineData
               `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`,
               d,
             ])
@@ -195,30 +197,56 @@ export function VMFPanel({ klineData, stockCode, chartHeight = 160 }: VMFPanelPr
       .finally(() => setLoading(false));
   }, [stockCode]);
 
-  // ── 计算 VMF 基础数据（纯OHLCV）────────────────────────────────────────
-  const base = useMemo(() => computeVMF(klineData), [klineData]);
-  const ohlcvSignals = useMemo(() => detectOhlcvSignals(base, klineData), [base, klineData]);
+  // ── 在完整历史上计算 NMF（解决 EMA warmup 问题）──────────────────────
+  const fullBase = useMemo(() => computeVMF(fullKlineData), [fullKlineData]);
+  const fullBaseMap = useMemo(
+    () => new Map(fullBase.map(b => [b.date, b])),
+    [fullBase]
+  );
 
-  // ── 合并背离数据 ──────────────────────────────────────────────────────
+  // ── OHLCV 信号在完整数据上计算（窗口移动时信号不会消失）────────────
+  const fullOhlcvSignals = useMemo(
+    () => detectOhlcvSignals(fullBase, fullKlineData),
+    [fullBase, fullKlineData]
+  );
+
+  // ── 可见窗口的渲染数据（从完整计算结果中查表）──────────────────────
   const vmfPoints: VMFPoint[] = useMemo(() => {
-    return base.map(b => {
-      const divPoint = divData.get(b.date);
-      const ohlcvSig = ohlcvSignals.get(b.date) ?? null;
+    return visibleKlineData.map(k => {
+      const b        = fullBaseMap.get(k.date);
+      const divPoint = divData.get(k.date);
+      const ohlcvSig = fullOhlcvSignals.get(k.date) ?? null;
       const divSig   = divPoint?.signal === 'divergence' ? 'divergence' as const : null;
-      // divergence 优先级最高
-      const signal   = divSig ?? ohlcvSig;
       return {
-        ...b,
+        date:           k.date,
+        volume:         k.volume,
+        ma5_vol:        b?.ma5_vol  ?? null,
+        ma20_vol:       b?.ma20_vol ?? null,
+        nmf:            b?.nmf      ?? null,
+        isUp:           b?.isUp     ?? (k.close >= k.open),
         divergenceScore: divPoint?.divergence_score ?? 0,
-        signal,
+        signal:         divSig ?? ohlcvSig,
       };
     });
-  }, [base, divData, ohlcvSignals]);
+  }, [visibleKlineData, fullBaseMap, divData, fullOhlcvSignals]);
+
+  // ── 将所有信号提升到 KLineChart 渲染 ────────────────────────────────
+  useEffect(() => {
+    if (!onSignals) return;
+    const map = new Map<string, 'breakout' | 'stagnation' | 'divergence'>();
+    // OHLCV 信号（全量）
+    fullOhlcvSignals.forEach((sig, date) => map.set(date, sig));
+    // 背离信号（覆盖，优先级更高）
+    divData.forEach((dp, date) => {
+      if (dp.signal === 'divergence') map.set(date, 'divergence');
+    });
+    onSignals(map);
+  }, [fullOhlcvSignals, divData, onSignals]);
 
   // ── SVG 尺寸 ─────────────────────────────────────────────────────────
   const drawW = SVG_W - PAD.left - PAD.right;
   const drawH = chartHeight - PAD.top - PAD.bottom;
-  const zeroY = PAD.top + drawH / 2;   // NMF 零轴在副图中心
+  const zeroY = PAD.top + drawH / 2;
   const n     = vmfPoints.length;
 
   if (n < 2) {
@@ -398,51 +426,7 @@ export function VMFPanel({ klineData, stockCode, chartHeight = 160 }: VMFPanelPr
           );
         })}
 
-        {/* ── 信号标注 ── */}
-        {vmfPoints.map((d, i) => {
-          if (!d.signal) return null;
-          const x = xCenter(i);
-
-          if (d.signal === 'breakout') {
-            const y = PAD.top + 6;
-            return (
-              <g key={`sig-${i}`}>
-                <polygon
-                  points={`${x},${y} ${x - 7},${y + 12} ${x + 7},${y + 12}`}
-                  fill={COLOR_UP} opacity={0.9}
-                />
-                <text x={x} y={y + 22} textAnchor="middle" fill={COLOR_UP} fontSize={8} fontFamily="system-ui">突</text>
-              </g>
-            );
-          }
-          if (d.signal === 'stagnation') {
-            const y = PAD.top + drawH - 6;
-            return (
-              <g key={`sig-${i}`}>
-                <polygon
-                  points={`${x},${y} ${x - 7},${y - 12} ${x + 7},${y - 12}`}
-                  fill={COLOR_DOWN} opacity={0.9}
-                />
-                <text x={x} y={y - 15} textAnchor="middle" fill={COLOR_DOWN} fontSize={8} fontFamily="system-ui">滞</text>
-              </g>
-            );
-          }
-          if (d.signal === 'divergence') {
-            return (
-              <text
-                key={`sig-${i}`}
-                x={x} y={PAD.top + drawH * 0.35}
-                textAnchor="middle"
-                fill={COLOR_DIV}
-                fontSize={12}
-                fontFamily="system-ui"
-              >
-                ⚡
-              </text>
-            );
-          }
-          return null;
-        })}
+        {/* 信号标注已提升到 KLineChart 渲染，副图只保留背离突刺柱 */}
 
         {/* ── X 轴标签 ── */}
         {vmfPoints.map((d, i) => {

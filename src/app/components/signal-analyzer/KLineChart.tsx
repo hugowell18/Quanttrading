@@ -18,7 +18,8 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   const [priceView, setPriceView] = useState<PriceViewPreset>('120');
   const [priceWindowStart, setPriceWindowStart] = useState(0);
   const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(100); // 缩放级别百分比
+  const [zoomLevel, setZoomLevel] = useState(100);
+  const [vmfSignals, setVmfSignals] = useState<Map<string, 'breakout' | 'stagnation' | 'divergence'>>(new Map());
 
   // 计算可见窗口大小
   const baseWindowSize = priceView === 'all' ? klineData.length : Math.min(Number(priceView), klineData.length);
@@ -192,7 +193,8 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
             const isRising = item.close >= item.open;
             const color = isRising ? '#ff3366' : '#00ff88';
             const isHovered = hoveredCandleIndex === i;
-            const marker = markerMap.get(item.date);
+            const marker    = markerMap.get(item.date);
+            const vmfSig   = vmfSignals.get(item.date);
 
             return (
               <g key={`${item.date}-${i}`}>
@@ -234,6 +236,29 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
                   </g>
                 )}
                 
+                {/* VMF 信号：突破(青) / 滞涨(红) / 背离(橙) */}
+                {vmfSig === 'breakout' && (() => {
+                  const sy = Math.min(lowY + 3, chartHeight - chartPadding.bottom - 16);
+                  return (
+                    <g>
+                      <polygon points={`${xCenter},${sy} ${xCenter - 7},${sy + 14} ${xCenter + 7},${sy + 14}`} fill="#00d4ff" stroke="#0099bb" strokeWidth={1} />
+                      <text x={xCenter} y={sy + 12} textAnchor="middle" fill="#08121c" fontSize="9" fontFamily="JetBrains Mono" fontWeight="700">突</text>
+                    </g>
+                  );
+                })()}
+                {vmfSig === 'stagnation' && (() => {
+                  const sy = Math.max(highY - 3, chartPadding.top + 16);
+                  return (
+                    <g>
+                      <polygon points={`${xCenter},${sy} ${xCenter - 7},${sy - 14} ${xCenter + 7},${sy - 14}`} fill="#ff6b6b" stroke="#cc3333" strokeWidth={1} />
+                      <text x={xCenter} y={sy - 5} textAnchor="middle" fill="#08121c" fontSize="9" fontFamily="JetBrains Mono" fontWeight="700">滞</text>
+                    </g>
+                  );
+                })()}
+                {vmfSig === 'divergence' && (
+                  <text x={xCenter} y={Math.min(lowY + 18, chartHeight - chartPadding.bottom - 4)} textAnchor="middle" fill="#ff8c00" fontSize="13" fontFamily="system-ui">⚡</text>
+                )}
+
                 <rect x={chartPadding.left + candleSlotWidth * i} y={chartPadding.top} width={Math.max(candleSlotWidth, 8)} height={drawableHeight} fill="transparent"
                   onMouseEnter={() => setHoveredCandleIndex(i)} onMouseMove={() => setHoveredCandleIndex(i)}
                   onClick={() => onCandleClick?.(item.date)} style={{ cursor: onCandleClick ? 'pointer' : 'default' }} />
@@ -282,9 +307,11 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
 
       {/* VMF · 量价资金流副图 */}
       <VMFPanel
-        klineData={visibleKlineData}
+        visibleKlineData={visibleKlineData}
+        fullKlineData={klineData}
         stockCode={stockCode}
         chartHeight={160}
+        onSignals={setVmfSignals}
       />
     </div>
   );
