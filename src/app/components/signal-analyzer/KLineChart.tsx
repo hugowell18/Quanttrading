@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useEffect, useMemo, useState } from 'react';
 import { type KLinePoint, type SignalMarker, priceViewOptions } from './types';
+import { VMFPanel } from './VMFPanel';
 
 type PriceViewPreset = '20' | '60' | '120' | 'all';
 
@@ -18,8 +18,15 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   const [priceView, setPriceView] = useState<PriceViewPreset>('120');
   const [priceWindowStart, setPriceWindowStart] = useState(0);
   const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(100); // 缩放级别百分比
 
-  const visibleWindowSize = priceView === 'all' ? klineData.length : Math.min(Number(priceView), klineData.length);
+  // 计算可见窗口大小
+  const baseWindowSize = priceView === 'all' ? klineData.length : Math.min(Number(priceView), klineData.length);
+  // 当选择"全部"时，应用缩放级别
+  const visibleWindowSize = priceView === 'all' 
+    ? Math.max(Math.floor(klineData.length * (zoomLevel / 100)), 50)  // 最少显示50根
+    : baseWindowSize;
+  
   const clampedWindowStart = Math.min(priceWindowStart, Math.max(klineData.length - visibleWindowSize, 0));
   const visibleKlineData = klineData.slice(clampedWindowStart, clampedWindowStart + visibleWindowSize);
   const hoveredPoint = hoveredCandleIndex !== null ? visibleKlineData[hoveredCandleIndex] : visibleKlineData[visibleKlineData.length - 1];
@@ -28,7 +35,11 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   useEffect(() => {
     setPriceWindowStart(Math.max(klineData.length - visibleWindowSize, 0));
     setHoveredCandleIndex(null);
-  }, [klineData.length, visibleWindowSize]);
+    // 切换视图时重置缩放
+    if (priceView !== 'all') {
+      setZoomLevel(100);
+    }
+  }, [klineData.length, visibleWindowSize, priceView]);
 
   // Chart dimensions
   const chartWidth = 1200;
@@ -73,6 +84,7 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   const hoveredPriceChange = hoveredPoint ? hoveredPoint.close - hoveredPoint.open : 0;
   const hoveredPriceChangePct = hoveredPoint?.open ? (hoveredPriceChange / hoveredPoint.open) * 100 : 0;
 
+
   return (
     <div className="rounded-lg border border-border bg-card p-5">
       {/* Header */}
@@ -95,6 +107,33 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
               {opt.label}
             </button>
           ))}
+          
+          {/* 缩放控制（仅在"全部"模式下显示） */}
+          {priceView === 'all' && (
+            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border/50">
+              <button
+                type="button"
+                onClick={() => setZoomLevel(z => Math.min(z + 25, 100))}
+                disabled={zoomLevel >= 100}
+                className="h-6 w-6 rounded border border-border bg-secondary/40 font-mono text-[12px] text-muted-foreground transition hover:border-primary/30 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                title="放大"
+              >
+                +
+              </button>
+              <div className="flex items-center px-2 font-mono text-[10px] text-muted-foreground min-w-[48px] justify-center">
+                {zoomLevel}%
+              </div>
+              <button
+                type="button"
+                onClick={() => setZoomLevel(z => Math.max(z - 25, 10))}
+                disabled={zoomLevel <= 10}
+                className="h-6 w-6 rounded border border-border bg-secondary/40 font-mono text-[12px] text-muted-foreground transition hover:border-primary/30 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                title="缩小"
+              >
+                −
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -171,6 +210,7 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
                 )}
                 <line x1={xCenter} x2={xCenter} y1={highY} y2={lowY} stroke={color} strokeWidth={1} />
                 <rect x={x} y={bodyTop} width={candleBodyWidth} height={bodyHeight} fill={isRising ? 'rgba(255,51,102,0.18)' : 'rgba(0,255,136,0.18)'} stroke={color} strokeWidth={isHovered ? 1.6 : 1} rx={1} />
+                
                 {marker && (
                   <g>
                     {marker.type === 'buy' ? (
@@ -193,6 +233,7 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
                     </text>
                   </g>
                 )}
+                
                 <rect x={chartPadding.left + candleSlotWidth * i} y={chartPadding.top} width={Math.max(candleSlotWidth, 8)} height={drawableHeight} fill="transparent"
                   onMouseEnter={() => setHoveredCandleIndex(i)} onMouseMove={() => setHoveredCandleIndex(i)}
                   onClick={() => onCandleClick?.(item.date)} style={{ cursor: onCandleClick ? 'pointer' : 'default' }} />
@@ -222,7 +263,10 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
         <div className="mt-3 rounded-md border border-border bg-card/40 px-3 py-2">
           <div className="mb-1 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
             <span>视窗</span>
-            <span>{clampedWindowStart + 1} - {Math.min(clampedWindowStart + visibleWindowSize, klineData.length)} / {klineData.length}</span>
+            <span>
+              {clampedWindowStart + 1} - {Math.min(clampedWindowStart + visibleWindowSize, klineData.length)} / {klineData.length}
+              {priceView === 'all' && <span className="ml-2 text-[10px] text-primary/70">（缩放 {zoomLevel}%）</span>}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={() => { setPriceWindowStart(Math.max(clampedWindowStart - Math.max(Math.floor(visibleWindowSize / 4), 1), 0)); setHoveredCandleIndex(null); }}
@@ -236,22 +280,12 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
         </div>
       )}
 
-      {/* MACD Subplot */}
-      <div className="mt-3 rounded-lg border border-border bg-[#08121c] p-3">
-        <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">MACD</div>
-        <ResponsiveContainer width="100%" height={120}>
-          <ComposedChart data={visibleKlineData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1a2d42" opacity={0.45} />
-            <XAxis dataKey="date" stroke="#7a9bb5" tick={{ fontSize: 9 }} interval={Math.max(Math.floor(visibleKlineData.length / 6), 1)} />
-            <YAxis stroke="#7a9bb5" tick={{ fontSize: 9 }} width={40} />
-            <Tooltip contentStyle={{ backgroundColor: '#0c1520', border: '1px solid #1a2d42', borderRadius: '6px', fontSize: '11px' }} />
-            <ReferenceLine y={0} stroke="#7a9bb5" strokeDasharray="2 2" />
-            <Bar dataKey="macd" fill="#00d4ff" opacity={0.6} name="MACD" />
-            <Line type="monotone" dataKey="dif" stroke="#ff3366" strokeWidth={1.5} dot={false} name="DIF" />
-            <Line type="monotone" dataKey="dea" stroke="#00ff88" strokeWidth={1.5} dot={false} name="DEA" />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
+      {/* VMF · 量价资金流副图 */}
+      <VMFPanel
+        klineData={visibleKlineData}
+        stockCode={stockCode}
+        chartHeight={160}
+      />
     </div>
   );
 }

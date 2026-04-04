@@ -6,6 +6,7 @@ import { optimize } from './reverse-label/optimizer.mjs';
 import { ensureSymbolCsv, readDaily } from './data/csv-manager.mjs';
 import { createLogger } from './logger.mjs';
 import { chipRouter } from './chip/chip-api.mjs';
+import { vmfRouter }  from './moneyflow/moneyflow-api.mjs';
 
 const app = express();
 const PORT = 3001;
@@ -25,6 +26,7 @@ const logMarket    = createLogger('market');
 app.use(cors());
 app.use(express.json());
 app.use('/api/chip', chipRouter);
+app.use('/api/vmf',  vmfRouter);
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
