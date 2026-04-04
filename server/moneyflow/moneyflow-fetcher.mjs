@@ -21,7 +21,9 @@ const MF_FIELDS    = 'trade_date,buy_elg_amount,sell_elg_amount,buy_lg_amount,se
 
 function readToken() {
   if (existsSync(ENV_PATH)) {
-    for (const line of readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)) {
+    // strip UTF-8 BOM (\uFEFF) that Windows editors often prepend
+    const raw = readFileSync(ENV_PATH, 'utf8').replace(/^\uFEFF/, '');
+    for (const line of raw.split(/\r?\n/)) {
       const m = line.match(/^TUSHARE_TOKEN\s*=\s*['"]?([^'"]+)['"]?\s*$/);
       if (m) return m[1].trim();
     }

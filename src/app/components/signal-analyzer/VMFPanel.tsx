@@ -136,20 +136,28 @@ function detectOhlcvSignals(base: Omit<VMFPoint, 'signal' | 'divergenceScore'>[]
   const map = new Map<string, 'breakout' | 'stagnation'>();
   const n   = base.length;
 
-  for (let i = 10; i < n; i++) {
-    const b      = base[i];
-    const k      = klineData[i];
-    const ma20   = b.ma20_vol;
+  for (let i = 20; i < n; i++) {
+    const b    = base[i];
+    const k    = klineData[i];
+    const ma20 = b.ma20_vol;
     if (!ma20) continue;
 
-    // 放量突破: 价格创10日新高 + 量 > MA20 × 1.5
-    const max10Close = Math.max(...klineData.slice(i - 10, i).map(d => d.close));
-    if (k.close > max10Close && k.volume > ma20 * 1.5) {
-      map.set(k.date, 'breakout');
-      continue;
+    // ── 放量突破（盘整底部突破，非趋势延续）────────────────────────────
+    // 条件1: 今日收盘创近20日新高
+    const max20Close = Math.max(...klineData.slice(i - 20, i).map(d => d.close));
+    if (k.close > max20Close && k.volume > ma20 * 2.0) {
+      // 条件2: 突破前10日内盘整（价格振幅 < 8%），排除已在上升趋势顶部的情况
+      const prior10 = klineData.slice(i - 10, i);
+      const priorHigh = Math.max(...prior10.map(d => d.high));
+      const priorLow  = Math.min(...prior10.map(d => d.low));
+      const rangeRatio = priorLow > 0 ? (priorHigh - priorLow) / priorLow : 1;
+      if (rangeRatio < 0.08) {
+        map.set(k.date, 'breakout');
+        continue;
+      }
     }
 
-    // 缩量滞涨: 连续3日涨幅绝对值<0.5% + 今日量 < MA20 × 0.6
+    // ── 缩量滞涨: 连续3日涨幅绝对值<0.5% + 今日量 < MA20 × 0.6 ──────
     if (i >= 3 && k.volume < ma20 * 0.6) {
       const flat = [0, 1, 2].every(offset => {
         const idx = i - offset;
@@ -540,21 +548,25 @@ export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeig
           );
         })}
 
-        {/* ── 顶层: 背离突刺（橙色竖柱，从底部冒出）── */}
+        {/* ── 顶层: 背离突刺（橙色竖柱，从底部冒出，带发光描边）── */}
         {vmfPoints.map((d, i) => {
-          if (d.divergenceScore < 0.5) return null;
-          const x     = xCenter(i);
-          const h     = d.divergenceScore * drawH * 0.55;
-          const y     = PAD.top + drawH - h;
-          const alpha = Math.min(0.9, d.divergenceScore);
+          if (d.divergenceScore < 0.25) return null;
+          const x      = xCenter(i);
+          const h      = d.divergenceScore * drawH * 0.65;
+          const y      = PAD.top + drawH - h;
+          const alpha  = 0.5 + d.divergenceScore * 0.5;   // 0.5 ~ 1.0
+          const colW   = Math.max(3, Math.min(barW * 0.8, 8));
           return (
-            <rect
-              key={`div-${i}`}
-              x={x - 1.5} y={y}
-              width={3} height={h}
-              fill={COLOR_DIV}
-              opacity={alpha}
-            />
+            <g key={`div-${i}`}>
+              {/* 发光底层（宽、低透明度）*/}
+              <rect x={x - colW} y={y} width={colW * 2} height={h}
+                fill={COLOR_DIV} opacity={alpha * 0.35} />
+              {/* 主柱（窄、高亮）*/}
+              <rect x={x - colW / 2} y={y} width={colW} height={h}
+                fill={COLOR_DIV} opacity={alpha}
+                stroke={d.divergenceScore >= 0.81 ? '#ffe080' : 'none'}
+                strokeWidth={1} />
+            </g>
           );
         })}
 
