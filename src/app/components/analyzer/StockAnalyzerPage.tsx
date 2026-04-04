@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { ChipDistributionPanel } from '../signal-analyzer/ChipDistributionPanel';
 import { KLineChart } from '../signal-analyzer/KLineChart';
@@ -451,6 +451,12 @@ export function StockAnalyzerPage() {
   const analyzingRef = useRef<string>('');
   const lastDoneRef  = useRef<string>('');
 
+  // Stable onHoverDate callback to avoid re-triggering KLineChart's useEffect
+  const handleHoverDate = useCallback((date: string) => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => setHoveredDate(date), 250);
+  }, []);
+
   // Timer
   useEffect(() => {
     if (!loading) { setElapsed(0); return; }
@@ -642,21 +648,20 @@ export function StockAnalyzerPage() {
                     stockCode={analyzeResult.stockCode}
                     stockName={stockName || analyzeResult.stockCode}
                     onVisiblePriceRange={(min, max) => setVisiblePriceRange({ min, max })}
-                    onHoverDate={(date) => {
-                      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-                      hoverTimerRef.current = setTimeout(() => setHoveredDate(date), 250);
-                    }}
+                    onHoverDate={handleHoverDate}
                   />
                 </div>
-                <ChipDistributionPanel
-                  stockCode={analyzeResult.stockCode}
-                  date={(hoveredDate || (klineData[klineData.length - 1]?.date ?? '')).replace(/-/g, '')}
-                  visibleMinPrice={visiblePriceRange?.min ?? 0}
-                  visibleMaxPrice={visiblePriceRange?.max ?? 1}
-                  chartHeight={420}
-                  chartPadding={{ top: 24, right: 4, bottom: 34, left: 8 }}
-                  panelWidth={140}
-                />
+                <div className="border-l border-border bg-card rounded-r-lg">
+                  <ChipDistributionPanel
+                    stockCode={analyzeResult.stockCode}
+                    date={(hoveredDate || (klineData[klineData.length - 1]?.date ?? '')).replace(/-/g, '')}
+                    visibleMinPrice={visiblePriceRange?.min ?? 0}
+                    visibleMaxPrice={visiblePriceRange?.max ?? 1}
+                    chartHeight={870}
+                    chartPadding={{ top: 24, right: 8, bottom: 34, left: 12 }}
+                    panelWidth={200}
+                  />
+                </div>
               </div>
             )
             : <div className="rounded-lg border border-border bg-card p-6 text-center font-mono text-[12px] text-muted-foreground">K线数据加载中或暂无数据</div>

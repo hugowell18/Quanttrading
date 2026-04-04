@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { toast } from 'sonner';
 import { KLineChart } from '../signal-analyzer/KLineChart';
+import { calculateMFMF } from '../signal-analyzer/MainForceMoneyFlow';
 import type { KLinePoint } from '../signal-analyzer/types';
 import type { IndexKLinePoint } from '../../types/api';
 import { useAppContext } from '../../context/AppContext';
 
 const INDICES = [
-  { code: '000300.SH', name: '沪深300' },
+  { code: '000300.SH', name: '沪深 300' },
   { code: '000001.SH', name: '上证综指' },
   { code: '399001.SZ', name: '深证成指' },
   { code: '399006.SZ', name: '创业板指' },
@@ -40,6 +41,9 @@ export function IndexKLinePanel({ onKLineData }: IndexKLinePanelProps) {
   const [loading, setLoading] = useState(false);
   const lastDataRef = useRef<KLinePoint[]>([]);
 
+  // 用完整数据计算 MFMF（确保 EMA 稳定）
+  const { data: mfmfFullData } = useMemo(() => calculateMFMF(klineData), [klineData]);
+
   async function fetchKLine(code: IndexCode) {
     setLoading(true);
     try {
@@ -54,7 +58,7 @@ export function IndexKLinePanel({ onKLineData }: IndexKLinePanelProps) {
         throw new Error(json.error ?? '数据格式错误');
       }
     } catch (err) {
-      toast.error(`加载 ${code} K线失败`, {
+      toast.error(`加载 ${code} K 线失败`, {
         description: err instanceof Error ? err.message : String(err),
       });
       // Restore last successful data
@@ -116,10 +120,11 @@ export function IndexKLinePanel({ onKLineData }: IndexKLinePanelProps) {
             stockCode={activeIndex}
             stockName={activeLabel}
             onCandleClick={handleCandleClick}
+            mfmfFullData={mfmfFullData}
           />
         ) : (
           <div className="flex items-center justify-center h-48 text-muted-foreground font-mono text-sm">
-            {loading ? '加载中…' : '暂无K线数据'}
+            {loading ? '加载中…' : '暂无 K 线数据'}
           </div>
         )}
       </div>

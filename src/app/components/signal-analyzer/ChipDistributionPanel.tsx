@@ -79,16 +79,16 @@ interface ChipDistributionPanelProps {
 // 常量
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DEFAULT_CHART_HEIGHT  = 420;
-const DEFAULT_PANEL_WIDTH   = 140;
-const DEFAULT_PADDING       = { top: 24, right: 4, bottom: 34, left: 8 };
+const DEFAULT_CHART_HEIGHT  = 870;
+const DEFAULT_PANEL_WIDTH   = 200;
+const DEFAULT_PADDING       = { top: 24, right: 8, bottom: 34, left: 12 };
 
 // 颜色方案
 const COLOR_PROFIT    = '#00c853';   // 获利盘（绿）
 const COLOR_LOSS      = '#ff3d3d';   // 套牢盘（红）
 const COLOR_CURRENT   = '#00d4ff';   // 当前价（青）
 const COLOR_AVG_COST  = '#ffd600';   // 均成本（黄）
-const COLOR_BAND70    = 'rgba(100, 160, 255, 0.15)';  // 70% 成本带
+const COLOR_BAND70    = 'rgba(100, 160, 255, 0.12)';  // 70% 成本带
 const COLOR_PEAK_LABEL = '#e8eaed';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -181,7 +181,7 @@ export function ChipDistributionPanel({
   return (
     <div
       style={{ width: panelWidth, height: chartHeight }}
-      className={`bg-[#08121c] border-l border-border/50 rounded-r-lg overflow-hidden select-none ${className}`}
+      className={`bg-[#08121c] overflow-hidden select-none ${className}`}
     >
       <svg
         viewBox={`0 0 ${panelWidth} ${chartHeight}`}
@@ -192,6 +192,19 @@ export function ChipDistributionPanel({
       >
         {/* ── 背景 ── */}
         <rect x={0} y={0} width={panelWidth} height={chartHeight} fill="#08121c" />
+
+        {/* ── 顶部标题 ── */}
+        <text
+          x={panelWidth / 2}
+          y={14}
+          textAnchor="middle"
+          fill="rgba(122,155,181,0.95)"
+          fontSize={10}
+          fontFamily="system-ui, sans-serif"
+          fontWeight="600"
+        >
+          筹码分布
+        </text>
 
         {/* ── 70% 成本带高亮 ── */}
         {band70 && (() => {
@@ -205,6 +218,7 @@ export function ChipDistributionPanel({
               width={barAreaWidth}
               height={Math.abs(y2 - y1)}
               fill={COLOR_BAND70}
+              rx={2}
             />
           );
         })()}
@@ -216,10 +230,10 @@ export function ChipDistributionPanel({
           if (price < visibleMinPrice - dp || price > visibleMaxPrice + dp) return null;
 
           const barWidth = (density / maxDensity) * barAreaWidth;
-          if (barWidth < 0.3) return null;
+          if (barWidth < 0.5) return null;
 
           const y = yOfPrice(price);
-          const barHeight = Math.max(1, (dp / priceSpan) * drawableHeight - 0.5);
+          const barHeight = Math.max(1.5, (dp / priceSpan) * drawableHeight - 0.5);
           const isProfit = price <= currentPrice;
           const fill = isProfit ? COLOR_PROFIT : COLOR_LOSS;
 
@@ -231,7 +245,8 @@ export function ChipDistributionPanel({
               width={barWidth}
               height={barHeight}
               fill={fill}
-              opacity={0.75}
+              opacity={0.82}
+              rx={0.5}
             />
           );
         })}
@@ -244,9 +259,9 @@ export function ChipDistributionPanel({
             y1={yOfPrice(avgCost)}
             y2={yOfPrice(avgCost)}
             stroke={COLOR_AVG_COST}
-            strokeWidth={1}
-            strokeDasharray="3 3"
-            opacity={0.8}
+            strokeWidth={1.2}
+            strokeDasharray="4 3"
+            opacity={0.85}
           />
         )}
 
@@ -258,8 +273,8 @@ export function ChipDistributionPanel({
             y1={yOfPrice(currentPrice)}
             y2={yOfPrice(currentPrice)}
             stroke={COLOR_CURRENT}
-            strokeWidth={1.5}
-            opacity={0.9}
+            strokeWidth={1.8}
+            opacity={0.95}
           />
         )}
 
@@ -267,21 +282,24 @@ export function ChipDistributionPanel({
         {primaryPeak && isFinite(yOfPrice(primaryPeak.price)) && (
           <g>
             <rect
-              x={chartPadding.left + 2}
-              y={yOfPrice(primaryPeak.price) - 9}
-              width={36}
-              height={11}
-              fill="rgba(0,0,0,0.55)"
-              rx={2}
+              x={chartPadding.left + 4}
+              y={yOfPrice(primaryPeak.price) - 10}
+              width={42}
+              height={13}
+              fill="rgba(0,0,0,0.65)"
+              rx={3}
+              stroke="rgba(232,234,237,0.2)"
+              strokeWidth={0.5}
             />
             <text
-              x={chartPadding.left + 4}
-              y={yOfPrice(primaryPeak.price) - 1}
+              x={chartPadding.left + 6}
+              y={yOfPrice(primaryPeak.price)}
               fill={COLOR_PEAK_LABEL}
-              fontSize={8}
+              fontSize={9}
               fontFamily="JetBrains Mono, monospace"
+              fontWeight="600"
             >
-              {primaryPeak.price.toFixed(2)}
+              主 {primaryPeak.price.toFixed(2)}
             </text>
           </g>
         )}
@@ -290,85 +308,121 @@ export function ChipDistributionPanel({
         {secondaryPeak && isFinite(yOfPrice(secondaryPeak.price)) && (
           <g>
             <rect
-              x={chartPadding.left + 2}
-              y={yOfPrice(secondaryPeak.price) - 9}
-              width={36}
-              height={11}
+              x={chartPadding.left + 4}
+              y={yOfPrice(secondaryPeak.price) - 10}
+              width={42}
+              height={13}
               fill="rgba(0,0,0,0.55)"
-              rx={2}
+              rx={3}
+              stroke="rgba(232,234,237,0.15)"
+              strokeWidth={0.5}
             />
             <text
-              x={chartPadding.left + 4}
-              y={yOfPrice(secondaryPeak.price) - 1}
-              fill="rgba(232,234,237,0.7)"
-              fontSize={8}
+              x={chartPadding.left + 6}
+              y={yOfPrice(secondaryPeak.price)}
+              fill="rgba(232,234,237,0.75)"
+              fontSize={9}
               fontFamily="JetBrains Mono, monospace"
             >
-              {secondaryPeak.price.toFixed(2)}
+              次 {secondaryPeak.price.toFixed(2)}
             </text>
           </g>
         )}
 
-        {/* ── 顶部标题 ── */}
-        <text
-          x={panelWidth / 2}
-          y={chartPadding.top - 8}
-          textAnchor="middle"
-          fill="rgba(122,155,181,0.9)"
-          fontSize={9}
-          fontFamily="system-ui, sans-serif"
-        >
-          筹码峰 {lookback}日
-        </text>
-
         {/* ── 底部元数据：获利盘 / 成熟度 ── */}
         <text
-          x={chartPadding.left + 2}
-          y={chartHeight - chartPadding.bottom + 12}
-          fill="rgba(0,200,83,0.85)"
-          fontSize={9}
+          x={chartPadding.left + 4}
+          y={chartHeight - chartPadding.bottom + 14}
+          fill="rgba(0,200,83,0.9)"
+          fontSize={10}
           fontFamily="JetBrains Mono, monospace"
+          fontWeight="600"
         >
-          {(chipData.profitRatio * 100).toFixed(0)}%↑
+          获利 {(chipData.profitRatio * 100).toFixed(1)}%
         </text>
         <text
-          x={panelWidth - chartPadding.right - 2}
-          y={chartHeight - chartPadding.bottom + 12}
+          x={panelWidth - chartPadding.right - 4}
+          y={chartHeight - chartPadding.bottom + 14}
           textAnchor="end"
-          fill="rgba(122,155,181,0.7)"
+          fill="rgba(122,155,181,0.75)"
           fontSize={9}
           fontFamily="JetBrains Mono, monospace"
         >
-          {(cyqMaturity * 100).toFixed(0)}%
+          成熟度 {(cyqMaturity * 100).toFixed(0)}%
         </text>
 
         {/* ── 均成本标签（仅当在可视范围内）── */}
         {avgCost >= visibleMinPrice && avgCost <= visibleMaxPrice && (
           <text
-            x={panelWidth - chartPadding.right - 2}
-            y={yOfPrice(avgCost) - 3}
+            x={panelWidth - chartPadding.right - 4}
+            y={yOfPrice(avgCost) - 4}
             textAnchor="end"
             fill={COLOR_AVG_COST}
-            fontSize={8}
+            fontSize={9}
             fontFamily="JetBrains Mono, monospace"
+            fontWeight="500"
           >
-            均{avgCost.toFixed(2)}
+            均 {avgCost.toFixed(2)}
           </text>
         )}
 
-        {/* ── 右侧竖线分隔 ── */}
+        {/* ── 当前价标签（右侧）── */}
+        {currentPrice >= visibleMinPrice && currentPrice <= visibleMaxPrice && (
+          <text
+            x={panelWidth - chartPadding.right - 4}
+            y={yOfPrice(currentPrice) - 4}
+            textAnchor="end"
+            fill={COLOR_CURRENT}
+            fontSize={9}
+            fontFamily="JetBrains Mono, monospace"
+            fontWeight="600"
+          >
+            现 {currentPrice.toFixed(2)}
+          </text>
+        )}
+
+        {/* ── 左侧竖线分隔 ── */}
         <line
           x1={chartPadding.left}
           y1={chartPadding.top}
           x2={chartPadding.left}
           y2={chartHeight - chartPadding.bottom}
-          stroke="rgba(26,45,66,0.8)"
+          stroke="rgba(26,45,66,0.9)"
           strokeWidth={1}
         />
 
+        {/* ── 价格刻度（右侧）── */}
+        {Array.from({ length: 7 }, (_, i) => {
+          const price = visibleMinPrice + (priceSpan / 6) * i;
+          const y = yOfPrice(price);
+          if (y < chartPadding.top + 10 || y > chartHeight - chartPadding.bottom - 10) return null;
+          return (
+            <g key={`tick-${i}`}>
+              <line
+                x1={panelWidth - chartPadding.right - 6}
+                x2={panelWidth - chartPadding.right}
+                y1={y}
+                y2={y}
+                stroke="rgba(122,155,181,0.5)"
+                strokeWidth={1}
+              />
+              <text
+                x={panelWidth - chartPadding.right - 8}
+                y={y + 3}
+                textAnchor="end"
+                fill="rgba(122,155,181,0.7)"
+                fontSize={8}
+                fontFamily="JetBrains Mono, monospace"
+              >
+                {price.toFixed(2)}
+              </text>
+            </g>
+          );
+        })}
+
         {/* ── 加载中蒙层（保留旧数据，半透明遮盖）── */}
         {loading && (
-          <rect x={0} y={0} width={panelWidth} height={chartHeight} fill="rgba(8,18,28,0.45)" />
+          <rect x={0} y={0} width={panelWidth} height={chartHeight} fill="rgba(8,18,28,0.5)" />
         )}
       </svg>
     </div>

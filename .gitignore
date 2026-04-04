@@ -97,3 +97,5 @@ results/batch/
 .kiro/
 cache/
 __pycache__/
+.qwen/settings.json
+.qwen/settings.json.orig
