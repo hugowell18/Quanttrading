@@ -1,9 +1,10 @@
 import { useState, useEffect, Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
-import { LayoutDashboard, TrendingUp, Settings } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Settings, Zap } from 'lucide-react';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { MarketOverview } from './components/market/MarketOverview';
 import { StockAnalyzerPage } from './components/analyzer/StockAnalyzerPage';
+import { GoldScanPage } from './components/gold-scan/GoldScanPage';
 import { DebugAdminPage } from './components/admin/DebugAdminPage';
 import { Toaster } from './components/ui/sonner';
 import type { PageType } from './types/api';
@@ -41,9 +42,10 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 }
 
 const navigation: { id: PageType; name: string; icon: React.ElementType }[] = [
-  { id: 'market', name: '大盘全景', icon: LayoutDashboard },
-  { id: 'analyzer', name: '个股复盘', icon: TrendingUp },
-  { id: 'admin', name: '调试控制台', icon: Settings },
+  { id: 'market',    name: '大盘全景', icon: LayoutDashboard },
+  { id: 'analyzer',  name: '个股复盘', icon: TrendingUp },
+  { id: 'gold-scan', name: '金柱选股', icon: Zap },
+  { id: 'admin',     name: '调试控制台', icon: Settings },
 ];
 
 function AppShell() {
@@ -98,9 +100,10 @@ function AppShell() {
       </header>
 
       <main className="relative z-10 mx-auto max-w-[1600px] px-6 py-6">
-        {currentPage === 'market' && <MarketOverview />}
-        {currentPage === 'analyzer' && <StockAnalyzerPage />}
-        {currentPage === 'admin' && <DebugAdminPage />}
+        {currentPage === 'market'    && <MarketOverview />}
+        {currentPage === 'analyzer'  && <StockAnalyzerPage />}
+        {currentPage === 'gold-scan' && <GoldScanPage />}
+        {currentPage === 'admin'     && <DebugAdminPage />}
       </main>
 
       <footer className="relative z-10 mt-8 border-t border-border bg-background/90">

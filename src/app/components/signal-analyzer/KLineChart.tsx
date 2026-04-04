@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type KLinePoint, type SignalMarker, priceViewOptions } from './types';
 import { VMFPanel } from './VMFPanel';
 
@@ -20,6 +20,7 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
   const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [vmfSignals, setVmfSignals] = useState<Map<string, 'breakout' | 'stagnation' | 'divergence'>>(new Map());
+  const [goldSignals, setGoldSignals] = useState<Map<string, number>>(new Map()); // 金柱信号：date -> divergenceScore
 
   // 计算可见窗口大小
   const baseWindowSize = priceView === 'all' ? klineData.length : Math.min(Number(priceView), klineData.length);
@@ -84,6 +85,13 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
 
   const hoveredPriceChange = hoveredPoint ? hoveredPoint.close - hoveredPoint.open : 0;
   const hoveredPriceChangePct = hoveredPoint?.open ? (hoveredPriceChange / hoveredPoint.open) * 100 : 0;
+
+  // Debug logging for gold signals
+  if (goldSignals.size > 0) {
+    console.log('[KLineChart] Rendering with gold signals:', goldSignals.size, 'Keys:', Array.from(goldSignals.keys()));
+    console.log('[KLineChart] Visible range:', visibleKlineData[0]?.date, 'to', visibleKlineData[visibleKlineData.length - 1]?.date);
+    console.log('[KLineChart] Full K-line range:', klineData[0]?.date, 'to', klineData[klineData.length - 1]?.date);
+  }
 
 
   return (
@@ -258,6 +266,17 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
                 {vmfSig === 'divergence' && (
                   <text x={xCenter} y={Math.min(lowY + 18, chartHeight - chartPadding.bottom - 4)} textAnchor="middle" fill="#ff8c00" fontSize="13" fontFamily="system-ui">⚡</text>
                 )}
+                
+                {/* NMF 金柱信号：价跌量增（DS >= 0.81）*/}
+                {goldSignals.has(item.date) && (() => {
+                  const sy = Math.min(lowY + 3, chartHeight - chartPadding.bottom - 16);
+                  return (
+                    <g>
+                      <polygon points={`${xCenter},${sy} ${xCenter - 7},${sy + 14} ${xCenter + 7},${sy + 14}`} fill="#ffd60a" stroke="#b88900" strokeWidth={1.5} />
+                      <text x={xCenter} y={sy + 12} textAnchor="middle" fill="#08121c" fontSize="9" fontFamily="JetBrains Mono" fontWeight="700">金</text>
+                    </g>
+                  );
+                })()}
 
                 <rect x={chartPadding.left + candleSlotWidth * i} y={chartPadding.top} width={Math.max(candleSlotWidth, 8)} height={drawableHeight} fill="transparent"
                   onMouseEnter={() => setHoveredCandleIndex(i)} onMouseMove={() => setHoveredCandleIndex(i)}
@@ -312,6 +331,7 @@ export function KLineChart({ klineData, signalMarkers, stockCode, stockName, onC
         stockCode={stockCode}
         chartHeight={160}
         onSignals={setVmfSignals}
+        onGoldSignals={setGoldSignals}
       />
     </div>
   );

@@ -111,7 +111,7 @@ export function isApiErrorResponse(val: unknown): val is ApiErrorResponse {
 }
 
 // 页面类型
-export type PageType = 'market' | 'analyzer' | 'admin';
+export type PageType = 'market' | 'analyzer' | 'gold-scan' | 'admin';
 
 // Debug 日志条目
 export interface DebugLog {

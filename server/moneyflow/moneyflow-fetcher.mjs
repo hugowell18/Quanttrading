@@ -66,6 +66,22 @@ function writeCache(tsCode, rows) {
   writeFileSync(csvPath(tsCode), [CSV_HEADER, ...body].join('\n') + '\n', 'utf8');
 }
 
+// ─── 全局串行限速队列 ────────────────────────────────────────────────────────
+// 300次/分钟上限，保守取 250次/分钟 = 每 240ms 放行一个
+// 关键：所有 fetch 请求串行排队，绝对不会并发打出去
+const RATE_MS = 240;
+let _fetchQueue = Promise.resolve();
+
+function enqueueRequest(fn) {
+  // 把新请求挂到队列末尾，上一个完成后等 RATE_MS 再执行
+  const result = _fetchQueue.then(() => fn());
+  // 队列推进：无论成功失败都等 RATE_MS 后才放行下一个
+  _fetchQueue = result
+    .catch(() => {})
+    .then(() => new Promise(r => setTimeout(r, RATE_MS)));
+  return result;
+}
+
 // ─── Tushare fetch ───────────────────────────────────────────────────────────
 
 async function fetchTushare(tsCode, startDate, endDate) {
@@ -137,7 +153,7 @@ export async function ensureMoneyflow(tsCode, endDate = '') {
   log.info(`${tsCode} fetching moneyflow`, { from: startDate, to: end });
 
   try {
-    const fresh = await fetchTushare(tsCode, startDate, end);
+    const fresh = await enqueueRequest(() => fetchTushare(tsCode, startDate, end));
     const merged = [...cached, ...fresh.filter(r => r.trade_date > lastDate)]
       .sort((a, b) => a.trade_date.localeCompare(b.trade_date));
     writeCache(tsCode, merged);

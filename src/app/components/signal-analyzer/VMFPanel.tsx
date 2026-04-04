@@ -51,6 +51,8 @@ interface VMFPanelProps {
   chartHeight?: number;
   /** 信号回调：将 breakout/stagnation/divergence 信号提升到父组件（KLineChart）渲染 */
   onSignals?: (signals: Map<string, 'breakout' | 'stagnation' | 'divergence'>) => void;
+  /** 金柱信号回调：将 divergenceScore >= 0.81 的日期传递给父组件 */
+  onGoldSignals?: (signals: Map<string, number>) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -300,7 +302,7 @@ function VMFHelpModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeight = 160, onSignals }: VMFPanelProps) {
+export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeight = 160, onSignals, onGoldSignals }: VMFPanelProps) {
   const [divData, setDivData] = useState<Map<string, DivergencePoint>>(new Map());
   const [loading, setLoading] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -378,6 +380,21 @@ export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeig
     });
     onSignals(map);
   }, [fullOhlcvSignals, divData, onSignals]);
+
+  // ── 将金柱信号（DS >= 0.81）提升到 KLineChart 渲染 ──────────────────
+  useEffect(() => {
+    if (!onGoldSignals) return;
+    const goldMap = new Map<string, number>();
+    divData.forEach((dp, date) => {
+      if (dp.divergence_score >= 0.81) {
+        console.log('[VMFPanel] Gold signal found:', { date, score: dp.divergence_score, rawDate: dp.date });
+        goldMap.set(date, dp.divergence_score);
+      }
+    });
+    console.log('[VMFPanel] Total gold signals:', goldMap.size, 'Keys:', Array.from(goldMap.keys()));
+    console.log('[VMFPanel] All divData dates sample:', Array.from(divData.keys()).slice(0, 10));
+    onGoldSignals(goldMap);
+  }, [divData, onGoldSignals]);
 
   // ── SVG 尺寸 ─────────────────────────────────────────────────────────
   const drawW = SVG_W - PAD.left - PAD.right;
