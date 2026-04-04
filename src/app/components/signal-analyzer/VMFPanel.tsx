@@ -216,7 +216,12 @@ function VMFHelpModal({ onClose }: { onClose: () => void }) {
             <p><span className="text-[rgba(255,140,0,0.9)]">—</span> <span className="text-foreground/70">MA20 均量线</span> — 20日成交量均线，判断放量/缩量的参考基准</p>
             <p><span className="text-[#00d4ff]">～</span> <span className="text-foreground/70">NMF 曲线</span> — 修正后的资金流向，围绕零轴上下波动：
               零轴以上 = 资金净流入，零轴以下 = 资金净流出</p>
-            <p><span className="text-[#ff8c00]">█</span> <span className="text-foreground/70">背离突刺</span> — 来自 Tushare 真实大单数据，柱越高代表背离强度越大</p>
+            <p>
+              <span className="text-[#ff8c00]">█</span>{' '}
+              <span className="text-foreground/70">底背离突刺柱</span>{' '}
+              — <span className="text-[#ff8c00] font-semibold">看涨信号</span>：价格大跌时机构大单反向净买入，
+              柱越高说明"价跌量增（机构进场）"的背离强度越大，预示潜在底部
+            </p>
           </div>
         </section>
 
@@ -243,8 +248,11 @@ function VMFHelpModal({ onClose }: { onClose: () => void }) {
                 <span className="font-mono text-[9px] font-bold text-[#00d4ff]">突</span>
               </div>
               <div className="font-mono text-[10px] text-muted-foreground">
-                <span className="text-[#00d4ff]">放量突破</span> — 价格创近10日新高，且当日成交量 &gt; MA20 × 1.5<br />
-                <span className="text-[9px] text-muted-foreground/60">主力拉升信号，可关注追涨或持仓加码时机</span>
+                <span className="text-[#00d4ff]">盘整底部放量突破</span> — 同时满足：<br />
+                &nbsp;① 价格创近20日新高<br />
+                &nbsp;② 成交量 &gt; MA20 × 2.0（强力放量）<br />
+                &nbsp;③ 突破前10日价格振幅 &lt; 8%（箱体整理过，非趋势顶部延续）<br />
+                <span className="text-[9px] text-muted-foreground/60">主力拉升启动信号，可关注追涨或持仓加码时机</span>
               </div>
             </div>
             {/* 滞 */}
@@ -263,9 +271,15 @@ function VMFHelpModal({ onClose }: { onClose: () => void }) {
                 <span className="text-[11px]">⚡</span>
               </div>
               <div className="font-mono text-[10px] text-muted-foreground">
-                <span className="text-[#ff8c00]">机构背离抄底</span> — 价格跌幅处于60日前10%，同时机构大单净流入处于60日前10%<br />
+                <span className="text-[#ff8c00] font-semibold">底背离极值 — 看涨 · 潜在黄金坑</span><br />
+                触发条件（同时满足）：<br />
+                &nbsp;① 今日跌幅 在过去60日中排名前10%（跌得很惨）<br />
+                &nbsp;② 机构大单净买入 在过去60日中排名前10%（主力在抄底）<br />
                 背离得分 DS = 价跌分位 × 流入分位 &gt; 0.81<br />
-                <span className="text-[9px] text-muted-foreground/60">数据来源：Tushare 超大单+大单（≥20万元）真实成交流向</span>
+                <span className="text-[9px] text-muted-foreground/60">
+                  ⚠️ 这是底背离，不是顶背离。价格越跌、机构买得越猛 → 信号越强 →
+                  历史上常对应短期底部反转机会。数据来源：Tushare 超大单+大单（≥20万元）
+                </span>
               </div>
             </div>
           </div>
@@ -278,7 +292,7 @@ function VMFHelpModal({ onClose }: { onClose: () => void }) {
             <li>⚡ 信号出现后，配合筹码峰查看主力成本区，判断是否形成「黄金坑」</li>
             <li>突 + NMF 上穿零轴 = 双重确认，入场胜率更高</li>
             <li>滞 + NMF 持续负值 = 主力撤离前兆，优先减仓</li>
-            <li>背离突刺柱高度 &gt; 0.9 为极端信号，历史上常对应短期底部</li>
+            <li>底背离突刺柱 DS &gt; 0.9 为极端信号（价格极跌+机构极买），历史上常对应短期底部反转</li>
           </ul>
         </section>
       </div>
@@ -471,9 +485,9 @@ export function VMFPanel({ visibleKlineData, fullKlineData, stockCode, chartHeig
             <span className="inline-block h-2 w-4 rounded-sm" style={{ background: COLOR_MA20 }} />
             MA20
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1" title="底背离：价跌但机构大单逆势净买入，看涨信号">
             <span className="inline-block h-2 w-4 rounded-sm" style={{ background: COLOR_DIV }} />
-            背离
+            底背离↑
           </span>
         </div>
       </div>
