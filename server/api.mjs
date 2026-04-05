@@ -358,6 +358,59 @@ app.get('/api/admin/kline/list', (_req, res) => {
   }
 });
 
+// ─── 1.6b POST /api/admin/kline/sync-all — 增量更新全部 kline（SSE）────────
+
+app.get('/api/admin/kline/sync-all', async (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  const write = (event, data) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    if (typeof res.flush === 'function') res.flush();
+  };
+
+  if (!existsSync(KLINE_DIR)) {
+    write('done', { total: 0, updated: 0, failed: 0 });
+    return res.end();
+  }
+
+  const files = readdirSync(KLINE_DIR).filter(f => /^\d{6}\.(SH|SZ)\.csv$/.test(f));
+  const total = files.length;
+  let updated = 0, failed = 0, done = 0;
+  const failedCodes = [];
+
+  write('start', { total });
+
+  // 心跳：每30秒发一次 comment，防止代理/浏览器断开长连接
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+    if (typeof res.flush === 'function') res.flush();
+  }, 30000);
+
+  for (const file of files) {
+    const tsCode = file.replace('.csv', '');
+    try {
+      const r = await ensureSymbolCsv(tsCode, 'stock');
+      if ((r.appended ?? 0) > 0) updated++;
+    } catch (e) {
+      failed++;
+      failedCodes.push({ tsCode, error: e.message });
+      logSyncBatch.warn(`${tsCode} sync failed`, { error: e.message });
+    }
+    done++;
+    // 每只都推进度，让进度条实时滚动
+    if (done % 10 === 0 || done === total) {
+      write('progress', { done, total, updated, failed });
+    }
+  }
+
+  clearInterval(heartbeat);
+  write('done', { total, updated, failed, failedSample: failedCodes.slice(0, 5) });
+  res.end();
+});
+
 // ─── 1.7 GET /api/admin/kline/:code ─────────────────────────────────────────
 
 app.get('/api/admin/kline/:code', (req, res) => {

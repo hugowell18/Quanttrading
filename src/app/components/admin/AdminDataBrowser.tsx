@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
@@ -21,6 +21,12 @@ function KlineBrowser() {
   const [selected, setSelected] = useState<string>('');
   const [rows, setRows] = useState<IndexKLinePoint[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // ── 全量同步状态 ──
+  const [syncing, setSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<{ done: number; total: number; updated: number; failed: number } | null>(null);
+  const [syncDone, setSyncDone] = useState(false);
+  const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/admin/kline/list')
@@ -45,8 +51,100 @@ function KlineBrowser() {
       .finally(() => setLoading(false));
   };
 
+  const startSyncAll = () => {
+    esRef.current?.close();
+    setSyncing(true);
+    setSyncDone(false);
+    setSyncProgress({ done: 0, total: 0, updated: 0, failed: 0 });
+
+    const es = new EventSource('http://localhost:3001/api/admin/kline/sync-all');
+    esRef.current = es;
+
+    es.addEventListener('start', (e) => {
+      const d = JSON.parse(e.data);
+      setSyncProgress({ done: 0, total: d.total, updated: 0, failed: 0 });
+    });
+    es.addEventListener('progress', (e) => {
+      setSyncProgress(JSON.parse(e.data));
+    });
+    es.addEventListener('done', (e) => {
+      const d = JSON.parse(e.data);
+      setSyncProgress(d);
+      if (d.failedSample?.length) {
+        console.error('[sync-all] failed sample:', d.failedSample);
+      }
+      setSyncing(false);
+      setSyncDone(true);
+      es.close();
+      esRef.current = null;
+    });
+    es.onerror = () => {
+      setSyncing(false);
+      es.close();
+      esRef.current = null;
+    };
+  };
+
+  const stopSync = () => {
+    esRef.current?.close();
+    esRef.current = null;
+    setSyncing(false);
+  };
+
+  const pct = syncProgress && syncProgress.total > 0
+    ? Math.round((syncProgress.done / syncProgress.total) * 100) : 0;
+
   return (
     <div className="space-y-4">
+      {/* ── 全量同步区域 ── */}
+      <div className="rounded-lg border border-border/50 bg-secondary/20 p-3 space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[11px] text-muted-foreground">全量增量更新</span>
+            {syncDone && !syncing && syncProgress && (
+              <span className="font-mono text-[10px] text-[#00ff88]">
+                完成 · 新增 {syncProgress.updated} 只 · 失败 {syncProgress.failed} 只
+              </span>
+            )}
+          </div>
+          {!syncing ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={startSyncAll}
+              className="h-7 font-mono text-[11px] border-primary/30 text-primary hover:bg-primary/10"
+            >
+              ↻ 一键同步全部 K线
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={stopSync}
+              className="h-7 font-mono text-[11px] border-destructive/40 text-destructive hover:bg-destructive/10"
+            >
+              停止
+            </Button>
+          )}
+        </div>
+
+        {(syncing || (syncDone && syncProgress)) && syncProgress && (
+          <div className="space-y-1">
+            <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+              <span>{syncing ? '同步中…' : '已完成'} {syncProgress.done} / {syncProgress.total}</span>
+              <span className="text-[#ffd60a]">新增数据 {syncProgress.updated} 只</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── 文件选择 + 预览 ── */}
       <div className="flex items-center gap-3">
         <span className="font-mono text-[11px] text-muted-foreground shrink-0">选择文件</span>
         <Select value={selected} onValueChange={handleSelect}>

@@ -16,6 +16,21 @@ const DEFAULT_SYMBOLS = [
 ];
 const CSV_HEADERS = ['trade_date', 'open', 'high', 'low', 'close', 'close_adj', 'volume', 'amount', 'turnover_rate'];
 
+// ─── 全局串行限速队列 ────────────────────────────────────────────────────────
+// 500次/分钟上限，保守取 420次/分钟 = 每 143ms 放行一个请求
+// fetchStockKlineQfq 每只调用 2 个接口，实际每只消耗 2 个令牌
+// 串行队列保证全局不超速，无论外层并发多少
+const RATE_MS = 143;
+let _csvFetchQueue = Promise.resolve();
+
+function enqueueRequest(fn) {
+  const result = _csvFetchQueue.then(() => fn());
+  _csvFetchQueue = result
+    .catch(() => {})
+    .then(() => new Promise(r => setTimeout(r, RATE_MS)));
+  return result;
+}
+
 const readEnvLocalToken = () => {
   if (!existsSync(ENV_LOCAL_PATH)) {
     return '';
@@ -229,6 +244,10 @@ const appendCsvRows = (tsCode, rows) => {
 };
 
 const fetchTushare = async (token, apiName, params, fields = '') => {
+  return enqueueRequest(() => _doFetchTushare(token, apiName, params, fields));
+};
+
+const _doFetchTushare = async (token, apiName, params, fields = '') => {
   const response = await fetch(TUSHARE_API, {
     method: 'POST',
     headers: {

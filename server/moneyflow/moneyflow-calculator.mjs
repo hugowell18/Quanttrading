@@ -15,12 +15,34 @@ const WINDOW = 60;
 const DS_THRESHOLD = 0.81; // 0.9 × 0.9
 
 /**
- * 分位数排名（0~1），value在arr中处于第几百分位
+ * 分位数排名（0~1），使用插值法得到连续值，避免极值永远是 (n-1)/n
+ * 例：60个样本中排名第1的极值 → 1.0，而非 59/60
  */
 function percentileRank(arr, value) {
   if (arr.length === 0) return 0;
-  const below = arr.filter(v => v < value).length;
-  return below / arr.length;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const n = sorted.length;
+  // 找到 value 在排序数组中的位置（插值）
+  let lo = 0, hi = n - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (sorted[mid] < value) lo = mid + 1;
+    else hi = mid;
+  }
+  // lo 是第一个 >= value 的位置
+  if (sorted[lo] === value) {
+    // 找到相等值的范围，取中间位置
+    let left = lo, right = lo;
+    while (left > 0 && sorted[left - 1] === value) left--;
+    while (right < n - 1 && sorted[right + 1] === value) right++;
+    return (left + right) / 2 / (n - 1);
+  }
+  // value 大于所有元素
+  if (lo === 0 && sorted[0] > value) return 0;
+  // 线性插值
+  const lv = sorted[lo - 1], hv = sorted[lo];
+  const frac = (value - lv) / (hv - lv);
+  return (lo - 1 + frac) / (n - 1);
 }
 
 /**
